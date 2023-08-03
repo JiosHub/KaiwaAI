@@ -1,4 +1,4 @@
-# kaiwaai
+# KaiwaAI
 
 A new Flutter project.
 
