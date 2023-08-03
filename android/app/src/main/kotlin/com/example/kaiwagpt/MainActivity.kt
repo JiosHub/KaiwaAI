@@ -1,4 +1,4 @@
-package com.example.kaiwagpt
+package com.example.kaiwaai
 
 import io.flutter.embedding.android.FlutterActivity
 
