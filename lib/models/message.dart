@@ -1,7 +1,6 @@
 class Message {
-  final String sender;
   final String content;
-  final DateTime timestamp;
+  final int chatIndex;
 
-  Message({required this.sender, required this.content, required this.timestamp});
+  Message({required this.content, required this.chatIndex});
 }

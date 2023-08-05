@@ -13,6 +13,8 @@ dependencies:
     sdk: flutter
   http: ^0.13.3
   cupertino_icons: ^1.0.2
+  dart_openai: ^1.9.7
+  flutter_chat_ui: ^1.6.6
 
 dev_dependencies:
   flutter_test:
