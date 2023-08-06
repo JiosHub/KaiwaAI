@@ -1,0 +1,75 @@
+class ApiService {
+  static Future<String> sendMessage({required List<Message> previousMessages, required String newMessage}) async {
+    try {
+      var response = await http.post(
+        Uri.parse("$BASE_URL/chat/completions"),
+        headers: {'Authorization': 'Bearer $API_KEY', "Content-Type": "application/json"},
+        body: jsonEncode({
+          "model": "gpt-3.5-turbo",
+          "messages": previousMessages.map((message) => {
+            "role": (message.chatIndex % 2 == 0) ? "user" : "assistant",  // Assuming even indices are user messages
+            "content": message.content
+          }).toList()..add({
+            "role": "user",
+            "content": newMessage
+          }),
+          "max_tokens": 200
+        })
+      );
+
+      // ...
+
+      if (jsonResponse["choices"].length > 0) {
+        String fullResponse = jsonResponse["choices"][0]["message"]["content"];
+
+        // Split the full response by the opening bracket "("
+        List<String> responseParts = fullResponse.split("(");
+
+        // The Japanese part of the message should be the first element of the list
+        String japanesePart = responseParts[0].trim();  // Use trim to remove any leading or trailing whitespace
+
+        return japanesePart;
+      }
+
+      return '';
+
+    } catch (error) {
+      log("error $error");
+      rethrow;
+    }
+  }
+}
+
+onPressed: () async {
+    // ...
+    setState(() {
+      messages.add(Message(content: userMessage, chatIndex: messages.length));
+      apiMessages.add(Message(content: userMessage, chatIndex: apiMessages.length));
+    });
+    // ...
+    final chatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
+    setState(() {
+      messages.add(Message(content: chatbotReply, chatIndex: messages.length));
+      apiMessages.add(Message(content: chatbotReply, chatIndex: apiMessages.length));
+    });
+    // ...
+  }
+
+  
+
+
+
+  http.Response response = await http.post(
+    apiURL,
+    headers: {
+      "Authorization": "Bearer $openaiApiKey",
+      "Content-Type": "application/json"
+    },
+    body: jsonEncode(payload),
+  );
+
+  // Decode the response body as UTF-8
+  String decodedResponse = utf8.decode(response.bodyBytes);
+
+  // Parse the decoded response as JSON
+  Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);

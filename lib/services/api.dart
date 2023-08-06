@@ -4,22 +4,33 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:kaiwaai/constants/api_consts.dart';
 import 'package:kaiwaai/models/message.dart';
+import 'dart:convert' show utf8;
 
 class ApiService{
-  static Future<String> sendMessage({required String message})async {
+  static Future<String> sendMessage({required List<Message> previousMessages, required String newMessage})async {
     try{
       var response = await http.post(
         Uri.parse("$BASE_URL/chat/completions"),
         headers: {'Authorization': 'Bearer $API_KEY', 
-        "Content-Type": "application/json"},
+        "Content-Type": "application/json; charset=UTF-8"},
         body: jsonEncode({
           "model": "gpt-3.5-turbo",
-          "messages": [{"role": "user", "content": message}],
+          "messages": previousMessages.map((message) => {
+            "role": (message.chatIndex % 2 == 0) ? "user" : "assistant",  // Assuming even indices are user messages
+            "content": message.content
+          }).toList()..add({
+          "role": "user", "content": newMessage
+          }),
           "max_tokens": 200
-          })
-        );
+        }));
 
-      Map jsonResponse = jsonDecode(response.body);
+      // Decode the response body as UTF-8
+      String decodedResponse = utf8.decode(response.bodyBytes);
+      
+      // Parse the decoded response as JSON
+      Map jsonResponse = jsonDecode(decodedResponse);
+
+      //Map jsonResponse = jsonDecode(response.body);
       //log("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
 
       if(jsonResponse['error'] != null){
@@ -28,10 +39,16 @@ class ApiService{
       }
       log("jsonResponse[\"choices\"]: ${jsonResponse["choices"]}");  // <-- Log the "choices" part of the response
       
-      if(jsonResponse["choices"].length > 0){
-        //log("jsonResponse[\"choices\"][0]: ${jsonResponse["choices"][0]}");  // <-- Log the first element of "choices"
-        //log("jsonResponse[\"choices\"][0][\"text\"]: ${jsonResponse["choices"][0]["text"]}");  // <-- Log the "text" of the first element of "choices"
-        return jsonResponse["choices"][0]["message"]["content"];
+      if (jsonResponse["choices"].length > 0) {
+        String fullResponse = jsonResponse["choices"][0]["message"]["content"];
+
+        // Split the full response by the opening bracket "("
+        List<String> responseParts = fullResponse.split("(");
+
+        // The Japanese part of the message should be the first element of the list
+        String japanesePart = responseParts[0].trim();  // Use trim to remove any leading or trailing whitespace
+
+        return japanesePart;
       }
 
       return '';
