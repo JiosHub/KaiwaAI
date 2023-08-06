@@ -30,11 +30,9 @@ class _MessengerPageState extends State<MessengerPage> {
             child: ListView.builder(
               itemCount: messages.length,
               itemBuilder: (context, index) {
-                return MessageWidget(
-                  
-                  message: messages[index],
-                  //isCurrentUser: isCurrentUser,
-                );
+                // Check if the index is even or odd to distinguish between user messages and AI responses
+                bool isUserMessage = index % 2 == 0;
+                return MessageWidget(message: messages[index], isUserMessage: isUserMessage);
               },
             ),
           ),
@@ -57,7 +55,24 @@ class _MessengerPageState extends State<MessengerPage> {
                 IconButton(
                   icon: Icon(Icons.send),
                   onPressed: () async{
-                    try {
+                    if (messageController.text.isNotEmpty) {
+                      final userMessage = messageController.text;
+                      setState(() {
+                        messages.add(Message(content: userMessage, chatIndex: messages.length));
+                      });
+                      messageController.clear();
+
+                      try {
+                        final chatbotReply = await ApiService.sendMessage(message: userMessage);
+                        // Note: Ensure that chatbotReply is the actual reply you want to display
+                        setState(() {
+                          messages.add(Message(content: chatbotReply, chatIndex: messages.length));
+                        });
+                      } catch (e) {
+                        print("Error fetching chatbot reply: $e");
+                      }
+                    }
+                    /*try {
                       setState(() {
                         _isTyping = true;
                       });
@@ -68,7 +83,7 @@ class _MessengerPageState extends State<MessengerPage> {
                       setState(() {
                         _isTyping = false;
                       });
-                    }
+                    }*/
                   },
                 ),
               ],
