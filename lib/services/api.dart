@@ -8,6 +8,7 @@ import 'dart:convert' show utf8;
 
 class ApiService{
   static Future<String> sendMessage({required List<Message> previousMessages, required String newMessage})async {
+    log("Previous messages: ${previousMessages.map((m) => m.content).join(', ')}");
     try{
       var response = await http.post(
         Uri.parse("$BASE_URL/chat/completions"),
@@ -23,7 +24,7 @@ class ApiService{
           }),
           "max_tokens": 200
         }));
-
+    
       // Decode the response body as UTF-8
       String decodedResponse = utf8.decode(response.bodyBytes);
       
@@ -31,7 +32,7 @@ class ApiService{
       Map jsonResponse = jsonDecode(decodedResponse);
 
       //Map jsonResponse = jsonDecode(response.body);
-      //log("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
+      log("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
 
       if(jsonResponse['error'] != null){
         //print("jsonResponse['error']['message'] ${jsonResponse['error']['message']}");
@@ -41,14 +42,14 @@ class ApiService{
       
       if (jsonResponse["choices"].length > 0) {
         String fullResponse = jsonResponse["choices"][0]["message"]["content"];
-
+        return fullResponse;
         // Split the full response by the opening bracket "("
-        List<String> responseParts = fullResponse.split("(");
+        //List<String> responseParts = fullResponse.split("Feedback:");
 
         // The Japanese part of the message should be the first element of the list
-        String japanesePart = responseParts[0].trim();  // Use trim to remove any leading or trailing whitespace
+        //String japanesePart = responseParts[0].trim();  // Use trim to remove any leading or trailing whitespace
 
-        return japanesePart;
+        //return japanesePart;
       }
 
       return '';

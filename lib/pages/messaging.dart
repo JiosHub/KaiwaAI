@@ -26,7 +26,7 @@ class _MessengerPageState extends State<MessengerPage> {
     super.initState();
     // Add an initial system message
     apiMessages.add(Message(
-      content: "using the topic \"you are a shop clerk and I am at the counter\", converse with me in Japanese. Ask leading questions for each response to continue the conversation, inventing any necessary details such as items or people involved, Do not translate this japanese sentence to English Japanese to English. Whenever I respond, analyze my previously sent message, giving a blunt explanation in English on how the Japanese grammar could be improved, show this with \"Feedback:\" leave this section blank if grammar is fine and do not praise me.  your response should be 200 tokens or less.",
+      content: "using the topic \"you are a shop clerk and I am at the counter\", converse with me in Japanese. Ask leading questions for each response to continue the conversation, inventing any necessary details such as items or people involved, Do not translate this japanese sentence to English Japanese to English. Whenever I respond, analyze my previously sent message (my messages are marked with \"user:\", yours with \"gpt:\"), giving a blunt explanation in English on how the Japanese grammar could be improved, show this with \"Feedback:\" leave this section blank if grammar is fine.  your response should be 200 tokens or less.",
       chatIndex: 0,
     ));
   }
@@ -70,16 +70,22 @@ class _MessengerPageState extends State<MessengerPage> {
                       final userMessage = messageController.text;
                       setState(() {
                         messages.add(Message(content: userMessage, chatIndex: messages.length));
-                        apiMessages.add(Message(content: userMessage, chatIndex: apiMessages.length));
+                        apiMessages.add(Message(content: "user: " + userMessage, chatIndex: apiMessages.length));
                       });
                       messageController.clear();
 
                       try {
-                        final chatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
-                        // Note: Ensure that chatbotReply is the actual reply you want to display
+                        final fullChatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
+                          // Split the full response at "Feedback:"
+                          List<String> responseParts = fullChatbotReply.split("Feedback:");
+                          String japanesePartWithTranslation = responseParts[0].trim();
+
+                          // Split the Japanese part at "(" to separate the main message and the optional translation
+                          List<String> japaneseParts = japanesePartWithTranslation.split("(");
+                          String japanesePart = japaneseParts[0].trim();
                         setState(() {
-                          messages.add(Message(content: chatbotReply, chatIndex: messages.length));
-                          apiMessages.add(Message(content: chatbotReply, chatIndex: apiMessages.length));
+                          messages.add(Message(content: fullChatbotReply, chatIndex: messages.length));
+                          apiMessages.add(Message(content:  japanesePart, chatIndex: apiMessages.length));
                         });
                       } catch (e) {
                         print("Error fetching chatbot reply: $e");

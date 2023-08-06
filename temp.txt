@@ -73,3 +73,38 @@ onPressed: () async {
 
   // Parse the decoded response as JSON
   Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+
+  if(jsonResponse['error'] != null){
+        throw HttpException(jsonResponse['error']['message']);
+      }
+      log("jsonResponse[\"choices\"]: ${jsonResponse["choices"]}");  
+
+      if (jsonResponse["choices"].length > 0) {
+        String fullResponse = jsonResponse["choices"][0]["message"]["content"];
+
+        // Split the full response by the "Feedback:" string
+        List<String> responseParts = fullResponse.split("Feedback:");
+
+        // The Japanese part of the message should be the first element of the list
+        String japanesePart = responseParts[0].trim(); 
+
+        return japanesePart;
+      }
+
+      return '';
+
+    }catch(error){
+      log("error $error");
+      rethrow;
+    }
+
+
+    final fullChatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
+List<String> responseParts = fullChatbotReply.split("Feedback:");
+String japanesePart = responseParts[0].trim();
+
+setState(() {
+  messages.add(Message(content: fullChatbotReply, chatIndex: messages.length));  // display the full response to the user
+  apiMessages.add(Message(content: "gpt: " + japanesePart, chatIndex: apiMessages.length));  // send only the Japanese part to the API
+});
