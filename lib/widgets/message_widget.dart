@@ -1,24 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:kaiwaai/models/message.dart';
 
-class MessageWidget extends StatelessWidget {
-  final Message message;
-  final bool isUserMessage;
+class MessageWidget extends StatefulWidget {
+  final String content;
+  final String feedback;
+  final int chatIndex;
 
-  MessageWidget({required this.message, required this.isUserMessage});
+  MessageWidget({required this.content, required this.feedback, required this.chatIndex});
+
+  @override
+  _MessageWidgetState createState() => _MessageWidgetState();
+}
+
+class _MessageWidgetState extends State<MessageWidget> {
+  bool showFeedback = false;
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,  // All messages are aligned to the left
-      child: Container(
-        padding: EdgeInsets.all(10),
-        margin: EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          color: isUserMessage ? Colors.blue[200] : Colors.grey[200],
-          borderRadius: BorderRadius.circular(15),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: Align(
+        alignment: widget.chatIndex % 2 == 0 ? Alignment.centerLeft : Alignment.centerRight,
+        child: GestureDetector(
+          onTap: () {
+            setState(() {
+              showFeedback = !showFeedback;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.all(15.0),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
+            ),
+            decoration: BoxDecoration(
+              color: widget.chatIndex % 2 == 0 ? Colors.blue[100] : Colors.green[100],
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(widget.content),
+                if (showFeedback) ...[
+                  SizedBox(height: 5),
+                  Text(widget.feedback, style: TextStyle(fontSize: 10, color: Colors.grey)),
+                ],
+              ],
+            ),
+          ),
         ),
-        child: Text(message.content),
       ),
     );
   }

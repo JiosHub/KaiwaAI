@@ -7,7 +7,7 @@ import 'package:kaiwaai/models/message.dart';
 import 'dart:convert' show utf8;
 
 class ApiService{
-  static Future<String> sendMessage({required List<Message> previousMessages, required String newMessage})async {
+  static Future<Message> sendMessage({required List<Message> previousMessages, required String newMessage})async {
     log("Previous messages: ${previousMessages.map((m) => m.content).join(', ')}");
     try{
       var response = await http.post(
@@ -42,7 +42,19 @@ class ApiService{
       
       if (jsonResponse["choices"].length > 0) {
         String fullResponse = jsonResponse["choices"][0]["message"]["content"];
-        return fullResponse;
+        // Split the full response at "Feedback:"
+        List<String> responseParts = fullResponse.split("Feedback:");
+        String japanesePartWithTranslation = responseParts[0].trim();
+
+        // Split the Japanese part at "(" to separate the main message and the optional translation
+        List<String> japaneseParts = japanesePartWithTranslation.split("(");
+        String japanesePart = japaneseParts[0].trim();
+
+        String feedback = responseParts.length > 1 ? responseParts[1].trim() : "";
+
+        return Message(content: japanesePart, feedback: feedback, chatIndex: previousMessages.length);
+
+        //return fullResponse;
         // Split the full response by the opening bracket "("
         //List<String> responseParts = fullResponse.split("Feedback:");
 
@@ -52,7 +64,11 @@ class ApiService{
         //return japanesePart;
       }
 
-      return '';
+      return Message(
+          content: "Sorry, I couldn't process that request.",
+          feedback: "",
+          chatIndex: previousMessages.length
+      );
 
     }catch(error){
       log("error $error");

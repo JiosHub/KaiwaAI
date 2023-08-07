@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:kaiwaai/models/message.dart';
 import 'package:kaiwaai/services/api.dart';
@@ -11,11 +13,7 @@ class MessengerPage extends StatefulWidget {
 }
 
 class _MessengerPageState extends State<MessengerPage> {
-  List<Message> messages = [
-    // Sample messages for demonstration
-    Message(content: 'Hello', chatIndex: 0),
-    Message(content: 'Hi!', chatIndex: 1),
-  ];
+  List<Message> messages = [];
   List<Message> apiMessages = [];  // List of messages to send to the API
   String currentUser = 'user1';
   bool _isTyping = false;
@@ -26,7 +24,7 @@ class _MessengerPageState extends State<MessengerPage> {
     super.initState();
     // Add an initial system message
     apiMessages.add(Message(
-      content: "using the topic \"you are a shop clerk and I am at the counter\", converse with me in Japanese. Ask leading questions for each response to continue the conversation, inventing any necessary details such as items or people involved, Do not translate this japanese sentence to English Japanese to English. Whenever I respond, analyze my previously sent message (my messages are marked with \"user:\", yours with \"gpt:\"), giving a blunt explanation in English on how the Japanese grammar could be improved, show this with \"Feedback:\" leave this section blank if grammar is fine.  your response should be 200 tokens or less.",
+      content: "using the topic \"you are a shop clerk and I am at the counter\", converse with me in Japanese. For each response give a short reply and ask leading questions, inventing any necessary details such as items or people involved, Do not translate this japanese sentence to English Japanese to English. Whenever I respond, analyze my previously sent message (my messages are marked with \"user:\", yours with \"gpt:\"), giving a blunt explanation in English on how the Japanese grammar could be improved, show this with \"Feedback:\" leave this section blank if grammar is fine.  your response should be 200 tokens or less.",
       chatIndex: 0,
     ));
   }
@@ -42,8 +40,12 @@ class _MessengerPageState extends State<MessengerPage> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 // Check if the index is even or odd to distinguish between user messages and AI responses
-                bool isUserMessage = index % 2 == 0;
-                return MessageWidget(message: messages[index], isUserMessage: isUserMessage);
+                //bool isUserMessage = index % 2 == 0;
+                return MessageWidget(
+                content: messages[index].content,
+                feedback: messages[index].feedback,
+                chatIndex: messages[index].chatIndex
+          );
               },
             ),
           ),
@@ -69,23 +71,28 @@ class _MessengerPageState extends State<MessengerPage> {
                     if (messageController.text.isNotEmpty) {
                       final userMessage = messageController.text;
                       setState(() {
+                        print("user message, content: ${userMessage}      index: ${messages.length}");
                         messages.add(Message(content: userMessage, chatIndex: messages.length));
+                        print("user message api, content: ${userMessage}      index: ${apiMessages.length}");
                         apiMessages.add(Message(content: "user: " + userMessage, chatIndex: apiMessages.length));
                       });
                       messageController.clear();
 
                       try {
-                        final fullChatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
+                        final chatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
                           // Split the full response at "Feedback:"
-                          List<String> responseParts = fullChatbotReply.split("Feedback:");
-                          String japanesePartWithTranslation = responseParts[0].trim();
+                          //List<String> responseParts = chatbotReply.split("Feedback:");
+                          //String japanesePartWithTranslation = responseParts[0].trim();
 
                           // Split the Japanese part at "(" to separate the main message and the optional translation
-                          List<String> japaneseParts = japanesePartWithTranslation.split("(");
-                          String japanesePart = japaneseParts[0].trim();
+                          //List<String> japaneseParts = japanesePartWithTranslation.split("(");
+                          //String japanesePart = japaneseParts[0].trim();
                         setState(() {
-                          messages.add(Message(content: fullChatbotReply, chatIndex: messages.length));
-                          apiMessages.add(Message(content:  japanesePart, chatIndex: apiMessages.length));
+                          //messages.add(Message(content: chatbotReply, chatIndex: messages.length));
+                          print("gpt message, ${chatbotReply.content}      index: ${chatbotReply.chatIndex}");
+                          messages.add(chatbotReply);
+                          print("gpt message, content: ${chatbotReply.content}      index: ${apiMessages.length}");
+                          apiMessages.add(Message(content: chatbotReply.content, chatIndex: apiMessages.length));
                         });
                       } catch (e) {
                         print("Error fetching chatbot reply: $e");
