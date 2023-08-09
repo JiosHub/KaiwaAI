@@ -25,7 +25,7 @@ class _MessengerPageState extends State<MessengerPage> {
     // Add an initial system message
     apiMessages.add(Message(
       content: "using the topic \"you are a shop clerk and I am at the counter\", converse with me in Japanese. For each response give a short reply and ask leading questions, inventing any necessary details such as items or people involved, Do not translate this japanese sentence to English Japanese to English. Whenever I respond, analyze my previously sent message (my messages are marked with \"user:\", yours with \"gpt:\"), giving a blunt explanation in English on how the Japanese grammar could be improved, show this with \"Feedback:\" leave this section blank if grammar is fine.  your response should be 200 tokens or less.",
-      chatIndex: 0,
+      isUser: false,
     ));
   }
 
@@ -39,13 +39,7 @@ class _MessengerPageState extends State<MessengerPage> {
             child: ListView.builder(
               itemCount: messages.length,
               itemBuilder: (context, index) {
-                // Check if the index is even or odd to distinguish between user messages and AI responses
-                //bool isUserMessage = index % 2 == 0;
-                return MessageWidget(
-                content: messages[index].content,
-                feedback: messages[index].feedback,
-                chatIndex: messages[index].chatIndex
-          );
+                return MessageWidget(message: messages[index]);
               },
             ),
           ),
@@ -67,7 +61,21 @@ class _MessengerPageState extends State<MessengerPage> {
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: () async{
+                  onPressed: () async {
+                    String userMessage = messageController.text.trim();
+                    if (userMessage.isNotEmpty) {
+                      setState(() {
+                        messages.add(Message(content: "user: " + userMessage, isUser: true));
+                      });
+
+                      final chatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
+
+                      setState(() {
+                        messages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: false));
+                      });
+                    }
+                  },
+                  /*onPressed: () async{
                     if (messageController.text.isNotEmpty) {
                       final userMessage = messageController.text;
                       setState(() {
@@ -110,7 +118,7 @@ class _MessengerPageState extends State<MessengerPage> {
                         _isTyping = false;
                       });
                     }*/
-                  },
+                  },*/
                 ),
               ],
             ),

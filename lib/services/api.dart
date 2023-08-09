@@ -17,7 +17,7 @@ class ApiService{
         body: jsonEncode({
           "model": "gpt-3.5-turbo",
           "messages": previousMessages.map((message) => {
-            "role": (message.chatIndex % 2 == 0) ? "user" : "assistant",  // Assuming even indices are user messages
+            "role": message.isUser ? "user" : "assistant", 
             "content": message.content
           }).toList()..add({
           "role": "user", "content": newMessage
@@ -52,7 +52,7 @@ class ApiService{
 
         String feedback = responseParts.length > 1 ? responseParts[1].trim() : "";
 
-        return Message(content: japanesePart, feedback: feedback, chatIndex: previousMessages.length);
+        return Message(content: japanesePart, feedback: feedback, isUser: false);
 
         //return fullResponse;
         // Split the full response by the opening bracket "("
@@ -67,7 +67,7 @@ class ApiService{
       return Message(
           content: "Sorry, I couldn't process that request.",
           feedback: "",
-          chatIndex: previousMessages.length
+          isUser: false
       );
 
     }catch(error){

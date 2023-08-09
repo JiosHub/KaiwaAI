@@ -1,7 +1,7 @@
 class Message {
   final String content;
   final String feedback;
-  final int chatIndex;
+  final bool isUser;
 
-  Message({required this.content, this.feedback = "", required this.chatIndex});
+  Message({required this.content, this.feedback = "", required this.isUser});
 }

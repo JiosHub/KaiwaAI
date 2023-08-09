@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:kaiwaai/models/message.dart';
 
 class MessageWidget extends StatefulWidget {
-  final String content;
-  final String feedback;
-  final int chatIndex;
+  final Message message;
 
-  MessageWidget({required this.content, required this.feedback, required this.chatIndex});
+  MessageWidget({required this.message});
 
   @override
   _MessageWidgetState createState() => _MessageWidgetState();
@@ -20,7 +18,7 @@ class _MessageWidgetState extends State<MessageWidget> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Align(
-        alignment: widget.chatIndex % 2 == 0 ? Alignment.centerLeft : Alignment.centerRight,
+        alignment: widget.message.isUser ? Alignment.centerRight : Alignment.centerLeft,
         child: GestureDetector(
           onTap: () {
             setState(() {
@@ -33,16 +31,16 @@ class _MessageWidgetState extends State<MessageWidget> {
               maxWidth: MediaQuery.of(context).size.width * 0.7,
             ),
             decoration: BoxDecoration(
-              color: widget.chatIndex % 2 == 0 ? Colors.blue[100] : Colors.green[100],
+              color: widget.message.isUser ? Colors.blue[100] : Colors.green[100],
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.content),
+                Text(widget.message.content),
                 if (showFeedback) ...[
                   SizedBox(height: 5),
-                  Text(widget.feedback, style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  Text(widget.message.feedback, style: TextStyle(fontSize: 10, color: Colors.grey)),
                 ],
               ],
             ),
