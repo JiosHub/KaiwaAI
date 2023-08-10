@@ -24,9 +24,18 @@ class _MessengerPageState extends State<MessengerPage> {
     super.initState();
     // Add an initial system message
     apiMessages.add(Message(
-      content: "using the topic \"you are a shop clerk and I am at the counter\", converse with me in Japanese where you should respond with 1 sentence, asking leading questions. Inventing any necessary details such as items or people involved, Do not translate this Japanese sentence to English. In each of your replies, analyze my previously sent message (marked with \"user:\"), giving a blunt explanation in English on how the Japanese grammar could be improved, show this with \"Feedback:\". leave this section blank if grammar is fine.  Your response should be 200 tokens or less.",
+      //content: "You are ALWAYS the shop clerk (gpt:). ONLY I will respond as the customer (user). Your messages must contain a Japanese sentence which must be short, and then in English give feedback on the users last replies' Japanese grammar, mark this with \"Feedback:\". Do not translate any Japanese to English and never switch roles.",
+      //content: "You are a shop clerk (gpt:). I am the customer (user:). Only I will speak as the user. Respond to me with Japanese sentence which must be short, and then in English give feedback on the users last replies' Japanese grammar, mark this with \"Feedback:\". Do not translate any Japanese to English.",
+      //content: "using the topic \"you (chatgpt) are a shop clerk and I (the user) am at the counter\", message me in Japanese where I wil reply in Japanese. The Japanese part of your responses should be 1 sentence long including a leading question. Invent any necessary details such as items or people involved and do not translate and Japanese to english. After I send a message back (I will mark my replies with \"user:\" by myself), explain in English how the user Japanese grammar I used could be improved (do not explain messages marked with \"gpt:\"), mark this with \"Feedback:\" after the Japanese part of your message.  Your response should be 200 tokens or less.",
       isUser: false,
     ));
+  
+    ApiService.fetchInitialReply(apiMessages[0].content).then((response){
+    setState(() {
+      messages.add(response);
+      apiMessages.add(Message(content: "gpt: " + response.content, isUser: false));
+    });
+  });
   }
 
   @override
@@ -65,13 +74,14 @@ class _MessengerPageState extends State<MessengerPage> {
                     String userMessage = messageController.text.trim();
                     if (userMessage.isNotEmpty) {
                       setState(() {
-                        messages.add(Message(content: "user: " + userMessage, isUser: true));
+                        messages.add(Message(content: userMessage, isUser: true));
+                        apiMessages.add(Message(content: "user: " + userMessage, isUser: true));
                       });
 
                       final chatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
-
                       setState(() {
                         messages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: false));
+                        apiMessages.add(Message(content: "gpt: " + chatbotReply.content, feedback: chatbotReply.feedback, isUser: false));
                       });
                     }
                   },
