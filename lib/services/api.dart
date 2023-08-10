@@ -21,8 +21,7 @@ class ApiService{
             "content": message.content
           }).toList()..add({
           "role": "user", "content": newMessage
-          }),
-          "max_tokens": 200
+          })
         }));
     
       // Decode the response body as UTF-8
@@ -93,4 +92,52 @@ class ApiService{
       print("error $error");
     }
   }*/
+
+  static Future<Message> fetchInitialReply(String content) async {
+  try{
+    var response = await http.post(
+      Uri.parse("$BASE_URL/chat/completions"),
+      headers: {'Authorization': 'Bearer $API_KEY', 
+      "Content-Type": "application/json; charset=UTF-8"},
+      body: jsonEncode({
+        "model": "gpt-3.5-turbo",
+        "messages": [{"role": "system", "content": content}]
+      }));
+    String decodedResponse = utf8.decode(response.bodyBytes);
+      
+    // Parse the decoded response as JSON
+    Map jsonResponse = jsonDecode(decodedResponse);
+
+    //Map jsonResponse = jsonDecode(response.body);
+    log("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
+
+    if(jsonResponse['error'] != null){
+      //print("jsonResponse['error']['message'] ${jsonResponse['error']['message']}");
+      throw HttpException(jsonResponse['error']['message']);
+    }
+
+    if (jsonResponse["choices"].length > 0) {
+        String fullResponse = jsonResponse["choices"][0]["message"]["content"];
+        List<String> responseParts = fullResponse.split("Feedback:");
+        String japanesePartWithTranslation = responseParts[0].trim();
+        List<String> japaneseParts = japanesePartWithTranslation.split("(");
+        String japanesePart = japaneseParts[0].trim();
+        String feedback = responseParts.length > 1 ? responseParts[1].trim() : "";
+
+        return Message(content: japanesePart, feedback: feedback, isUser: false);
+      }
+
+      return Message(
+          content: "Sorry, I couldn't process that request.",
+          feedback: "",
+          isUser: false
+      );
+
+  }catch(error){
+    log("error $error");
+    rethrow;
+  }
+  }
 }
+
+

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kaiwaai/models/message.dart';
 
 class MessageWidget extends StatefulWidget {
@@ -25,6 +26,12 @@ class _MessageWidgetState extends State<MessageWidget> {
               showFeedback = !showFeedback;
             });
           },
+          onLongPress: () {
+            Clipboard.setData(ClipboardData(text: widget.message.content));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Message copied to clipboard!')),
+            );
+          },
           child: Container(
             padding: const EdgeInsets.all(15.0),
             constraints: BoxConstraints(
@@ -37,10 +44,10 @@ class _MessageWidgetState extends State<MessageWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.message.content),
+                SelectableText(widget.message.content),
                 if (showFeedback) ...[
                   SizedBox(height: 5),
-                  Text(widget.message.feedback, style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  SelectableText(widget.message.feedback, style: TextStyle(fontSize: 10, color: Colors.grey)),
                 ],
               ],
             ),
