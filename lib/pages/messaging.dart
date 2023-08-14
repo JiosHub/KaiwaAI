@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:kaiwaai/models/message.dart';
 import 'package:kaiwaai/services/api.dart';
 import 'package:kaiwaai/widgets/message_widget.dart';
@@ -18,6 +19,7 @@ class _MessengerPageState extends State<MessengerPage> {
   String currentUser = 'user1';
   bool _isTyping = false;
   final messageController = TextEditingController();
+  ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -40,102 +42,122 @@ class _MessengerPageState extends State<MessengerPage> {
 
   @override
   Widget build(BuildContext context) {
+    //KeyboardVisibilityBuilder(
+      //builder: (context, isKeyboardVisible){
+    
     return Scaffold(
       appBar: AppBar(title: Text('Messenger')),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                return MessageWidget(message: messages[index]);
-              },
-            ),
-          ),
-          /*if (_isTyping) ...[
-              const SpinKitThreeBounce(
-                color: Colors.white,
-                size: 18,
-              ),
-            ],*/
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: messageController,
-                    decoration: InputDecoration(hintText: 'Type a message...'),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () async {
-                    String userMessage = messageController.text.trim();
-                    if (userMessage.isNotEmpty) {
-                      setState(() {
-                        messages.add(Message(content: userMessage, isUser: true));
-                        apiMessages.add(Message(content: "user: " + userMessage, isUser: true));
-                      });
-
-                      final chatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
-                      setState(() {
-                        messages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: false));
-                        apiMessages.add(Message(content: "gpt: " + chatbotReply.content, feedback: chatbotReply.feedback, isUser: false));
-                      });
-                    }
+      body: KeyboardVisibilityBuilder(
+        builder: (context, isKeyboardVisible){
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    return MessageWidget(message: messages[index]);
                   },
-                  /*onPressed: () async{
-                    if (messageController.text.isNotEmpty) {
-                      final userMessage = messageController.text;
-                      setState(() {
-                        print("user message, content: ${userMessage}      index: ${messages.length}");
-                        messages.add(Message(content: userMessage, chatIndex: messages.length));
-                        print("user message api, content: ${userMessage}      index: ${apiMessages.length}");
-                        apiMessages.add(Message(content: "user: " + userMessage, chatIndex: apiMessages.length));
-                      });
-                      messageController.clear();
-
-                      try {
-                        final chatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
-                          // Split the full response at "Feedback:"
-                          //List<String> responseParts = chatbotReply.split("Feedback:");
-                          //String japanesePartWithTranslation = responseParts[0].trim();
-
-                          // Split the Japanese part at "(" to separate the main message and the optional translation
-                          //List<String> japaneseParts = japanesePartWithTranslation.split("(");
-                          //String japanesePart = japaneseParts[0].trim();
-                        setState(() {
-                          //messages.add(Message(content: chatbotReply, chatIndex: messages.length));
-                          print("gpt message, ${chatbotReply.content}      index: ${chatbotReply.chatIndex}");
-                          messages.add(chatbotReply);
-                          print("gpt message, content: ${chatbotReply.content}      index: ${apiMessages.length}");
-                          apiMessages.add(Message(content: chatbotReply.content, chatIndex: apiMessages.length));
-                        });
-                      } catch (e) {
-                        print("Error fetching chatbot reply: $e");
-                      }
-                    }
-                    /*try {
-                      setState(() {
-                        _isTyping = true;
-                      });
-                    final lst = await ApiService.sendMessage(message: messageController.text);
-                    } catch (error) {
-                      print("error: $error");
-                    } finally {
-                      setState(() {
-                        _isTyping = false;
-                      });
-                    }*/
-                  },*/
                 ),
-              ],
-            ),
-          ),
-        ],
-      ),
+              ),
+              /*if (_isTyping) ...[
+                  const SpinKitThreeBounce(
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ],*/
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: messageController,
+                        decoration: InputDecoration(hintText: 'Type a message...'),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.send),
+                      onPressed: () async {
+                        String userMessage = messageController.text.trim();
+                        if (userMessage.isNotEmpty) {
+                          setState(() {
+                            messages.add(Message(content: userMessage, isUser: true));
+                            apiMessages.add(Message(content: "user: " + userMessage, isUser: true));
+                            _scrollController.animateTo(
+                              _scrollController.position.maxScrollExtent,
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          });
+
+                          final chatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
+                          setState(() {
+                            messages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: false));
+                            apiMessages.add(Message(content: "gpt: " + chatbotReply.content, feedback: chatbotReply.feedback, isUser: false));
+                            _scrollController.animateTo(
+                              _scrollController.position.maxScrollExtent,
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          });
+                        }
+                      },
+                      /*onPressed: () async{
+                        if (messageController.text.isNotEmpty) {
+                          final userMessage = messageController.text;
+                          setState(() {
+                            print("user message, content: ${userMessage}      index: ${messages.length}");
+                            messages.add(Message(content: userMessage, chatIndex: messages.length));
+                            print("user message api, content: ${userMessage}      index: ${apiMessages.length}");
+                            apiMessages.add(Message(content: "user: " + userMessage, chatIndex: apiMessages.length));
+                          });
+                          messageController.clear();
+
+                          try {
+                            final chatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
+                              // Split the full response at "Feedback:"
+                              //List<String> responseParts = chatbotReply.split("Feedback:");
+                              //String japanesePartWithTranslation = responseParts[0].trim();
+
+                              // Split the Japanese part at "(" to separate the main message and the optional translation
+                              //List<String> japaneseParts = japanesePartWithTranslation.split("(");
+                              //String japanesePart = japaneseParts[0].trim();
+                            setState(() {
+                              //messages.add(Message(content: chatbotReply, chatIndex: messages.length));
+                              print("gpt message, ${chatbotReply.content}      index: ${chatbotReply.chatIndex}");
+                              messages.add(chatbotReply);
+                              print("gpt message, content: ${chatbotReply.content}      index: ${apiMessages.length}");
+                              apiMessages.add(Message(content: chatbotReply.content, chatIndex: apiMessages.length));
+                            });
+                          } catch (e) {
+                            print("Error fetching chatbot reply: $e");
+                          }
+                        }
+                        /*try {
+                          setState(() {
+                            _isTyping = true;
+                          });
+                        final lst = await ApiService.sendMessage(message: messageController.text);
+                        } catch (error) {
+                          print("error: $error");
+                        } finally {
+                          setState(() {
+                            _isTyping = false;
+                          });
+                        }*/
+                      },*/
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      )
     );
+    
+  
   }
 
   /*Future<void> sendMessageFCT () async{
