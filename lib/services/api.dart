@@ -7,8 +7,8 @@ import 'package:kaiwaai/models/message.dart';
 import 'dart:convert' show utf8;
 
 class ApiService{
-  static Future<Message> sendMessage({required List<Message> previousMessages, required String newMessage})async {
-    log("Previous messages: ${previousMessages.map((m) => m.content).join(', ')}");
+  static Future<Message> sendMessage({required List<Message> messages})async {
+    log("all messages: ${(messages.map((m) => {"role": m.isUser, "content": m.content})).join(', ')}");
     try{
       var response = await http.post(
         Uri.parse("$BASE_URL/chat/completions"),
@@ -16,12 +16,12 @@ class ApiService{
         "Content-Type": "application/json; charset=UTF-8"},
         body: jsonEncode({
           "model": "gpt-3.5-turbo",
-          "messages": previousMessages.map((message) => {
-            "role": message.isUser ? "user" : "assistant", 
+          "messages": messages.map((message) => {
+            "role": message.isUser, 
             "content": message.content
-          }).toList()..add({
-          "role": "user", "content": newMessage
-          })
+          }).toList()//..add({
+          //"role": "user", "content": newMessage
+          //})
         }));
     
       // Decode the response body as UTF-8
@@ -51,7 +51,7 @@ class ApiService{
 
         String feedback = responseParts.length > 1 ? responseParts[1].trim() : "";
 
-        return Message(content: japanesePart, feedback: feedback, isUser: false);
+        return Message(content: japanesePart, feedback: feedback, isUser: "assistant");
 
         //return fullResponse;
         // Split the full response by the opening bracket "("
@@ -66,7 +66,7 @@ class ApiService{
       return Message(
           content: "Sorry, I couldn't process that request.",
           feedback: "",
-          isUser: false
+          isUser: "error"
       );
 
     }catch(error){
@@ -95,6 +95,7 @@ class ApiService{
 
   static Future<Message> fetchInitialReply(String content) async {
   try{
+    log("all messages: $content");
     var response = await http.post(
       Uri.parse("$BASE_URL/chat/completions"),
       headers: {'Authorization': 'Bearer $API_KEY', 
@@ -124,13 +125,13 @@ class ApiService{
         String japanesePart = japaneseParts[0].trim();
         String feedback = responseParts.length > 1 ? responseParts[1].trim() : "";
 
-        return Message(content: japanesePart, feedback: feedback, isUser: false);
+        return Message(content: japanesePart, feedback: feedback, isUser: "assistant");
       }
 
       return Message(
           content: "Sorry, I couldn't process that request.",
           feedback: "",
-          isUser: false
+          isUser: "error"
       );
 
   }catch(error){

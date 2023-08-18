@@ -19,7 +19,7 @@ class _MessageWidgetState extends State<MessageWidget> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Align(
-        alignment: widget.message.isUser ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: widget.message.isUser == "user" ? Alignment.centerRight : Alignment.centerLeft,
         child: GestureDetector(
           onTap: () {
             setState(() {
@@ -38,7 +38,7 @@ class _MessageWidgetState extends State<MessageWidget> {
               maxWidth: MediaQuery.of(context).size.width * 0.7,
             ),
             decoration: BoxDecoration(
-              color: widget.message.isUser ? Colors.blue[100] : Colors.green[100],
+              color: widget.message.isUser == "user" ? Colors.blue[100] : Colors.green[100],
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
