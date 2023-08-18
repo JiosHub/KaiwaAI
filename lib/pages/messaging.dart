@@ -19,7 +19,11 @@ class _MessengerPageState extends State<MessengerPage> {
   String currentUser = 'user1';
   bool _isTyping = false;
   final messageController = TextEditingController();
-  ScrollController _scrollController = ScrollController();
+  final ScrollController listScrollController = ScrollController();
+
+  int _limit = 20;
+  int _limitIncrement = 20;
+
   String contentString = "YOU (assistant) should act like a shop clerk. I (the user) will respond as the customer. In EVERY one of your replies MUST contain 1: A short Japanese sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the Japanese part, in English give feedback on MY (the user) usage of Japanese, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
 
   //"You are the shop clerk and will always remain in this role. I am the customer. do the following in each of your replies, 1. Start with a short Japanese sentence. Do not provide an English translation for this sentence. 2. Follow the Japanese sentence with feedback on only MY last reply. Begin this feedback with the word \"Feedback:\". This feedback should address my Japanese grammar and word usage. 3. Never provide feedback on your own replies.";
@@ -44,26 +48,34 @@ class _MessengerPageState extends State<MessengerPage> {
       messages.add(response);
       apiMessages.add(Message(content: response.content, isUser: "assistant"));
     });
+    listScrollController.addListener(_scrollListener);
   });
+  }
+
+  _scrollListener() {
+    if (!listScrollController.hasClients) return;
+    if (listScrollController.offset >= listScrollController.position.maxScrollExtent &&
+        !listScrollController.position.outOfRange &&
+        _limit <= messages.length) {
+      setState(() {
+        _limit += _limitIncrement;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     //KeyboardVisibilityBuilder(
     //builder: (context, isKeyboardVisible){
-    double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
       appBar: AppBar(title: Text('Messenger')),
       body: KeyboardVisibilityBuilder(
         builder: (context, isKeyboardVisible){
-          return Padding(
-            padding: EdgeInsets.only(bottom: keyboardHeight),
-            child: Column(
+          return Column(
               children: [
                 Expanded(
                   child: ListView.builder(
-                    
-                    controller: _scrollController,
+                    controller: listScrollController,
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       return MessageWidget(message: messages[index]);
@@ -77,7 +89,7 @@ class _MessengerPageState extends State<MessengerPage> {
                     ),
                   ],*/
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
                   child: Row(
                     children: [
                       Expanded(
@@ -90,18 +102,14 @@ class _MessengerPageState extends State<MessengerPage> {
                         icon: Icon(Icons.send),
                         onPressed: () async {
                           String userMessage = messageController.text.trim();
-                          bool shouldAutoScroll = _scrollController.offset == _scrollController.position.maxScrollExtent;
+                          bool shouldAutoScroll = listScrollController.offset == listScrollController.position.maxScrollExtent;
 
                           if (userMessage.isNotEmpty) {
                             setState(() {
                               messages.add(Message(content: userMessage, isUser: "user"));
                               apiMessages.add(Message(content: userMessage, isUser: "user"));
                               if (shouldAutoScroll) {
-                                  _scrollController.animateTo(
-                                      _scrollController.position.maxScrollExtent,
-                                      duration: Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                  );
+                                  listScrollController.animateTo(listScrollController.position.maxScrollExtent, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
                               }
                             });
 
@@ -110,11 +118,7 @@ class _MessengerPageState extends State<MessengerPage> {
                               messages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: "assistant"));
                               apiMessages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: "assistant"));
                               if (shouldAutoScroll) {
-                                  _scrollController.animateTo(
-                                      _scrollController.position.maxScrollExtent,
-                                      duration: Duration(milliseconds: 300),
-                                      curve: Curves.easeInOut,
-                                  );
+                                  listScrollController.animateTo(listScrollController.position.maxScrollExtent, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
                               }
                             });
                           }
@@ -168,7 +172,7 @@ class _MessengerPageState extends State<MessengerPage> {
                   ),
                 ),
               ],
-            ),
+            
           );
         },
       )
