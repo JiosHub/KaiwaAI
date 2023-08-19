@@ -75,10 +75,11 @@ class _MessengerPageState extends State<MessengerPage> {
               children: [
                 Expanded(
                   child: ListView.builder(
+                    reverse: true,
                     controller: listScrollController,
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
-                      return MessageWidget(message: messages[index]);
+                      return MessageWidget(message: messages[messages.length - 1 - index]);
                     },
                   ),
                 ),
@@ -89,7 +90,7 @@ class _MessengerPageState extends State<MessengerPage> {
                     ),
                   ],*/
                 Padding(
-                  padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
+                  padding: EdgeInsets.only(bottom: isKeyboardVisible ? MediaQuery.of(context).viewInsets.bottom : 0),
                   child: Row(
                     children: [
                       Expanded(
@@ -172,6 +173,8 @@ class _MessengerPageState extends State<MessengerPage> {
                   ),
                 ),
               ],
+            
+              
             
           );
         },

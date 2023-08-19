@@ -10,11 +10,8 @@ class ApiService{
   static Future<Message> sendMessage({required List<Message> messages})async {
     log("all messages: ${(messages.map((m) => {"role": m.isUser, "content": m.content})).join(', ')}");
     try{
-      var response = await http.post(
-        Uri.parse("$BASE_URL/chat/completions"),
-        headers: {'Authorization': 'Bearer $API_KEY', 
-        "Content-Type": "application/json; charset=UTF-8"},
-        body: jsonEncode({
+
+      var requestBody = jsonEncode({
           "model": "gpt-3.5-turbo",
           "messages": messages.map((message) => {
             "role": message.isUser, 
@@ -22,8 +19,15 @@ class ApiService{
           }).toList()//..add({
           //"role": "user", "content": newMessage
           //})
-        }));
-    
+        });
+
+      var response = await http.post(
+        Uri.parse("$BASE_URL/chat/completions"),
+        headers: {'Authorization': 'Bearer $API_KEY', 
+        "Content-Type": "application/json; charset=UTF-8"},
+        body: requestBody);
+
+      log("full post: $requestBody");
       // Decode the response body as UTF-8
       String decodedResponse = utf8.decode(response.bodyBytes);
       
@@ -37,7 +41,7 @@ class ApiService{
         //print("jsonResponse['error']['message'] ${jsonResponse['error']['message']}");
         throw HttpException(jsonResponse['error']['message']);
       }
-      log("jsonResponse[\"choices\"]: ${jsonResponse["choices"]}");  // <-- Log the "choices" part of the response
+      //log("jsonResponse[\"choices\"]: ${jsonResponse["choices"]}");  // <-- Log the "choices" part of the response
       
       if (jsonResponse["choices"].length > 0) {
         String fullResponse = jsonResponse["choices"][0]["message"]["content"];
