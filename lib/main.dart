@@ -10,8 +10,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'My App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        primarySwatch: Colors.cyan,
+        brightness: Brightness.light,
+        fontFamily: 'Poppins',
+        // ... other theme properties ...
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        // ... other theme properties for dark mode ...
       ),
       home: WelcomePage(),
     );
