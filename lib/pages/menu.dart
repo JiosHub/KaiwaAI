@@ -4,6 +4,8 @@ import 'package:kaiwaai/pages/messaging.dart';
 import 'package:kaiwaai/constants/api_consts.dart';
 
 class MenuPage extends StatefulWidget {
+  static String topicContent = "";
+
   @override
   _MenuPageState createState() => _MenuPageState();
 }
@@ -43,7 +45,14 @@ class _MenuPageState extends State<MenuPage> {
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
-                // Navigate based on topic
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MessengerPage(
+                      topicContent: topics[index]['content'] ?? '',
+                    ),
+                  ),
+                );
               },
               child: Card(
                 color: Colors.grey[300],

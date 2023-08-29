@@ -9,11 +9,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class MessengerPage extends StatefulWidget {
+  final String topicContent;  // Add this line
+  MessengerPage({required this.topicContent});
+
   @override
   _MessengerPageState createState() => _MessengerPageState();
 }
 
 class _MessengerPageState extends State<MessengerPage> {
+  
+  late String topicContent;
   List<Message> messages = [];
   List<Message> apiMessages = [];  // List of messages to send to the API
   String currentUser = 'user1';
@@ -24,8 +29,6 @@ class _MessengerPageState extends State<MessengerPage> {
   int _limit = 20;
   int _limitIncrement = 20;
 
-  String contentString = "YOU (assistant) should act like a shop clerk. I (the user) will respond as the customer. In EVERY one of your replies MUST contain 1: A short Japanese sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the Japanese part, in English give feedback on MY (the user) usage of Japanese, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
-
   //"You are the shop clerk and will always remain in this role. I am the customer. do the following in each of your replies, 1. Start with a short Japanese sentence. Do not provide an English translation for this sentence. 2. Follow the Japanese sentence with feedback on only MY last reply. Begin this feedback with the word \"Feedback:\". This feedback should address my Japanese grammar and word usage. 3. Never provide feedback on your own replies.";
   //"You are ALWAYS the shop clerk. ONLY I (the user) will respond as the customer. In EVERY one of your replies follow these steps. 1) Your messages MUST contain a short Japanese sentence and DO NOT translate this part to english. 2) AFTER the Japanese part, in English give feedback on MY (the USERS) last reply and DO NOT give feedback to YOUR (assistant) replies regarding Japanese grammar and words used, you MUST mark this with \"Feedback:\".";
 
@@ -33,6 +36,8 @@ class _MessengerPageState extends State<MessengerPage> {
   @override
   void initState() {
     super.initState();
+    topicContent = widget.topicContent;
+    String contentString = "$topicContent In EVERY one of your replies MUST contain 1: A short Japanese sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the Japanese part, in English give feedback on MY (the user) usage of Japanese, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
     // Add an initial system message
     apiMessages.add(Message(
       content: contentString,
