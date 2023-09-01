@@ -16,6 +16,11 @@ class _MessageWidgetState extends State<MessageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    Text(
+      widget.message.content,
+      // Add the following style property
+      style: TextStyle(color: Colors.black),
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Align(

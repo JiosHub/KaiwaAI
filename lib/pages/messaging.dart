@@ -73,7 +73,7 @@ class _MessengerPageState extends State<MessengerPage> {
     //KeyboardVisibilityBuilder(
     //builder: (context, isKeyboardVisible){
     return Scaffold(
-      appBar: AppBar(title: Text('Messenger')),
+      appBar: AppBar(title: Text('Messenger'), backgroundColor: Colors.cyan),
       body: KeyboardVisibilityBuilder(
         builder: (context, isKeyboardVisible){
           return Column(

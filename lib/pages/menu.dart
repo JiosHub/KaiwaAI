@@ -29,7 +29,7 @@ class _MenuPageState extends State<MenuPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Menu'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.cyan,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -37,7 +37,7 @@ class _MenuPageState extends State<MenuPage> {
           ? GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            childAspectRatio: 1.6,
+            childAspectRatio: 1.5,
             crossAxisSpacing: 8.0,
             mainAxisSpacing: 8.0,
           ),
@@ -56,12 +56,15 @@ class _MenuPageState extends State<MenuPage> {
               },
               child: Card(
                 color: Colors.grey[300],
-                child: Center(
-                  child: Text(
-                    topics[index]['title'] ?? '',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Text(
+                      topics[index]['title'] ?? '',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),

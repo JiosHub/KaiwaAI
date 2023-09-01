@@ -10,9 +10,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'My App',
       theme: ThemeData(
+        //textTheme: TextTheme(Colors.black),
         primarySwatch: Colors.cyan,
-        brightness: Brightness.light,
+        brightness: Brightness.dark,
         fontFamily: 'Poppins',
+        
         // ... other theme properties ...
       ),
       darkTheme: ThemeData(
