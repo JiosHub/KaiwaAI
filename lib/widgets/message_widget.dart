@@ -16,11 +16,10 @@ class _MessageWidgetState extends State<MessageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Text(
-      widget.message.content,
-      // Add the following style property
-      style: TextStyle(color: Colors.black),
-    );
+    DefaultTextStyle(
+  style: TextStyle(color: Colors.black),
+  child: Text(widget.message.content),
+);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Align(
@@ -49,10 +48,10 @@ class _MessageWidgetState extends State<MessageWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SelectableText(widget.message.content),
+                SelectableText(widget.message.content, style: TextStyle(color: Colors.black)),
                 if (showFeedback) ...[
                   SizedBox(height: 5),
-                  SelectableText(widget.message.feedback, style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  SelectableText(widget.message.feedback, style: TextStyle(fontSize: 10, color: Colors.blueGrey[700])),
                 ],
               ],
             ),

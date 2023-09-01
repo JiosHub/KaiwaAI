@@ -74,6 +74,7 @@ class _MessengerPageState extends State<MessengerPage> {
     //builder: (context, isKeyboardVisible){
     return Scaffold(
       appBar: AppBar(title: Text('Messenger'), backgroundColor: Colors.cyan),
+
       body: KeyboardVisibilityBuilder(
         builder: (context, isKeyboardVisible){
           return Column(
@@ -101,7 +102,16 @@ class _MessengerPageState extends State<MessengerPage> {
                       Expanded(
                         child: TextField(
                           controller: messageController,
-                          decoration: InputDecoration(hintText: 'Type a message...'),
+                          decoration: InputDecoration(
+                            hintText: 'Type a message...',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            filled: true,
+                            fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
                         ),
                       ),
                       IconButton(
