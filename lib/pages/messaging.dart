@@ -95,22 +95,31 @@ class _MessengerPageState extends State<MessengerPage> {
                       size: 18,
                     ),
                   ],*/
-                Padding(
-                  padding: EdgeInsets.only(bottom: isKeyboardVisible ? MediaQuery.of(context).viewInsets.bottom : 0),
+                Container(
+                  //padding: EdgeInsets.only(bottom: isKeyboardVisible ? MediaQuery.of(context).viewInsets.bottom : 0),
+                  padding: EdgeInsets.all(14.0),
+                  height: 75.0,
                   child: Row(
                     children: [
                       Expanded(
                         child: TextField(
                           controller: messageController,
+                          style: TextStyle(fontSize: 16),
                           decoration: InputDecoration(
                             hintText: 'Type a message...',
                             hintStyle: TextStyle(color: Colors.grey),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
                             filled: true,
                             fillColor: Colors.white,
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(25),
                                 borderSide: BorderSide.none,
                               ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                borderSide: BorderSide(color: Colors.blue),
+                              ),
+                              //prefixIcon: Icon(Icons.message, color: Colors.blue),
                             ),
                         ),
                       ),
