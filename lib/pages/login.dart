@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kaiwaai/pages/menu.dart';
+import 'package:kaiwaai/widgets/bottom_menu.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class _WelcomePageState extends State<WelcomePage> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       // Assuming the login is successful, navigate to the MenuPage
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => MenuPage()));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => BottomMenuRibbon()));
     }
   }
 

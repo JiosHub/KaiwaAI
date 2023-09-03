@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kaiwaai/constants/topic_list.dart';
 import 'package:kaiwaai/pages/messaging.dart';
 import 'package:kaiwaai/constants/api_consts.dart';
+import 'package:kaiwaai/widgets/bottom_menu.dart';
 
 class MenuPage extends StatefulWidget {
   static String topicContent = "";
@@ -26,12 +27,7 @@ class _MenuPageState extends State<MenuPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Menu'),
-        backgroundColor: Colors.cyan,
-      ),
-      body: Padding(
+    return Padding(
         padding: const EdgeInsets.all(8.0),
         child: topics.isNotEmpty
           ? GridView.builder(
@@ -74,7 +70,7 @@ class _MenuPageState extends State<MenuPage> {
           },
         )
         : Center(child: CircularProgressIndicator()),
-      ),
-    );
+      );
+    
   }
 }
