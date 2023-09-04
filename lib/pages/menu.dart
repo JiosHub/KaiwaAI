@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kaiwaai/constants/topic_list.dart';
 import 'package:kaiwaai/pages/messaging.dart';
 import 'package:kaiwaai/constants/api_consts.dart';
+import 'package:kaiwaai/services/global_state.dart';
 import 'package:kaiwaai/widgets/bottom_menu.dart';
 
 class MenuPage extends StatefulWidget {
@@ -28,6 +29,7 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   void _selectTopic(int index) {
+    GlobalState().clearMessageList();
     MenuPage.topicContent = topics[index]['content'] ?? '';
     BottomMenuRibbon.cachedMessengerPage = MessengerPage(topicContent: MenuPage.topicContent);
     print("2: ${BottomMenuRibbon.cachedMessengerPage!.topicContent}");

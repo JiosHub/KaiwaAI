@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:kaiwaai/services/global_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:kaiwaai/models/message.dart';
@@ -32,6 +32,7 @@ class _MessengerPageState extends State<MessengerPage> {
   @override
   void initState() {
     super.initState();
+    messages = GlobalState().globalMessageList;
     topicContent = widget.topicContent;
     String contentString = "$topicContent In EVERY one of your replies MUST contain 1: A short Japanese sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the Japanese part, in English give feedback on MY (the user) usage of Japanese, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
     // Add an initial system message

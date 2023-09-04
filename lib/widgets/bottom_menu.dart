@@ -57,7 +57,7 @@ class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
   }*/
 
   void _onItemTapped(int index) {
-    print("1: ${BottomMenuRibbon.cachedMessengerPage!.topicContent}");
+    //print("1: ${BottomMenuRibbon.cachedMessengerPage!.topicContent}");
     if (index == 3) { // If the Chat icon is tapped
       if (BottomMenuRibbon.cachedMessengerPage != null) {
         Navigator.push(
