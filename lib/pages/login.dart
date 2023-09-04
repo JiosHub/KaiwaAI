@@ -23,7 +23,7 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Welcome/Login')),
+      appBar: AppBar(title: Text('Welcome/Login'), toolbarHeight: 50.0),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

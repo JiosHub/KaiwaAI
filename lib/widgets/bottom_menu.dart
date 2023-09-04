@@ -9,32 +9,30 @@ class BottomMenuRibbon extends StatefulWidget {
 }
 
 class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
+  String? topicContent;
 
   // List of pages to navigate to
-  final List<Widget> _pages = [
-    // Replace these with your actual pages
-    Text('Info Page'),
-    Text('Profile Page'),
-    MenuPage(),
-    Text('Messenger Page'), //MessengerPage(topicContent: topicContent)
-  ];
 
   final List<AppBar> _appBars = [
     AppBar(
       title: Text('Info'),
+      toolbarHeight: 50.0,
       backgroundColor: Colors.cyan,
     ),
     AppBar(
       title: Text('Profile'),
+      toolbarHeight: 50.0,
       backgroundColor: Colors.cyan,
     ),
     AppBar(
       title: Text('Menu'),
+      toolbarHeight: 50.0,
       backgroundColor: Colors.cyan,
     ),
     AppBar(
-      title: Text('Chat'),
+      title: Text('Current Chat'),
+      toolbarHeight: 50.0,
       backgroundColor: Colors.cyan,
     ),
     // Add more AppBars as needed
@@ -48,6 +46,17 @@ class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
 
   @override
   Widget build(BuildContext context) {
+    
+    final List<Widget> _pages = [
+      // Replace these with your actual pages
+      Text('Info Page'),
+      Text('Profile Page'),
+      MenuPage(),
+      topicContent != null ? 
+          MessengerPage(topicContent: topicContent!) : 
+          Text('Messenger Page'), //MessengerPage(topicContent: topicContent)
+    ];
+
     return Scaffold(
       appBar: _appBars.elementAt(_selectedIndex),
       body: Center(

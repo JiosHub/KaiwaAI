@@ -72,10 +72,10 @@ class _MessengerPageState extends State<MessengerPage> {
   Widget build(BuildContext context) {
     //KeyboardVisibilityBuilder(
     //builder: (context, isKeyboardVisible){
-    return Scaffold(
-      appBar: AppBar(title: Text('Messenger'), backgroundColor: Colors.cyan),
+    //return Scaffold(
+      //appBar: AppBar(title: Text('Messenger'), backgroundColor: Colors.cyan),
 
-      body: KeyboardVisibilityBuilder(
+      return KeyboardVisibilityBuilder(
         builder: (context, isKeyboardVisible){
           return Column(
               children: [
@@ -202,8 +202,8 @@ class _MessengerPageState extends State<MessengerPage> {
             
           );
         },
-      )
-    );
+      );
+    //);
     
   
   }
