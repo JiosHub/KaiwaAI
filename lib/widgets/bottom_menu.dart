@@ -1,9 +1,12 @@
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:kaiwaai/pages/menu.dart';
 import 'package:kaiwaai/pages/messaging.dart';
 
 class BottomMenuRibbon extends StatefulWidget {
+  static MessengerPage? cachedMessengerPage;
   @override
   _BottomMenuRibbonState createState() => _BottomMenuRibbonState();
 }
@@ -11,9 +14,17 @@ class BottomMenuRibbon extends StatefulWidget {
 class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
   int _selectedIndex = 2;
   String topicContent = "";
-  
 
   // List of pages to navigate to
+
+  final List<Widget> _pages = [
+      // Replace these with your actual pages
+      Text('Info Page'),
+      Text('Profile Page'),
+      MenuPage(),
+      Text('Please select a topic')
+    ];
+    
 
   final List<AppBar> _appBars = [
     AppBar(
@@ -46,33 +57,33 @@ class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
   }*/
 
   void _onItemTapped(int index) {
-    setState(() {
-      if (index == 3 && topicContent != "") {
-        // Open the MessengerPage
+    print("1: ${BottomMenuRibbon.cachedMessengerPage!.topicContent}");
+    if (index == 3) { // If the Chat icon is tapped
+      if (BottomMenuRibbon.cachedMessengerPage != null) {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MessengerPage(
-              topicContent: topicContent, // replace with the actual content
-            ),
+            builder: (context) => BottomMenuRibbon.cachedMessengerPage!,
+          ),
+        );
+        return;
+      } else {
+        // Show a dialog or toast to inform the user to select a topic first
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Please select a topic first.'),
           ),
         );
         return;
       }
+    }
+    setState(() {
       _selectedIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    
-    final List<Widget> _pages = [
-      // Replace these with your actual pages
-      Text('Info Page'),
-      Text('Profile Page'),
-      MenuPage(),
-      Text('Please select a topic')
-    ];
 
     return Scaffold(
       appBar: _appBars.elementAt(_selectedIndex),

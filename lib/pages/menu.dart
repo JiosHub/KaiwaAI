@@ -5,6 +5,7 @@ import 'package:kaiwaai/constants/api_consts.dart';
 import 'package:kaiwaai/widgets/bottom_menu.dart';
 
 class MenuPage extends StatefulWidget {
+  static String topicContent = "";
   final Function(String)? updateTopicCallback;
   MenuPage({this.updateTopicCallback});
 
@@ -26,6 +27,19 @@ class _MenuPageState extends State<MenuPage> {
     setState(() {});  // Rebuild the widget
   }
 
+  void _selectTopic(int index) {
+    MenuPage.topicContent = topics[index]['content'] ?? '';
+    BottomMenuRibbon.cachedMessengerPage = MessengerPage(topicContent: MenuPage.topicContent);
+    print("2: ${BottomMenuRibbon.cachedMessengerPage!.topicContent}");
+    
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BottomMenuRibbon.cachedMessengerPage!,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -43,14 +57,7 @@ class _MenuPageState extends State<MenuPage> {
             return GestureDetector(
               onTap: () {
                 //String selectedTopicContent = topics[index]['content'] ?? '';
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MessengerPage(
-                      topicContent: topics[index]['content'] ?? '',
-                    ),
-                  ),
-                );
+                _selectTopic(index);
               },
               child: Card(
                 color: Colors.grey[300],

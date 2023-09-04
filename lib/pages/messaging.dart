@@ -29,10 +29,6 @@ class _MessengerPageState extends State<MessengerPage> {
   int _limit = 20;
   int _limitIncrement = 20;
 
-  //"You are the shop clerk and will always remain in this role. I am the customer. do the following in each of your replies, 1. Start with a short Japanese sentence. Do not provide an English translation for this sentence. 2. Follow the Japanese sentence with feedback on only MY last reply. Begin this feedback with the word \"Feedback:\". This feedback should address my Japanese grammar and word usage. 3. Never provide feedback on your own replies.";
-  //"You are ALWAYS the shop clerk. ONLY I (the user) will respond as the customer. In EVERY one of your replies follow these steps. 1) Your messages MUST contain a short Japanese sentence and DO NOT translate this part to english. 2) AFTER the Japanese part, in English give feedback on MY (the USERS) last reply and DO NOT give feedback to YOUR (assistant) replies regarding Japanese grammar and words used, you MUST mark this with \"Feedback:\".";
-
-
   @override
   void initState() {
     super.initState();
@@ -40,11 +36,7 @@ class _MessengerPageState extends State<MessengerPage> {
     String contentString = "$topicContent In EVERY one of your replies MUST contain 1: A short Japanese sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the Japanese part, in English give feedback on MY (the user) usage of Japanese, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
     // Add an initial system message
     apiMessages.add(Message(
-      content: contentString,
-      //"You are ALWAYS the shop clerk (gpt:). ONLY I will respond as the customer (user). Your messages must contain a Japanese sentence which must be short, and then in English give feedback on the users last replies' Japanese grammar, mark this with \"Feedback:\". Do not translate any Japanese to English and never switch roles.",
-      //content: "You are a shop clerk (gpt:). I am the customer (user:). Only I will speak as the user. Respond to me with Japanese sentence which must be short, and then in English give feedback on the users last replies' Japanese grammar, mark this with \"Feedback:\". Do not translate any Japanese to English.",
-      //content: "using the topic \"you (chatgpt) are a shop clerk and I (the user) am at the counter\", message me in Japanese where I wil reply in Japanese. The Japanese part of your responses should be 1 sentence long including a leading question. Invent any necessary details such as items or people involved and do not translate and Japanese to english. After I send a message back (I will mark my replies with \"user:\" by myself), explain in English how the user Japanese grammar I used could be improved (do not explain messages marked with \"gpt:\"), mark this with \"Feedback:\" after the Japanese part of your message.  Your response should be 200 tokens or less.",
-      isUser: "system",
+      content: contentString,isUser: "system",
     ));
     //messages.add(Message(content: contentString, isUser: "system"));
   
@@ -102,10 +94,10 @@ class _MessengerPageState extends State<MessengerPage> {
                       Expanded(
                         child: TextField(
                           controller: messageController,
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 16, color: Colors.black),
                           decoration: InputDecoration(
                             hintText: 'Type a message...',
-                            hintStyle: TextStyle(color: Colors.grey),
+                            hintStyle: TextStyle(color: Colors.black),
                             contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
                             filled: true,
                             fillColor: Colors.white,
@@ -146,50 +138,6 @@ class _MessengerPageState extends State<MessengerPage> {
                             });
                           }
                         },
-                        /*onPressed: () async{
-                          if (messageController.text.isNotEmpty) {
-                            final userMessage = messageController.text;
-                            setState(() {
-                              print("user message, content: ${userMessage}      index: ${messages.length}");
-                              messages.add(Message(content: userMessage, chatIndex: messages.length));
-                              print("user message api, content: ${userMessage}      index: ${apiMessages.length}");
-                              apiMessages.add(Message(content: "user: " + userMessage, chatIndex: apiMessages.length));
-                            });
-                            messageController.clear();
-
-                            try {
-                              final chatbotReply = await ApiService.sendMessage(previousMessages: apiMessages, newMessage: userMessage);
-                                // Split the full response at "Feedback:"
-                                //List<String> responseParts = chatbotReply.split("Feedback:");
-                                //String japanesePartWithTranslation = responseParts[0].trim();
-
-                                // Split the Japanese part at "(" to separate the main message and the optional translation
-                                //List<String> japaneseParts = japanesePartWithTranslation.split("(");
-                                //String japanesePart = japaneseParts[0].trim();
-                              setState(() {
-                                //messages.add(Message(content: chatbotReply, chatIndex: messages.length));
-                                print("gpt message, ${chatbotReply.content}      index: ${chatbotReply.chatIndex}");
-                                messages.add(chatbotReply);
-                                print("gpt message, content: ${chatbotReply.content}      index: ${apiMessages.length}");
-                                apiMessages.add(Message(content: chatbotReply.content, chatIndex: apiMessages.length));
-                              });
-                            } catch (e) {
-                              print("Error fetching chatbot reply: $e");
-                            }
-                          }
-                          /*try {
-                            setState(() {
-                              _isTyping = true;
-                            });
-                          final lst = await ApiService.sendMessage(message: messageController.text);
-                          } catch (error) {
-                            print("error: $error");
-                          } finally {
-                            setState(() {
-                              _isTyping = false;
-                            });
-                          }*/
-                        },*/
                       ),
                     ],
                   ),
@@ -204,19 +152,4 @@ class _MessengerPageState extends State<MessengerPage> {
     );
     
   }
-
-  /*Future<void> sendMessageFCT () async{
-                    try {
-                      setState(() {
-                        _isTyping = true;
-                      });
-                    final lst = await ApiService.sendMessage(message: messageController.text);
-                    } catch (error) {
-                      print("error: $error");
-                    } finally {
-                      setState(() {
-                        _isTyping = false;
-                      });
-                    }
-                  }*/
 }
