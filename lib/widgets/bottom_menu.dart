@@ -10,7 +10,8 @@ class BottomMenuRibbon extends StatefulWidget {
 
 class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
   int _selectedIndex = 2;
-  String? topicContent;
+  String topicContent = "";
+  
 
   // List of pages to navigate to
 
@@ -38,8 +39,26 @@ class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
     // Add more AppBars as needed
   ];
 
+  /*void updateTopicContent(String newTopicContent) {
+  setState(() {
+    topicContent = newTopicContent;
+  });
+  }*/
+
   void _onItemTapped(int index) {
     setState(() {
+      if (index == 3 && topicContent != "") {
+        // Open the MessengerPage
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MessengerPage(
+              topicContent: topicContent, // replace with the actual content
+            ),
+          ),
+        );
+        return;
+      }
       _selectedIndex = index;
     });
   }
@@ -52,9 +71,7 @@ class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
       Text('Info Page'),
       Text('Profile Page'),
       MenuPage(),
-      topicContent != null ? 
-          MessengerPage(topicContent: topicContent!) : 
-          Text('Messenger Page'), //MessengerPage(topicContent: topicContent)
+      Text('Please select a topic')
     ];
 
     return Scaffold(

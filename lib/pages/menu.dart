@@ -5,7 +5,8 @@ import 'package:kaiwaai/constants/api_consts.dart';
 import 'package:kaiwaai/widgets/bottom_menu.dart';
 
 class MenuPage extends StatefulWidget {
-  static String topicContent = "";
+  final Function(String)? updateTopicCallback;
+  MenuPage({this.updateTopicCallback});
 
   @override
   _MenuPageState createState() => _MenuPageState();
@@ -41,6 +42,7 @@ class _MenuPageState extends State<MenuPage> {
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
+                //String selectedTopicContent = topics[index]['content'] ?? '';
                 Navigator.push(
                   context,
                   MaterialPageRoute(
