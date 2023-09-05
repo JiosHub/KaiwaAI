@@ -11,13 +11,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16),
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(left: 15, right: 15, top: 40),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        //crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            //mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(Icons.person, size: 50),
               SizedBox(width: 16),
@@ -32,54 +33,72 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
           SizedBox(height: 32),
-          infoField(
-            'Language Selector',
-            DropdownButton<String>(
-              value: selectedLanguage,
-              items: ['English', 'French', 'Spanish']
-                  .map((lang) => DropdownMenuItem(
-                        child: Text(lang),
-                        value: lang,
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedLanguage = value;
-                });
-              },
-            ),
-          ),
-          SizedBox(height: 16),
-          infoField(
-            'API Key',
-            TextField(
-              controller: apiKeyController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Enter API Key',
+          ListTile(
+            leading: Text("Chat Language"), 
+            title: Container(
+              width: double.infinity,
+              alignment: Alignment.centerRight,
+              child: Transform.translate(
+                offset: Offset(0, -5),  // Adjust the y-coordinate as needed
+                child: Autocomplete<String>(
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    return ["Option 1", "Option 2"].where((String option) {
+                      return option.contains(textEditingValue.text.toLowerCase());
+                    });
+                  },
+                  onSelected: (String selection) {
+                    print("You selected: " + selection);
+                  },
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 16),
-          infoField(
-            'Buy API Access',
-            ElevatedButton(
+            trailing: IconButton(
+              icon: Icon(Icons.info),
               onPressed: () {
-                // Navigate to API purchase page
+                // Info button logic here
               },
-              child: Text('Buy'),
             ),
           ),
-          SizedBox(height: 32),
+          SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 10.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: apiKeyController,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      border: OutlineInputBorder(),
+                      labelText: 'Personal OpenAI API Key',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.info),
+                  onPressed: () {
+                    // Info button logic here
+                  },
+                ),
+              ],
+            ),
+          ),
           ListTile(
-            leading: Icon(Icons.arrow_forward),
+            trailing: Icon(Icons.info),
+            title: Text('Buy API Access'),
+            onTap: () {
+              // Navigate to contact page
+            },
+          ),
+          ListTile(
+            trailing: Icon(Icons.arrow_forward),
             title: Text('Settings'),
             onTap: () {
               // Navigate to settings page
             },
           ),
           ListTile(
-            leading: Icon(Icons.arrow_forward),
+            trailing: Icon(Icons.arrow_forward),
             title: Text('Contact'),
             onTap: () {
               // Navigate to contact page
@@ -93,15 +112,15 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget infoField(String label, Widget field) {
     return Row(
       children: [
+        Text(label),
+        Expanded(
+          child: field,
+        ),
         IconButton(
           icon: Icon(Icons.info),
           onPressed: () {
             // Show info popup
           },
-        ),
-        Text(label),
-        Expanded(
-          child: field,
         ),
       ],
     );

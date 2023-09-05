@@ -88,9 +88,7 @@ class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
 
     return Scaffold(
       appBar: _appBars.elementAt(_selectedIndex),
-      body: Center(
-        child: _pages.elementAt(_selectedIndex),
-      ),
+      body: _pages.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.grey[300],
         elevation: 10.0,
