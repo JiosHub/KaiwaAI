@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:kaiwaai/pages/menu.dart';
 import 'package:kaiwaai/pages/messaging.dart';
+import 'package:kaiwaai/pages/profile.dart';
 
 class BottomMenuRibbon extends StatefulWidget {
   static MessengerPage? cachedMessengerPage;
@@ -20,7 +21,7 @@ class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
   final List<Widget> _pages = [
       // Replace these with your actual pages
       Text('Info Page'),
-      Text('Profile Page'),
+      ProfilePage(),
       MenuPage(),
       Text('Please select a topic')
     ];

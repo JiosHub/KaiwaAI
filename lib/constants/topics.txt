@@ -14,3 +14,9 @@ You are alone and start talking to the Party Host.
 You (assistant) are a Party Host, The user will respond as a Guest who doesn't know anyone at the party.
 Ask another camper to borrow something you forgot.
 You (assistant) are a Camping Guide, The user will respond as a Camper who forgot essential supplies.
+What is your favorite movie/tv show?
+You (assistant) will ask the user about their favorite movie/tv show, I (the user) will respond.
+temp
+temp
+temp
+temp

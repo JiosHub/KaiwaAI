@@ -37,18 +37,34 @@ class _MessageWidgetState extends State<MessageWidget> {
             );
           },
           child: Container(
-            padding: const EdgeInsets.all(15.0),
+            padding: const EdgeInsets.all(10.0),
+            margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.7,
             ),
             decoration: BoxDecoration(
-              color: widget.message.isUser == "user" ? Colors.blue[100] : Colors.green[100],
-              borderRadius: BorderRadius.circular(10),
+              color: widget.message.isUser == "user" ? Colors.blue[200] : Colors.green[200],
+              //color: widget.message.isUser == "user" ? Colors.teal[700] : Colors.blueGrey[800],
+              //color: widget.message.isUser == "user" ? Colors.blue[200] : Colors.green[200],
+              borderRadius: widget.message.isUser == "user"
+                ? BorderRadius.only(
+                    topLeft: Radius.circular(20.0),
+                    topRight: Radius.circular(20.0),
+                    bottomLeft: Radius.circular(20.0),
+                    bottomRight: Radius.circular(0.0),
+                  )
+                : BorderRadius.only(
+                    topLeft: Radius.circular(20.0),
+                    topRight: Radius.circular(20.0),
+                    bottomLeft: Radius.circular(0.0),
+                    bottomRight: Radius.circular(20.0),
+                  ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SelectableText(widget.message.content, style: TextStyle(color: Colors.black)),
+                //SelectableText(widget.message.content),
                 if (showFeedback) ...[
                   SizedBox(height: 5),
                   SelectableText(widget.message.feedback, style: TextStyle(fontSize: 10, color: Colors.blueGrey[700])),
