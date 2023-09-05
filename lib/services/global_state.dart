@@ -10,8 +10,10 @@ class GlobalState {
   GlobalState._internal();
 
   List<Message> globalMessageList = [];
+  List<Message> globalApiMessageList = [];
 
   void clearMessageList() {
     globalMessageList.clear();
+    globalApiMessageList.clear();
   }
 }

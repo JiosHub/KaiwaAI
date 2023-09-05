@@ -33,21 +33,24 @@ class _MessengerPageState extends State<MessengerPage> {
   void initState() {
     super.initState();
     messages = GlobalState().globalMessageList;
+    apiMessages = GlobalState().globalApiMessageList;
     topicContent = widget.topicContent;
-    String contentString = "$topicContent In EVERY one of your replies MUST contain 1: A short Japanese sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the Japanese part, in English give feedback on MY (the user) usage of Japanese, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
+    String contentString = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT Japanese sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the Japanese part, in English give feedback on MY (the user) usage of Japanese, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
     // Add an initial system message
-    apiMessages.add(Message(
-      content: contentString,isUser: "system",
-    ));
-    //messages.add(Message(content: contentString, isUser: "system"));
-  
-    ApiService.fetchInitialReply(apiMessages[0].content).then((response){
-    setState(() {
-      messages.add(response);
-      apiMessages.add(Message(content: response.content, isUser: "assistant"));
-    });
-    listScrollController.addListener(_scrollListener);
-  });
+    if(messages.isEmpty){
+      apiMessages.add(Message(
+        content: contentString,isUser: "system",
+      ));
+      //messages.add(Message(content: contentString, isUser: "system"));
+    
+      ApiService.fetchInitialReply(apiMessages[0].content).then((response){
+        setState(() {
+          messages.add(response);
+          apiMessages.add(Message(content: response.content, isUser: "assistant"));
+        });
+        listScrollController.addListener(_scrollListener);
+      });
+    }
   }
 
   _scrollListener() {
@@ -64,7 +67,7 @@ class _MessengerPageState extends State<MessengerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Messenger'), backgroundColor: Colors.cyan),
+      appBar: AppBar(title: Text('Current Active Topic'), backgroundColor: Colors.cyan, toolbarHeight: 50.0),
 
       body: KeyboardVisibilityBuilder(
         builder: (context, isKeyboardVisible){
