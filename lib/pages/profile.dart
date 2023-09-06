@@ -24,11 +24,13 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(width: 16),
               Text('Username'),
               Spacer(),
-              ElevatedButton(
-                onPressed: () {
-                  // Logout logic here
-                },
-                child: Text('Logout'),
+              Padding(padding: EdgeInsets.only(right: 25.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Logout logic here
+                  },
+                  child: Text('Logout'),
+                ),
               ),
             ],
           ),
@@ -36,8 +38,9 @@ class _ProfilePageState extends State<ProfilePage> {
           ListTile(
             leading: Text("Chat Language"), 
             title: Container(
-              width: double.infinity,
-              alignment: Alignment.centerRight,
+              
+              //width: double.infinity,
+              //alignment: Alignment.centerRight,
               child: Transform.translate(
                 offset: Offset(0, -5),  // Adjust the y-coordinate as needed
                 child: Autocomplete<String>(
@@ -52,13 +55,40 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
+            
             trailing: IconButton(
-              icon: Icon(Icons.info),
-              onPressed: () {
+                icon: Icon(Icons.info),
+                onPressed: () {
                 // Info button logic here
-              },
+                },
+              ),
             ),
-          ),
+          /*Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 10.0),
+            child: Row(
+              children: [
+                Text("Chat Language"),
+                Container(
+                  child: Autocomplete<String>(
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      return ["Option 1", "Option 2"].where((String option) {
+                        return option.contains(textEditingValue.text.toLowerCase());
+                      });
+                    },
+                    onSelected: (String selection) {
+                      print("You selected: " + selection);
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.info),
+                  onPressed: () {
+                    // Info button logic here
+                  },
+                ),
+              ],
+            ),
+          ),*/
           SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 10.0),
@@ -74,31 +104,43 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.info),
-                  onPressed: () {
-                    // Info button logic here
-                  },
+                Padding(
+                  padding: EdgeInsets.only(right: 11.0),
+                  child: IconButton(
+                    icon: Icon(Icons.info),
+                    onPressed: () {
+                      // Info button logic here
+                    },
+                  ),
                 ),
               ],
             ),
           ),
           ListTile(
-            trailing: Icon(Icons.info),
+            trailing: Padding(
+              padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
+              child: Icon(Icons.info),
+            ),
             title: Text('Buy API Access'),
             onTap: () {
               // Navigate to contact page
             },
           ),
           ListTile(
-            trailing: Icon(Icons.arrow_forward),
+            trailing: Padding(
+              padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
+              child: Icon(Icons.arrow_forward),
+            ),
             title: Text('Settings'),
             onTap: () {
               // Navigate to settings page
             },
           ),
           ListTile(
-            trailing: Icon(Icons.arrow_forward),
+            trailing: Padding(
+              padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
+              child: Icon(Icons.arrow_forward),
+            ),
             title: Text('Contact'),
             onTap: () {
               // Navigate to contact page
