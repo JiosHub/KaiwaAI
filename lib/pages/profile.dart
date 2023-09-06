@@ -6,8 +6,18 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String? selectedLanguage;
+  String selectedLanguage = 'English';
   TextEditingController apiKeyController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  //FocusNode focusNode = FocusNode();
+  late TextEditingController textEditingController;  // And here
+  bool _showLabel = true;
+
+  @override
+  void initState() {
+    super.initState();
+    textEditingController = TextEditingController(text: selectedLanguage);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,57 +48,145 @@ class _ProfilePageState extends State<ProfilePage> {
           ListTile(
             leading: Text("Chat Language"), 
             title: Container(
-              
-              //width: double.infinity,
-              //alignment: Alignment.centerRight,
               child: Transform.translate(
                 offset: Offset(0, -5),  // Adjust the y-coordinate as needed
-                child: Autocomplete<String>(
-                  optionsBuilder: (TextEditingValue textEditingValue) {
-                    return ["Option 1", "Option 2"].where((String option) {
-                      return option.contains(textEditingValue.text.toLowerCase());
-                    });
+                child: GestureDetector(
+                  onTap: () {
+                    _showLabel = false;
                   },
-                  onSelected: (String selection) {
-                    print("You selected: " + selection);
-                  },
-                ),
-              ),
-            ),
-            
-            trailing: IconButton(
-                icon: Icon(Icons.info),
-                onPressed: () {
-                // Info button logic here
-                },
-              ),
-            ),
-          /*Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 10.0),
-            child: Row(
-              children: [
-                Text("Chat Language"),
-                Container(
-                  child: Autocomplete<String>(
+                  child: Stack(
+                    alignment: Alignment.centerLeft,
+                    children: [
+                      if (_showLabel) Text(selectedLanguage),  // _showLabel is a bool you would control
+                      Autocomplete<String>(
+                        optionsBuilder: (TextEditingValue textEditingValue) {
+                          if (textEditingValue.text == '') {
+                            setState(() {
+                              _showLabel = true;  // Show label when field is empty
+                            });
+                          } else {
+                            setState(() {
+                              _showLabel = false;  // Hide label otherwise
+                            });
+                          }
+                          return ["English", "Japanese", "Korean", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese","Chinese (Simplified)", "Arabic"].where((String option) {
+                            return option.contains(textEditingValue.text.toLowerCase());
+                          });
+                        },
+                        onSelected: (String selection) {
+                          setState(() {
+                            selectedLanguage = selection;
+                            _showLabel = true;  // Hide label when something is selected
+                          });
+                        },
+                        optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+                          //TextField(controller: textEditingController, onTap: () {textEditingController.clear();});
+                          return Align(
+                            alignment: Alignment.topLeft,
+                            child: Material(
+                              //elevation: 4.0,
+                              child: SizedBox(
+                                width: 175, // Set the width to match your field
+                                height: 200, // Set the maximum height
+                                
+                                  child: ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    shrinkWrap: true,
+                                    itemCount: options.length,
+                                    itemBuilder: (BuildContext context, int index) {
+                                      final String option = options.elementAt(index);
+                                      return GestureDetector(
+                                        onTap: () {
+                                          onSelected(option);
+                                        },
+                                        child: Container(
+                                          height: 40, // Adjust the height of each option here
+                                          child: ListTile(
+                                            title: Text(option),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  /*child: Autocomplete<String>(
                     optionsBuilder: (TextEditingValue textEditingValue) {
-                      return ["Option 1", "Option 2"].where((String option) {
+                      return ["English", "Japanese", "Chinese (Simplified)", "Korean", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese", "Arabic"].where((String option) {
                         return option.contains(textEditingValue.text.toLowerCase());
                       });
                     },
-                    onSelected: (String selection) {
-                      print("You selected: " + selection);
+                    onSelected: (value) {
+                      print("You selected: " + value);
                     },
-                  ),
+                    optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+                      //TextField(controller: textEditingController, onTap: () {textEditingController.clear();});
+                      return Align(
+                        alignment: Alignment.topLeft,
+                        child: Material(
+                          //elevation: 4.0,
+                          child: SizedBox(
+                            width: 200, // Set the width to match your field
+                            height: 200, // Set the maximum height
+                            
+                              child: ListView.builder(
+                                padding: EdgeInsets.zero,
+                                shrinkWrap: true,
+                                itemCount: options.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final String option = options.elementAt(index);
+                                  return GestureDetector(
+                                    onTap: () {
+                                      onSelected(option);
+                                    },
+                                    child: Container(
+                                      height: 40, // Adjust the height of each option here
+                                      child: ListTile(
+                                        title: Text(option),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            
+                          ),
+                        ),
+                      );
+                    },
+                  ),*/
                 ),
-                IconButton(
-                  icon: Icon(Icons.info),
-                  onPressed: () {
-                    // Info button logic here
-                  },
-                ),
-              ],
+              ),
             ),
-          ),*/
+          
+            trailing: IconButton(
+              icon: Icon(Icons.info),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text('Information'),
+                      content: Text('You can type any language you want, but the pre-set options are what ChatGPT has been trained on the most/fluent in'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: Text('Close'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ),
           SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 10.0),
@@ -109,7 +207,23 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: IconButton(
                     icon: Icon(Icons.info),
                     onPressed: () {
-                      // Info button logic here
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('Information'),
+                            content: Text('This is a pop-up dialog.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Close the dialog
+                                },
+                                child: Text('Close'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                   ),
                 ),
@@ -123,7 +237,23 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             title: Text('Buy API Access'),
             onTap: () {
-              // Navigate to contact page
+              showDialog(
+                context: context,
+                builder: (context) {
+                   return AlertDialog(
+                    title: Text('Information'),
+                    content: Text('This is a pop-up dialog.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('Close'),
+                      ),
+                    ],
+                  );
+                },
+              );
             },
           ),
           ListTile(
