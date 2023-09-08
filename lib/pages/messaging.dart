@@ -24,7 +24,9 @@ class _MessengerPageState extends State<MessengerPage> {
   String currentUser = 'user1';
   bool _isTyping = false;
   final messageController = TextEditingController();
-  final ScrollController listScrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
+  bool _showVoiceMessage = false;
+  bool _isKeyboardVisible = false;
 
   int _limit = 20;
   int _limitIncrement = 20;
@@ -32,6 +34,13 @@ class _MessengerPageState extends State<MessengerPage> {
   @override
   void initState() {
     super.initState();
+    var keyboardVisibilityController = KeyboardVisibilityController();
+    keyboardVisibilityController.onChange.listen((bool visible) {
+      setState(() {
+        _isKeyboardVisible = visible;
+      });
+    });
+
     messages = GlobalState().globalMessageList;
     apiMessages = GlobalState().globalApiMessageList;
     topicContent = widget.topicContent;
@@ -48,18 +57,6 @@ class _MessengerPageState extends State<MessengerPage> {
           messages.add(response);
           apiMessages.add(Message(content: response.content, isUser: "assistant"));
         });
-        listScrollController.addListener(_scrollListener);
-      });
-    }
-  }
-
-  _scrollListener() {
-    if (!listScrollController.hasClients) return;
-    if (listScrollController.offset >= listScrollController.position.maxScrollExtent &&
-        !listScrollController.position.outOfRange &&
-        _limit <= messages.length) {
-      setState(() {
-        _limit += _limitIncrement;
       });
     }
   }
@@ -71,84 +68,120 @@ class _MessengerPageState extends State<MessengerPage> {
 
       body: KeyboardVisibilityBuilder(
         builder: (context, isKeyboardVisible){
-          return Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    reverse: true,
-                    controller: listScrollController,
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      return MessageWidget(message: messages[messages.length - 1 - index]);
-                    },
-                  ),
-                ),
-                /*if (_isTyping) ...[
-                    const SpinKitThreeBounce(
-                      color: Colors.white,
-                      size: 18,
+          return Stack(
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  Expanded(
+                    child: ListView.builder(
+                      reverse: true,
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        return MessageWidget(message: messages[messages.length - 1 - index]);
+                      },
                     ),
-                  ],*/
-                Container(
-                  //padding: EdgeInsets.only(bottom: isKeyboardVisible ? MediaQuery.of(context).viewInsets.bottom : 0),
-                  padding: EdgeInsets.all(14.0),
-                  height: 75.0,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: messageController,
-                          style: TextStyle(fontSize: 16, color: Colors.black),
-                          decoration: InputDecoration(
-                            hintText: 'Type a message...',
-                            hintStyle: TextStyle(color: Colors.black),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
-                            filled: true,
-                            fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide.none,
+                  ),
+                  
+                  /*if (_isTyping) ...[
+                      const SpinKitThreeBounce(
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ],*/
+                  Container(
+                    padding: EdgeInsets.all(14.0),
+                    //color: Colors.red,
+                    height: 75.0,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            focusNode: _focusNode,
+                            controller: messageController,
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            decoration: InputDecoration(
+                              hintText: 'Type a message...',
+                              hintStyle: TextStyle(color: Colors.black),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
+                              filled: true,
+                              fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                  borderSide: BorderSide.none,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                  borderSide: BorderSide(color: Colors.blue),
+                                ),
+                                //prefixIcon: Icon(Icons.message, color: Colors.blue),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25),
-                                borderSide: BorderSide(color: Colors.blue),
+                          ),
+                        ),
+                        ValueListenableBuilder<TextEditingValue>(
+                          valueListenable: messageController,
+                          builder: (BuildContext context, TextEditingValue textValue, Widget? child) {
+                            return AnimatedSwitcher(
+                              duration: Duration(milliseconds: 300),
+                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                return ScaleTransition(scale: animation, child: child);
+                              },
+                              child: IconButton(
+                                padding: EdgeInsets.only(left: 5),
+                                key: ValueKey<bool>(textValue.text.isEmpty),
+                                icon: textValue.text.isEmpty 
+                                    ? Icon(Icons.mic, size: 37) 
+                                    : Icon(Icons.send, size: 37),
+                                onPressed: () async {
+                                  if (messageController.text.isEmpty) {
+                                    _focusNode.requestFocus();
+                                    setState(() {
+                                      _showVoiceMessage = true; // Show the voice message overlay when mic is pressed
+                                    });
+                                  } else {
+                                    String userMessage = messageController.text.trim();
+                                    messageController.clear();
+                                      if (userMessage.isNotEmpty) {
+                                      setState(() {
+                                        messages.add(Message(content: userMessage, isUser: "user"));
+                                        apiMessages.add(Message(content: userMessage, isUser: "user"));
+                                      });
+                                        final chatbotReply = await ApiService.sendMessage(messages: apiMessages);
+                                      setState(() {
+                                        messages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: "assistant"));
+                                        apiMessages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: "assistant"));
+                                      });
+                                    }
+                                  }
+                                },
                               ),
-                              //prefixIcon: Icon(Icons.message, color: Colors.blue),
-                            ),
+                              
+                            );
+                          }
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (_isKeyboardVisible && _showVoiceMessage)
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showVoiceMessage = false;
+                        });
+                      },
+                      child: Container(
+                        color: Colors.black.withOpacity(0.7),
+                        child: Center(
+                          child: Text(
+                            'Tap the microphone on your keyboard for voice input',
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: () async {
-                          String userMessage = messageController.text.trim();
-                          bool shouldAutoScroll = listScrollController.offset == listScrollController.position.maxScrollExtent;
-
-                          if (userMessage.isNotEmpty) {
-                            setState(() {
-                              messages.add(Message(content: userMessage, isUser: "user"));
-                              apiMessages.add(Message(content: userMessage, isUser: "user"));
-                              if (shouldAutoScroll) {
-                                  listScrollController.animateTo(listScrollController.position.maxScrollExtent, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
-                              }
-                            });
-
-                            final chatbotReply = await ApiService.sendMessage(messages: apiMessages);
-                            setState(() {
-                              messages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: "assistant"));
-                              apiMessages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: "assistant"));
-                              if (shouldAutoScroll) {
-                                  listScrollController.animateTo(listScrollController.position.maxScrollExtent, duration: Duration(milliseconds: 300), curve: Curves.easeOut);
-                              }
-                            });
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            
-              
+                    ),
+            ]
             
           );
         },
