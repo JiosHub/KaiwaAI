@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:kaiwaai/models/message.dart';
+import 'package:unichat_ai/models/message.dart';
 
 class MessageWidget extends StatefulWidget {
   final Message message;

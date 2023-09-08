@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "kaiwaai" "\0"
+            VALUE "FileDescription", "unichat-ai" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "kaiwaai" "\0"
+            VALUE "InternalName", "unichat-ai" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "kaiwaai.exe" "\0"
-            VALUE "ProductName", "kaiwaai" "\0"
+            VALUE "OriginalFilename", "unichat-ai.exe" "\0"
+            VALUE "ProductName", "unichat-ai" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

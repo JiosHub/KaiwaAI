@@ -2,9 +2,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:kaiwaai/pages/menu.dart';
-import 'package:kaiwaai/pages/messaging.dart';
-import 'package:kaiwaai/pages/profile.dart';
+import 'package:unichat_ai/pages/menu.dart';
+import 'package:unichat_ai/pages/messaging.dart';
+import 'package:unichat_ai/pages/profile.dart';
 
 class BottomMenuRibbon extends StatefulWidget {
   static MessengerPage? cachedMessengerPage;
@@ -100,8 +100,8 @@ class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
             label: 'Info',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.menu),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kaiwaai/constants/topic_list.dart';
-import 'package:kaiwaai/pages/messaging.dart';
-import 'package:kaiwaai/constants/api_consts.dart';
-import 'package:kaiwaai/services/global_state.dart';
-import 'package:kaiwaai/widgets/bottom_menu.dart';
+import 'package:unichat_ai/constants/topic_list.dart';
+import 'package:unichat_ai/pages/messaging.dart';
+import 'package:unichat_ai/constants/api_consts.dart';
+import 'package:unichat_ai/services/global_state.dart';
+import 'package:unichat_ai/widgets/bottom_menu.dart';
 
 class MenuPage extends StatefulWidget {
   static String topicContent = "";

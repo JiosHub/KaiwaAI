@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:kaiwaai/constants/api_consts.dart';
-import 'package:kaiwaai/models/message.dart';
+import 'package:unichat_ai/constants/api_consts.dart';
+import 'package:unichat_ai/models/message.dart';
 import 'dart:convert' show utf8;
 
 class ApiService{

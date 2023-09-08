@@ -1,10 +1,10 @@
 import 'dart:math';
-import 'package:kaiwaai/services/global_state.dart';
+import 'package:unichat_ai/services/global_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-import 'package:kaiwaai/models/message.dart';
-import 'package:kaiwaai/services/api.dart';
-import 'package:kaiwaai/widgets/message_widget.dart';
+import 'package:unichat_ai/models/message.dart';
+import 'package:unichat_ai/services/api.dart';
+import 'package:unichat_ai/widgets/message_widget.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kaiwaai/pages/menu.dart';
-import 'package:kaiwaai/widgets/bottom_menu.dart';
+import 'package:unichat_ai/pages/menu.dart';
+import 'package:unichat_ai/services/auth_service.dart';
+import 'package:unichat_ai/widgets/bottom_menu.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -9,6 +10,7 @@ class WelcomePage extends StatefulWidget {
 
 class _WelcomePageState extends State<WelcomePage> {
   final _formKey = GlobalKey<FormState>();
+  final AuthService authService = AuthService();
   String _email = '';
   String _password = '';
 
@@ -31,6 +33,17 @@ class _WelcomePageState extends State<WelcomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              ElevatedButton(
+                onPressed: () async {
+                  final user = await authService.signInWithGoogle();
+                  if (user != null) {
+                    print("Successfully signed in with Google: ${user.displayName}");
+                  } else {
+                    print("Failed to sign in with Google");
+                  }
+                },
+                child: Text("Sign in with Google"),
+              ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Email'),
                 validator: (value) {

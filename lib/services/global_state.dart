@@ -1,4 +1,4 @@
-import 'package:kaiwaai/models/message.dart';
+import 'package:unichat_ai/models/message.dart';
 
 class GlobalState {
   static final GlobalState _singleton = GlobalState._internal();

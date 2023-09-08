@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "KaiwaAI",
+            "name": "UniChat AI",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "KaiwaAI (profile mode)",
+            "name": "UniChat AI (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "KaiwaAI (release mode)",
+            "name": "UniChat AI (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

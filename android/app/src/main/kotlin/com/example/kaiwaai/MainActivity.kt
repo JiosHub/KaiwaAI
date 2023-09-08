@@ -1,4 +1,4 @@
-package com.example.kaiwaai
+package com.example.unichat_ai
 
 import io.flutter.embedding.android.FlutterActivity
 

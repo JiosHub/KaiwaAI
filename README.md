@@ -1,4 +1,4 @@
-# KaiwaAI
+# UniChat AI
 
 A new Flutter project.
 
