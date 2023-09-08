@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "222702678502",
+    "project_id": "unichat-ai",
+    "storage_bucket": "unichat-ai.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222702678502:android:4ca40a6e5b123b96eca627",
+        "android_client_info": {
+          "package_name": "com.example.unichat_ai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "222702678502-tc8j179t6ubcticvb3ahpqh6hhf41gs7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWLAl_FugA2cJXvmqvk_eQczVPfJcrt_E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "222702678502-tc8j179t6ubcticvb3ahpqh6hhf41gs7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
