@@ -34,11 +34,18 @@ class _MessengerPageState extends State<MessengerPage> {
   @override
   void initState() {
     super.initState();
+    messageController.addListener(_onTextChanged);
     var keyboardVisibilityController = KeyboardVisibilityController();
     keyboardVisibilityController.onChange.listen((bool visible) {
       setState(() {
         _isKeyboardVisible = visible;
       });
+      if (visible == false) {
+        setState(() {
+          _focusNode.unfocus();
+          FocusManager.instance.primaryFocus?.unfocus();
+        });
+      }
     });
 
     messages = GlobalState().globalMessageList;
@@ -57,6 +64,14 @@ class _MessengerPageState extends State<MessengerPage> {
           messages.add(response);
           apiMessages.add(Message(content: response.content, isUser: "assistant"));
         });
+      });
+    }
+  }
+
+  void _onTextChanged() {
+    if (messageController.text.isNotEmpty) {
+      setState(() {
+        _showVoiceMessage = false;
       });
     }
   }
@@ -138,6 +153,7 @@ class _MessengerPageState extends State<MessengerPage> {
                                       _showVoiceMessage = true; // Show the voice message overlay when mic is pressed
                                     });
                                   } else {
+                                    _showVoiceMessage = false;
                                     String userMessage = messageController.text.trim();
                                     messageController.clear();
                                       if (userMessage.isNotEmpty) {
@@ -168,6 +184,7 @@ class _MessengerPageState extends State<MessengerPage> {
                       onTap: () {
                         setState(() {
                           _showVoiceMessage = false;
+                          _focusNode.unfocus();
                         });
                       },
                       child: Container(
