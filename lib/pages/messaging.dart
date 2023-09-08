@@ -33,20 +33,30 @@ class _MessengerPageState extends State<MessengerPage> {
 
   @override
   void initState() {
+    try{
     super.initState();
     messageController.addListener(_onTextChanged);
     var keyboardVisibilityController = KeyboardVisibilityController();
     keyboardVisibilityController.onChange.listen((bool visible) {
-      setState(() {
-        _isKeyboardVisible = visible;
-      });
-      if (visible == false) {
+      if (mounted) {
+        setState(() {
+            _isKeyboardVisible = visible;
+        });
+      }
+      if (visible == false && mounted) {
         setState(() {
           _focusNode.unfocus();
           FocusManager.instance.primaryFocus?.unfocus();
         });
       }
     });
+
+    @override
+    void dispose() {
+      messageController.dispose();
+      _focusNode.dispose();
+      super.dispose();
+    }
 
     messages = GlobalState().globalMessageList;
     apiMessages = GlobalState().globalApiMessageList;
@@ -65,6 +75,10 @@ class _MessengerPageState extends State<MessengerPage> {
           apiMessages.add(Message(content: response.content, isUser: "assistant"));
         });
       });
+    }
+    } catch (e, stacktrace) {
+      print("Exception during build: $e");
+      print(stacktrace);
     }
   }
 
@@ -147,7 +161,7 @@ class _MessengerPageState extends State<MessengerPage> {
                                     ? Icon(Icons.mic, size: 37) 
                                     : Icon(Icons.send, size: 37),
                                 onPressed: () async {
-                                  if (messageController.text.isEmpty) {
+                                  if (messageController.text.isEmpty && mounted) {
                                     _focusNode.requestFocus();
                                     setState(() {
                                       _showVoiceMessage = true; // Show the voice message overlay when mic is pressed
@@ -204,6 +218,5 @@ class _MessengerPageState extends State<MessengerPage> {
         },
       )
     );
-    
   }
 }

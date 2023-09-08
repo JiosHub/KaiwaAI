@@ -29,6 +29,7 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   void _selectTopic(int index) {
+    try {
     GlobalState().clearMessageList();
     MenuPage.topicContent = topics[index]['content'] ?? '';
     BottomMenuRibbon.cachedMessengerPage = MessengerPage(topicContent: MenuPage.topicContent);
@@ -40,6 +41,10 @@ class _MenuPageState extends State<MenuPage> {
         builder: (context) => BottomMenuRibbon.cachedMessengerPage!,
       ),
     );
+    } catch (e, stacktrace) {
+    print("Exception during build: $e");
+    print(stacktrace);
+  }
   }
 
   @override
