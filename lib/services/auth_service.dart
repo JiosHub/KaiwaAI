@@ -6,6 +6,7 @@ class AuthService {
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
   Future<User?> signInWithGoogle() async {
+    print("signInWithGoogle called");
     try {
       final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 

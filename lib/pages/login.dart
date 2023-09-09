@@ -19,11 +19,11 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
   String _password = '';
 
   void _submit() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+    //if (_formKey.currentState!.validate()) {
+      //_formKey.currentState!.save();
       // Assuming the login is successful, navigate to the MenuPage
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => BottomMenuRibbon()));
-    }
+    //}
   }
 
   @override
@@ -49,120 +49,125 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
     return Scaffold(
       appBar: AppBar(title: Text('Login'), toolbarHeight: 50.0),
       body: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-              child: SignInButton(
-                Buttons.Google,
-                onPressed: () async {
-                  final user = await authService.signInWithGoogle();
-                  if (user != null) {
-                    print("Successfully signed in with Google: ${user.displayName}");
-                  } else {
-                    print("Failed to sign in with Google");
-                  }
-                },
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Center(
+                child: SignInButton(
+                  Buttons.Google,
+                  onPressed: () async {
+                    final user = await authService.signInWithGoogle();
+                    if (user != null) {
+                      print("Successfully signed in with Google: ${user.displayName}");
+                      _submit();
+                    } else {
+                      print("Failed to sign in with Google");
+                      _submit();
+                    }
+                  },
+                ),
               ),
-            ),
-            SizedBox(height: 10.0),
-            if (!_isEmailLoginVisible)
-              SignInButton(
-                Buttons.Email,
-                onPressed: () {
-                  setState(() {
-                    _isEmailLoginVisible = !_isEmailLoginVisible;
-                  });
-                  if (_isEmailLoginVisible) {
-                    _controller.forward();
-                  } else {
-                    _controller.reverse();
-                  }
-                },
-              )
-            else
-              SizeTransition(
-                sizeFactor: _sizeAnimation,
-                child: Column(
-                  children: [
-                    SizedBox(height: 20.0),
-                    Center(
-                      child: Container(
+              SizedBox(height: 10.0),
+              if (!_isEmailLoginVisible)
+                SignInButton(
+                  Buttons.Email,
+                  onPressed: () {
+                    setState(() {
+                      _isEmailLoginVisible = !_isEmailLoginVisible;
+                    });
+                    if (_isEmailLoginVisible) {
+                      _controller.forward();
+                    } else {
+                      _controller.reverse();
+                    }
+                  },
+                )
+              else
+                SizeTransition(
+                  sizeFactor: _sizeAnimation,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 20.0),
+                      Center(
+                        child: Container(
+                          width: 300,
+                          child: TextFormField(
+                            decoration: InputDecoration(labelText: 'Email'),
+                            
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) => _email = value!,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10.0),
+                      Container(
                         width: 300,
                         child: TextFormField(
-                          decoration: InputDecoration(labelText: 'Email'),
-                          
+                          decoration: InputDecoration(labelText: 'Password'),
+                          obscureText: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
+                              return 'Please enter your password';
                             }
                             return null;
                           },
-                          onSaved: (value) => _email = value!,
+                          onSaved: (value) => _password = value!,
                         ),
                       ),
-                    ),
-                    SizedBox(height: 10.0),
-                    Container(
-                      width: 300,
-                      child: TextFormField(
-                        decoration: InputDecoration(labelText: 'Password'),
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          return null;
+                      SizedBox(height: 30.0),
+                      TextButton(
+                        onPressed: () {
+                          // Handle button press
                         },
-                        onSaved: (value) => _password = value!,
-                      ),
-                    ),
-                    SizedBox(height: 30.0),
-                    TextButton(
-                      onPressed: () {
-                        // Handle button press
-                      },
-                      child: Text(
-                        'Create account',
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          color: Colors.white,
+                        child: Text(
+                          'Create account',
+                          style: TextStyle(
+                            decoration: TextDecoration.underline,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes extra padding
+                          minimumSize: Size(0, 0), // Removes space
                         ),
                       ),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes extra padding
-                        minimumSize: Size(0, 0), // Removes space
-                      ),
-                    ),
-                    SizedBox(height: 20.0),
-                    TextButton(
-                      onPressed: () {
-                        // Handle button press
-                      },
-                      child: Text(
-                        'Reset password',
-                        style: TextStyle(
-                          decoration: TextDecoration.underline,
-                          color: Colors.white,
+                      SizedBox(height: 20.0),
+                      TextButton(
+                        onPressed: () {
+                          // Handle button press
+                        },
+                        child: Text(
+                          'Reset password',
+                          style: TextStyle(
+                            decoration: TextDecoration.underline,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes extra padding
+                          minimumSize: Size(0, 0), // Removes space
                         ),
                       ),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes extra padding
-                        minimumSize: Size(0, 0), // Removes space
+                      SizedBox(height: 15.0),
+                      ElevatedButton(
+                        onPressed: _submit, // Define your _submit method
+                        child: Text('Login'),
                       ),
-                    ),
-                    SizedBox(height: 15.0),
-                    ElevatedButton(
-                      onPressed: _submit, // Define your _submit method
-                      child: Text('Login'),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );  
