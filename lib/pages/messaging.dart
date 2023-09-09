@@ -5,6 +5,7 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:unichat_ai/models/message.dart';
 import 'package:unichat_ai/services/api.dart';
 import 'package:unichat_ai/widgets/message_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -18,7 +19,9 @@ class MessengerPage extends StatefulWidget {
 
 class _MessengerPageState extends State<MessengerPage> {
   
+  
   late String topicContent;
+  late String language;
   List<Message> messages = [];
   List<Message> apiMessages = [];  // List of messages to send to the API
   String currentUser = 'user1';
@@ -27,14 +30,41 @@ class _MessengerPageState extends State<MessengerPage> {
   final FocusNode _focusNode = FocusNode();
   bool _showVoiceMessage = false;
   bool _isKeyboardVisible = false;
-
+  
   int _limit = 20;
   int _limitIncrement = 20;
+
+  Future<void> _loadFirstMessage() async {
+    if(messages.isEmpty){
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      language = prefs.getString('selectedLanguage') ?? "English";
+      topicContent = widget.topicContent;
+      
+      String contentString = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the $language part, in English give feedback on MY (the user) usage of $language, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
+      // Add an initial system message
+    
+    
+      apiMessages.add(Message(
+        content: contentString,isUser: "system",
+      ));
+      //messages.add(Message(content: contentString, isUser: "system"));
+    
+      ApiService.fetchInitialReply(apiMessages[0].content).then((response){
+        setState(() {
+          messages.add(response);
+          apiMessages.add(Message(content: response.content, isUser: "assistant"));
+        });
+      });
+    }
+  }
+
+  
 
   @override
   void initState() {
     try{
     super.initState();
+    print("1111111111111111111111111111111");
     messageController.addListener(_onTextChanged);
     var keyboardVisibilityController = KeyboardVisibilityController();
     keyboardVisibilityController.onChange.listen((bool visible) {
@@ -50,20 +80,16 @@ class _MessengerPageState extends State<MessengerPage> {
         });
       }
     });
-
-    @override
-    void dispose() {
-      messageController.dispose();
-      _focusNode.dispose();
-      super.dispose();
-    }
-
     messages = GlobalState().globalMessageList;
     apiMessages = GlobalState().globalApiMessageList;
-    topicContent = widget.topicContent;
-    String contentString = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT Japanese sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the Japanese part, in English give feedback on MY (the user) usage of Japanese, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
+    print("2222222222222222222222222222222");
+    //_loadFirstMessage();
+    print("77777777777777777777777777777");
+    
+    
+    //String contentString = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the Japanese part, in English give feedback on MY (the user) usage of Japanese, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
     // Add an initial system message
-    if(messages.isEmpty){
+    /*if(messages.isEmpty){
       apiMessages.add(Message(
         content: contentString,isUser: "system",
       ));
@@ -75,11 +101,18 @@ class _MessengerPageState extends State<MessengerPage> {
           apiMessages.add(Message(content: response.content, isUser: "assistant"));
         });
       });
-    }
+    }*/
     } catch (e, stacktrace) {
       print("Exception during build: $e");
       print(stacktrace);
     }
+  }
+
+  @override
+  void dispose() {
+    messageController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   void _onTextChanged() {
@@ -94,7 +127,6 @@ class _MessengerPageState extends State<MessengerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Current Active Topic'), backgroundColor: Colors.cyan, toolbarHeight: 50.0),
-
       body: KeyboardVisibilityBuilder(
         builder: (context, isKeyboardVisible){
           return Stack(
@@ -102,11 +134,22 @@ class _MessengerPageState extends State<MessengerPage> {
               Column(
                 children: <Widget>[
                   Expanded(
-                    child: ListView.builder(
-                      reverse: true,
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        return MessageWidget(message: messages[messages.length - 1 - index]);
+                    child: FutureBuilder<void>(
+                      future: _loadFirstMessage(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(child: Text('Failed to load the first message.'));
+                        } else {
+                          return ListView.builder(
+                            reverse: true,
+                            itemCount: messages.length,
+                            itemBuilder: (context, index) {
+                              return MessageWidget(message: messages[messages.length - 1 - index]);
+                            },
+                          );
+                        }
                       },
                     ),
                   ),

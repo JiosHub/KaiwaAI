@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -6,17 +7,33 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String selectedLanguage = 'English';
+  
   TextEditingController apiKeyController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   //FocusNode focusNode = FocusNode();
   late TextEditingController textEditingController;  // And here
   bool _showLabel = true;
+  late String selectedLanguage;
 
   @override
   void initState() {
     super.initState();
+    selectedLanguage = "...";
+    _loadLanguagePreference();
     textEditingController = TextEditingController(text: selectedLanguage);
+  }
+
+  _loadLanguagePreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedLanguage = prefs.getString('selectedLanguage') ?? "English";
+      textEditingController = TextEditingController(text: selectedLanguage);
+    });
+  }
+
+  _saveLanguagePreference(String language) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('selectedLanguage', language);
   }
 
   @override
@@ -76,6 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         onSelected: (String selection) {
                           setState(() {
                             selectedLanguage = selection;
+                            _saveLanguagePreference(selection);
                             _showLabel = true;  // Hide label when something is selected
                           });
                         },
