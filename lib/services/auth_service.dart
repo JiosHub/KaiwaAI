@@ -37,6 +37,39 @@ class AuthService {
     }
   }
 
+  Future<User?> signUpWithEmail(String email, String password) async {
+    try {
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      print("--------------$email---$password---${userCredential.user}------------");
+      if (userCredential.user != null) {
+        await SharedPreferencesHelper.setIsLoggedIn(true);
+        return userCredential.user;
+      }
+    return null;
+    } catch (e) {
+      print("--------------$email---$password---------------");
+      print("---------------------"+e.toString());
+      print("--------------$email---$password---------------");
+      return null;
+    }
+  }
+
+  Future<User?> signInWithEmail(String email, String password) async {
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential.user;
+    } catch (e) {
+      print("---------------------"+e.toString());
+      return null;
+    }
+  }
+
   Future<void> signOut() async {
     await googleSignIn.signOut();
     await _auth.signOut();

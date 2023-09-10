@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:unichat_ai/pages/menu.dart';
@@ -20,12 +21,12 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
   String _password = '';
 
   void _submit() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+    //if (_formKey.currentState!.validate()) {
+      //_formKey.currentState!.save();
       // Assuming the login is successful, navigate to the MenuPage
       SharedPreferencesHelper.setIsLoggedIn(true);
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => BottomMenuRibbon()));
-    }
+    //}
   }
 
   @override
@@ -69,7 +70,6 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                       _submit();
                     } else {
                       print("Failed to sign in with Google");
-                      _submit();
                     }
                   },
                 ),
@@ -127,8 +127,19 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                       ),
                       SizedBox(height: 30.0),
                       TextButton(
-                        onPressed: () {
-                          // Handle button press
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            _formKey.currentState!.save();
+                            AuthService authService = AuthService();
+                            User? user = await authService.signUpWithEmail(_email, _password);
+                            SharedPreferencesHelper.setUsername(user?.email ?? 'username not found');
+                            if (user != null) {
+                              SharedPreferencesHelper.setIsLoggedIn(true);
+                              _submit();
+                            } else {
+                              print("---------------sign in failed-----------------");
+                            }
+                          }
                         },
                         child: Text(
                           'Create account',
@@ -163,7 +174,20 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                       ),
                       SizedBox(height: 15.0),
                       ElevatedButton(
-                        onPressed: _submit, // Define your _submit method
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                              _formKey.currentState!.save();
+                            AuthService authService = AuthService();
+                            User? user = await authService.signInWithEmail(_email, _password);
+                            SharedPreferencesHelper.setUsername(user?.email ?? 'username not found');
+                            if (user != null) {
+                              SharedPreferencesHelper.setIsLoggedIn(true);
+                              _submit();
+                            } else {
+                              print("---------------sign in failed-----------------");
+                            }
+                          }
+                        }, // Define your _submit method
                         child: Text('Login'),
                       ),
                     ],
