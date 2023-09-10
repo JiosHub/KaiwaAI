@@ -12,11 +12,18 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin {
+  AutovalidateMode _autoValidate = AutovalidateMode.disabled;
+  RegExp regexEmail = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+  RegExp regexPassword = RegExp(r'^(?=.*[A-Z])(?=.*\d).{8,}$');
   final _formKey = GlobalKey<FormState>();
   final AuthService authService = AuthService();
   bool _isEmailLoginVisible = false;
   late AnimationController _controller;
   late Animation<double> _sizeAnimation;
+  bool signInCheck = false;
+  bool signUpCheck = false;
+  bool signInFailed = false;
+  bool signUpFailed = false;
   String _email = '';
   String _password = '';
 
@@ -54,6 +61,7 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
       body: Container(
         child: Form(
           key: _formKey,
+          autovalidateMode: _autoValidate,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -101,11 +109,30 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                           child: TextFormField(
                             decoration: InputDecoration(labelText: 'Email'),
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
+                              print("yooooooooooooooooooooooooooooooooooooooo");
+                              //if (!regex.hasMatch(value!)) {
+                              //  return 'Enter a valid email address';
+                              //}
+                              if (signUpCheck == true && (value == null || value.isEmpty)) {
+                                return 'Enter email to create account';
+                              } else if (signUpCheck == true && !regexEmail.hasMatch(value!)) {
+                                return 'Enter valid email to create account';
                               }
+                              if (signInCheck = true && (value == null || value.isEmpty)) {
+                                return 'Please enter your email';
+                              } else if (signInCheck == true && !regexEmail.hasMatch(value!)) {
+                                return 'Enter valid email to create account';
+                              }
+                              if (signInFailed == true) {
+                                return 'email or password incorrect';
+                              } else if (signUpFailed == true) {
+                                return 'account creation failed';
+                              }
+                              
+                              print("yooooooooooooooooooooooooooooooooooooooo1");
                               return null;
                             },
+                            
                             onSaved: (value) => _email = value!,
                           ),
                         ),
@@ -117,8 +144,18 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                           decoration: InputDecoration(labelText: 'Password'),
                           obscureText: true,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (signUpCheck == true && (value == null || value.isEmpty)) {
+                              return 'Please make a new password';
+                            } else if (signUpCheck == true && !regexPassword.hasMatch(value!)) {
+                              return 'Must have 1 uppercase, 1 number, at least 8 characters';
+                            }
+                            if (signInCheck = true && (value == null || value.isEmpty)) {
                               return 'Please enter your password';
+                            }
+                            if (signInFailed == true) {
+                              return 'email or password incorrect';
+                            } else if (signUpFailed == true) {
+                              return 'account creation failed';
                             }
                             return null;
                           },
@@ -128,15 +165,27 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                       SizedBox(height: 30.0),
                       TextButton(
                         onPressed: () async {
+                          print("yooooooooooooooooooooooooooooooooooooooo22");
+                          signUpCheck = true;
+                          signInCheck = false;
+                          signInFailed = false;
+                          signUpFailed = false;
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
                             AuthService authService = AuthService();
                             User? user = await authService.signUpWithEmail(_email, _password);
                             SharedPreferencesHelper.setUsername(user?.email ?? 'username not found');
                             if (user != null) {
+                              print("yooooooooooooooooooooooooooooooooooooooo2");
+                              //signUpCorrect = true;
                               SharedPreferencesHelper.setIsLoggedIn(true);
                               _submit();
                             } else {
+                              print("yooooooooooooooooooooooooooooooooooooooo3");
+                              signUpFailed = true;
+                              setState(() {
+                                _autoValidate = AutovalidateMode.always;
+                              });
                               print("---------------sign in failed-----------------");
                             }
                           }
@@ -175,15 +224,27 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                       SizedBox(height: 15.0),
                       ElevatedButton(
                         onPressed: () async {
+                          print("yooooooooooooooooooooooooooooooooooooooo33");
+                          signInCheck = true;
+                          signUpCheck = false;
+                          signInFailed = false;
+                          signUpFailed = false;
                           if (_formKey.currentState!.validate()) {
+                            print("yooooooooooooooooooooooooooooooooooooooo");
                               _formKey.currentState!.save();
                             AuthService authService = AuthService();
                             User? user = await authService.signInWithEmail(_email, _password);
                             SharedPreferencesHelper.setUsername(user?.email ?? 'username not found');
                             if (user != null) {
+                              print("yooooooooooooooooooooooooooooooooooooooo5");
                               SharedPreferencesHelper.setIsLoggedIn(true);
                               _submit();
                             } else {
+                              print("yooooooooooooooooooooooooooooooooooooooo6");
+                              signInFailed = true;
+                              setState(() {
+                                _autoValidate = AutovalidateMode.always;
+                              });
                               print("---------------sign in failed-----------------");
                             }
                           }

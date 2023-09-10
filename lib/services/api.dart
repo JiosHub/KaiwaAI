@@ -7,8 +7,6 @@ import 'package:unichat_ai/models/message.dart';
 import 'package:unichat_ai/services/shared_preferences_helper.dart';
 import 'dart:convert' show utf8;
 
-import 'package:unichat_ai/services/auth_service.dart';
-
 class ApiService{
   
   static Future<Message> sendMessage({required List<Message> messages})async {
