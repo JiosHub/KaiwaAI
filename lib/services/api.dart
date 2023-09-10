@@ -4,13 +4,18 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:unichat_ai/constants/api_consts.dart';
 import 'package:unichat_ai/models/message.dart';
+import 'package:unichat_ai/services/shared_preferences_helper.dart';
 import 'dart:convert' show utf8;
 
+import 'package:unichat_ai/services/auth_service.dart';
+
 class ApiService{
+  
   static Future<Message> sendMessage({required List<Message> messages})async {
     log("all messages: ${(messages.map((m) => {"role": m.isUser, "content": m.content})).join(', ')}");
     try{
-
+      String? API_KEY = await SharedPreferencesHelper.getAPIKey();
+      print("----------------------------------$API_KEY");
       var requestBody = jsonEncode({
           "model": "gpt-3.5-turbo",
           "messages": messages.map((message) => {
@@ -99,6 +104,8 @@ class ApiService{
 
   static Future<Message> fetchInitialReply(String content) async {
   try{
+    String? API_KEY = await SharedPreferencesHelper.getAPIKey();
+    print("----------------------------------$API_KEY");
     log("all messages: $content");
     var response = await http.post(
       Uri.parse("$BASE_URL/chat/completions"),

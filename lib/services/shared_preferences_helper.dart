@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPreferencesHelper {
   static final String isLoggedInKey = "isLoggedIn";
   static final String usernameKey = "username";
+  static final String personalAPIKey = "personalAPIKey";
+
 
   static Future<void> setUsername(String username) async {
     final prefs = await SharedPreferences.getInstance();
@@ -12,6 +14,16 @@ class SharedPreferencesHelper {
   static Future<String?> getUsername() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(usernameKey);
+  }
+
+  static Future<void> setAPIKey(String username) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(personalAPIKey, username);
+  }
+
+  static Future<String?> getAPIKey() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(personalAPIKey);
   }
 
   static Future<bool> getIsLoggedIn() async {

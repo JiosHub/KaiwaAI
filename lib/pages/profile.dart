@@ -11,18 +11,24 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   
-  TextEditingController apiKeyController = TextEditingController();
+  late TextEditingController apiKeyController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   //FocusNode focusNode = FocusNode();
   late TextEditingController textEditingController;  // And here
-  bool _showLabel = true;
+  bool _showLabelLang = true;
+  bool _showLabelKey = true;
   late String selectedLanguage;
+  late String personalAPIKey;
+
 
   @override
   void initState() {
     super.initState();
     selectedLanguage = "...";
+    personalAPIKey = "...";
     _loadLanguagePreference();
+    _loadAPIKey();
+    apiKeyController = TextEditingController(text: personalAPIKey);
     textEditingController = TextEditingController(text: selectedLanguage);
   }
 
@@ -30,6 +36,14 @@ class _ProfilePageState extends State<ProfilePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String username = prefs.getString('username') ?? 'username not found';
     return username;
+  }
+
+  _loadAPIKey() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      personalAPIKey = prefs.getString('personalAPIKey') ?? '...';
+      apiKeyController = TextEditingController(text: personalAPIKey);
+    });
   }
 
   _loadLanguagePreference() async {
@@ -43,6 +57,16 @@ class _ProfilePageState extends State<ProfilePage> {
   _saveLanguagePreference(String language) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('selectedLanguage', language);
+  }
+
+  _saveAPIKey(String APIKey) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('personalAPIKey', APIKey);
+  }
+
+  Future<String?> _getAPIKey() async {
+    String? API_KEY = await SharedPreferencesHelper.getAPIKey();
+    return API_KEY;
   }
 
   @override
@@ -94,21 +118,21 @@ class _ProfilePageState extends State<ProfilePage> {
                 offset: Offset(0, -5),  // Adjust the y-coordinate as needed
                 child: GestureDetector(
                   onTap: () {
-                    _showLabel = false;
+                    _showLabelLang = false;
                   },
                   child: Stack(
                     alignment: Alignment.centerLeft,
                     children: [
-                      if (_showLabel) Text(selectedLanguage),  // _showLabel is a bool you would control
+                      if (_showLabelLang) Text(selectedLanguage),  // _showLabel is a bool you would control
                       Autocomplete<String>(
                         optionsBuilder: (TextEditingValue textEditingValue) {
                           if (textEditingValue.text == '') {
                             setState(() {
-                              _showLabel = true;  // Show label when field is empty
+                              _showLabelLang = true;  // Show label when field is empty
                             });
                           } else {
                             setState(() {
-                              _showLabel = false;  // Hide label otherwise
+                              _showLabelLang = false;  // Hide label otherwise
                             });
                           }
                           return ["English", "Japanese", "Korean", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese","Chinese (Simplified)", "Arabic"].where((String option) {
@@ -119,7 +143,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           setState(() {
                             selectedLanguage = selection;
                             _saveLanguagePreference(selection);
-                            _showLabel = true;  // Hide label when something is selected
+                            _showLabelLang = true;  // Hide label when something is selected
                           });
                         },
                         optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
@@ -243,6 +267,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       border: OutlineInputBorder(),
                       labelText: 'Personal OpenAI API Key',
                     ),
+                    
+                    onSubmitted: (String value) {
+                      _saveAPIKey(value);
+                    },
                   ),
                 ),
                 Padding(
