@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:unichat_ai/pages/login.dart';
+import 'package:unichat_ai/services/auth_service.dart';
+import 'package:unichat_ai/services/shared_preferences_helper.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -51,12 +54,17 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(width: 16),
               Text('Username'),
               Spacer(),
-              Padding(padding: EdgeInsets.only(right: 25.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Logout logic here
+              Padding(
+                padding: EdgeInsets.only(right: 20),
+                child: TextButton.icon(
+                  icon: Icon(Icons.logout),
+                  label: Text("Logout"),
+                  onPressed: () async {
+                    AuthService authService = AuthService();
+                    await authService.signOut();
+                    SharedPreferencesHelper.setIsLoggedIn(false);
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => WelcomePage()));
                   },
-                  child: Text('Logout'),
                 ),
               ),
             ],

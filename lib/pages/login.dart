@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:unichat_ai/pages/menu.dart';
 import 'package:unichat_ai/services/auth_service.dart';
+import 'package:unichat_ai/services/shared_preferences_helper.dart';
 import 'package:unichat_ai/widgets/bottom_menu.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -19,11 +20,12 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
   String _password = '';
 
   void _submit() {
-    //if (_formKey.currentState!.validate()) {
-      //_formKey.currentState!.save();
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
       // Assuming the login is successful, navigate to the MenuPage
+      SharedPreferencesHelper.setIsLoggedIn(true);
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => BottomMenuRibbon()));
-    //}
+    }
   }
 
   @override
@@ -61,6 +63,7 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                   onPressed: () async {
                     final user = await authService.signInWithGoogle();
                     if (user != null) {
+                      SharedPreferencesHelper.setIsLoggedIn(true);
                       print("Successfully signed in with Google: ${user.displayName}");
                       _submit();
                     } else {
@@ -96,7 +99,6 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                           width: 300,
                           child: TextFormField(
                             decoration: InputDecoration(labelText: 'Email'),
-                            
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your email';

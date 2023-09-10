@@ -19,7 +19,6 @@ class MessengerPage extends StatefulWidget {
 
 class _MessengerPageState extends State<MessengerPage> {
   
-  
   late String topicContent;
   late String language;
   List<Message> messages = [];
