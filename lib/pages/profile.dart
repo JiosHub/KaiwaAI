@@ -26,6 +26,12 @@ class _ProfilePageState extends State<ProfilePage> {
     textEditingController = TextEditingController(text: selectedLanguage);
   }
 
+  Future<String> _getUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = prefs.getString('username') ?? 'username not found';
+    return username;
+  }
+
   _loadLanguagePreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -52,7 +58,18 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               Icon(Icons.person, size: 50),
               SizedBox(width: 16),
-              Text('Username'),
+              FutureBuilder<String>(
+                future: _getUsername(),
+                builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return Text('${snapshot.data}');
+                  }
+                },
+              ),
               Spacer(),
               Padding(
                 padding: EdgeInsets.only(right: 20),

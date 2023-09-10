@@ -62,6 +62,7 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                   Buttons.Google,
                   onPressed: () async {
                     final user = await authService.signInWithGoogle();
+                    SharedPreferencesHelper.setUsername(user?.displayName ?? user?.email ?? 'username not found');
                     if (user != null) {
                       SharedPreferencesHelper.setIsLoggedIn(true);
                       print("Successfully signed in with Google: ${user.displayName}");
