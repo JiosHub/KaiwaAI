@@ -198,6 +198,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.6.9"
+  flutter_inapp_purchase:
+    dependency: "direct main"
+    description:
+      name: flutter_inapp_purchase
+      sha256: "687aed5b7d813e20bfeb2ed1f3b4b7d335eba56d3d3f6d4721f084016f919d44"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.4.2"
   flutter_keyboard_visibility:
     dependency: "direct main"
     description:

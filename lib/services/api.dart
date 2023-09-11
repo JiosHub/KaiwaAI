@@ -15,7 +15,7 @@ class ApiService{
       String? API_KEY = await SharedPreferencesHelper.getAPIKey();
       print("----------------------------------$API_KEY");
       var requestBody = jsonEncode({
-          "model": "gpt-3.5-turbo",
+          "model": "gpt-4",
           "messages": messages.map((message) => {
             "role": message.isUser, 
             "content": message.content
@@ -110,7 +110,7 @@ class ApiService{
       headers: {'Authorization': 'Bearer $API_KEY', 
       "Content-Type": "application/json; charset=UTF-8"},
       body: jsonEncode({
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-4",
         "messages": [{"role": "system", "content": content}]
       }));
     String decodedResponse = utf8.decode(response.bodyBytes);

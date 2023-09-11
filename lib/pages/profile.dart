@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unichat_ai/pages/login.dart';
 import 'package:unichat_ai/services/auth_service.dart';
@@ -11,6 +12,9 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   
+  
+  //List<IAPItem> items = await FlutterInappPurchase.instance.getProducts(['your_product_id']);
+  late List<IAPItem> items;
   late TextEditingController apiKeyController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   //FocusNode focusNode = FocusNode();
@@ -24,12 +28,26 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    _initInAppPurchase();
+    _fetchProducts();
     selectedLanguage = "...";
     personalAPIKey = "...";
     _loadLanguagePreference();
     _loadAPIKey();
     apiKeyController = TextEditingController(text: personalAPIKey);
     textEditingController = TextEditingController(text: selectedLanguage);
+  }
+
+  Future<void> _initInAppPurchase() async {
+    await FlutterInappPurchase.instance.initialize();
+  }
+
+  _fetchProducts() async {
+    items = await FlutterInappPurchase.instance.getProducts(['your_product_id']);
+  } 
+
+  _buyProduct() async {
+    FlutterInappPurchase.instance.requestPurchase('your_product_id');
   }
 
   Future<String> _getUsername() async {
@@ -183,50 +201,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ],
                   ),
-                  /*child: Autocomplete<String>(
-                    optionsBuilder: (TextEditingValue textEditingValue) {
-                      return ["English", "Japanese", "Chinese (Simplified)", "Korean", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese", "Arabic"].where((String option) {
-                        return option.contains(textEditingValue.text.toLowerCase());
-                      });
-                    },
-                    onSelected: (value) {
-                      print("You selected: " + value);
-                    },
-                    optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
-                      //TextField(controller: textEditingController, onTap: () {textEditingController.clear();});
-                      return Align(
-                        alignment: Alignment.topLeft,
-                        child: Material(
-                          //elevation: 4.0,
-                          child: SizedBox(
-                            width: 200, // Set the width to match your field
-                            height: 200, // Set the maximum height
-                            
-                              child: ListView.builder(
-                                padding: EdgeInsets.zero,
-                                shrinkWrap: true,
-                                itemCount: options.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  final String option = options.elementAt(index);
-                                  return GestureDetector(
-                                    onTap: () {
-                                      onSelected(option);
-                                    },
-                                    child: Container(
-                                      height: 40, // Adjust the height of each option here
-                                      child: ListTile(
-                                        title: Text(option),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            
-                          ),
-                        ),
-                      );
-                    },
-                  ),*/
                 ),
               ),
             ),
@@ -317,9 +291,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     actions: [
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
+                          _buyProduct;
+                          //Navigator.of(context).pop(); // Close the dialog
                         },
-                        child: Text('Close'),
+                        child: Text('Buy'),
                       ),
                     ],
                   );
