@@ -29,6 +29,8 @@ class _MessengerPageState extends State<MessengerPage> {
   final FocusNode _focusNode = FocusNode();
   bool _showVoiceMessage = false;
   bool _isKeyboardVisible = false;
+  bool buttonTranslate = false;
+  bool buttonFeedback = true;
   
   int _limit = 20;
   int _limitIncrement = 20;
@@ -39,6 +41,7 @@ class _MessengerPageState extends State<MessengerPage> {
       language = prefs.getString('selectedLanguage') ?? "English";
       topicContent = widget.topicContent;
       
+      //String contentString = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the $language part, in English give feedback on MY (the user) usage of $language, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
       String contentString = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the $language part, in English give feedback on MY (the user) usage of $language, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
       // Add an initial system message
     
@@ -85,22 +88,6 @@ class _MessengerPageState extends State<MessengerPage> {
     //_loadFirstMessage();
     print("77777777777777777777777777777");
     
-    
-    //String contentString = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the Japanese part, in English give feedback on MY (the user) usage of Japanese, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
-    // Add an initial system message
-    /*if(messages.isEmpty){
-      apiMessages.add(Message(
-        content: contentString,isUser: "system",
-      ));
-      //messages.add(Message(content: contentString, isUser: "system"));
-    
-      ApiService.fetchInitialReply(apiMessages[0].content).then((response){
-        setState(() {
-          messages.add(response);
-          apiMessages.add(Message(content: response.content, isUser: "assistant"));
-        });
-      });
-    }*/
     } catch (e, stacktrace) {
       print("Exception during build: $e");
       print(stacktrace);
@@ -132,6 +119,33 @@ class _MessengerPageState extends State<MessengerPage> {
             children: <Widget>[
               Column(
                 children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          buttonTranslate ? Icons.toggle_on : Icons.toggle_off,  // Use toggle_on/off icons based on state
+                          color: buttonTranslate ? Colors.green : Colors.red,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            buttonTranslate = !buttonTranslate;  // Toggle button state
+                          });
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          buttonFeedback ? Icons.toggle_on : Icons.toggle_off,  // Use toggle_on/off icons based on state
+                          color: buttonFeedback ? Colors.green : Colors.red,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            buttonFeedback = !buttonFeedback;  // Toggle button state
+                          });
+                        },
+                        )
+                      ],
+                    ),
                   Expanded(
                     child: FutureBuilder<void>(
                       future: _loadFirstMessage(),
@@ -219,8 +233,8 @@ class _MessengerPageState extends State<MessengerPage> {
                                       });
                                         final chatbotReply = await ApiService.sendMessage(messages: apiMessages);
                                       setState(() {
-                                        messages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: "assistant"));
-                                        apiMessages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: "assistant"));
+                                        messages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: "assistant", showFeedback: true));
+                                        apiMessages.add(Message(content: chatbotReply.content, feedback: chatbotReply.feedback, isUser: "assistant", showFeedback: true));
                                       });
                                     }
                                   }

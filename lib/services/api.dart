@@ -82,24 +82,6 @@ class ApiService{
     }
   }
 
-  /*static Future<void> getModels({required String message})async {
-    try{
-      var response = await http.get(
-        Uri.parse("$BASE_URL/models"),
-        headers: {'Authorization': 'Bearer $API_KEY'},);
-
-      Map jsonResponse = jsonDecode(response.body);
-
-      if(jsonResponse['error'] != null){
-        print("jsonResponse['error']['message'] ${jsonResponse['error']['message']}");
-        throw HttpException(jsonResponse['error']['message']);
-      }
-      print("jsonResponse: $jsonResponse");
-    }catch(error){
-      print("error $error");
-    }
-  }*/
-
   static Future<Message> fetchInitialReply(String content) async {
   try{
     String? API_KEY = await SharedPreferencesHelper.getAPIKey();
@@ -134,7 +116,7 @@ class ApiService{
         String japanesePart = japaneseParts[0].trim();
         String feedback = responseParts.length > 1 ? responseParts[1].trim() : "";
 
-        return Message(content: japanesePart, feedback: feedback, isUser: "assistant");
+        return Message(content: japanesePart, feedback: "", isUser: "assistant");
       }
 
       return Message(

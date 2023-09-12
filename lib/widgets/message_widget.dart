@@ -12,24 +12,23 @@ class MessageWidget extends StatefulWidget {
 }
 
 class _MessageWidgetState extends State<MessageWidget> {
-  bool showFeedback = false;
 
   @override
   Widget build(BuildContext context) {
     DefaultTextStyle(
-  style: TextStyle(color: Colors.black),
-  child: Text(widget.message.content),
-);
+      style: TextStyle(color: Colors.black),
+      child: Text(widget.message.content),
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Align(
         alignment: widget.message.isUser == "user" ? Alignment.centerRight : Alignment.centerLeft,
         child: GestureDetector(
-          onTap: () {
+          /*onTap: () {
             setState(() {
               showFeedback = !showFeedback;
             });
-          },
+          },*/
           onLongPress: () {
             Clipboard.setData(ClipboardData(text: widget.message.content));
             ScaffoldMessenger.of(context).showSnackBar(
@@ -65,7 +64,7 @@ class _MessageWidgetState extends State<MessageWidget> {
               children: [
                 SelectableText(widget.message.content, style: TextStyle(color: Colors.black)),
                 //SelectableText(widget.message.content),
-                if (showFeedback) ...[
+                if (widget.message.showFeedback && widget.message.isUser != "user") ...[
                   SizedBox(height: 5),
                   SelectableText(widget.message.feedback, style: TextStyle(fontSize: 10, color: Colors.blueGrey[700])),
                 ],

@@ -31,7 +31,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _initInAppPurchase();
     _fetchProducts();
     selectedLanguage = "...";
-    personalAPIKey = "...";
+    personalAPIKey = "";
     _loadLanguagePreference();
     _loadAPIKey();
     apiKeyController = TextEditingController(text: personalAPIKey);
@@ -59,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
   _loadAPIKey() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      personalAPIKey = prefs.getString('personalAPIKey') ?? '...';
+      personalAPIKey = prefs.getString('personalAPIKey') ?? '';
       apiKeyController = TextEditingController(text: personalAPIKey);
     });
   }
