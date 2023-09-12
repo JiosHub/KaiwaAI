@@ -126,6 +126,7 @@ class _MessengerPageState extends State<MessengerPage> {
                         icon: Icon(
                           buttonTranslate ? Icons.toggle_on : Icons.toggle_off,  // Use toggle_on/off icons based on state
                           color: buttonTranslate ? Colors.green : Colors.red,
+                          size: 50,
                         ),
                         onPressed: () {
                           setState(() {
@@ -133,17 +134,33 @@ class _MessengerPageState extends State<MessengerPage> {
                           });
                         },
                       ),
+                      Text("translate"),
                       IconButton(
                         icon: Icon(
                           buttonFeedback ? Icons.toggle_on : Icons.toggle_off,  // Use toggle_on/off icons based on state
                           color: buttonFeedback ? Colors.green : Colors.red,
+                          size: 50,
                         ),
                         onPressed: () {
                           setState(() {
                             buttonFeedback = !buttonFeedback;  // Toggle button state
+                            if(buttonFeedback == false) {
+                              for (Message message in messages) {
+                                if (message.isUser == 'assistant'){
+                                  message.showFeedback = false;
+                                }
+                              }
+                            } else if(buttonFeedback == true) {
+                              for (int i = 1; i < messages.length; i++) {
+                                if (messages[i].isUser == 'assistant'){
+                                  messages[i].showFeedback = true;
+                                }
+                              }
+                            }
                           });
                         },
-                        )
+                        ),
+                        Text("feedback"),
                       ],
                     ),
                   Expanded(
