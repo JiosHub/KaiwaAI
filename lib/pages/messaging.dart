@@ -24,7 +24,7 @@ class _MessengerPageState extends State<MessengerPage> {
   List<Message> messages = [];
   List<Message> apiMessages = [];  // List of messages to send to the API
   String currentUser = 'user1';
-  bool _isTyping = false;
+  //bool _isTyping = false;
   final messageController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _showVoiceMessage = false;
@@ -42,7 +42,7 @@ class _MessengerPageState extends State<MessengerPage> {
       topicContent = widget.topicContent;
       
       //String contentString = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the $language part, in English give feedback on MY (the user) usage of $language, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
-      String contentString = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the $language part, in English give feedback on MY (the user) usage of $language, you MUST mark this with \"Feedback:\". 3) DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
+      String contentString = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the $language part, in English give feedback on ONLY my (messaged marked as \"user\") last messages' usage of $language, you MUST mark this with \"Feedback:\". 3. For the feedback, only give a blunt sentence i.e. do not say \"Great job!\", \"keep it up\" etc";
       // Add an initial system message
     
     
@@ -122,45 +122,62 @@ class _MessengerPageState extends State<MessengerPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      IconButton(
-                        icon: Icon(
-                          buttonTranslate ? Icons.toggle_on : Icons.toggle_off,  // Use toggle_on/off icons based on state
-                          color: buttonTranslate ? Colors.green : Colors.red,
-                          size: 50,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            buttonTranslate = !buttonTranslate;  // Toggle button state
-                          });
-                        },
+                      Column(
+                        mainAxisSize: MainAxisSize.min,  // To make the Column as small as possible
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              buttonTranslate ? Icons.toggle_on : Icons.toggle_off,  // Use toggle_on/off icons based on state
+                              color: buttonTranslate ? Colors.green : Colors.red,
+                              size: 50,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                buttonTranslate = !buttonTranslate;  // Toggle button state
+                              });
+                            },
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left:17),
+                            child: Text("translate"),
+                          ),
+                        ]
                       ),
-                      Text("translate"),
-                      IconButton(
-                        icon: Icon(
-                          buttonFeedback ? Icons.toggle_on : Icons.toggle_off,  // Use toggle_on/off icons based on state
-                          color: buttonFeedback ? Colors.green : Colors.red,
-                          size: 50,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            buttonFeedback = !buttonFeedback;  // Toggle button state
-                            if(buttonFeedback == false) {
-                              for (Message message in messages) {
-                                if (message.isUser == 'assistant'){
-                                  message.showFeedback = false;
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              buttonFeedback ? Icons.toggle_on : Icons.toggle_off,  // Use toggle_on/off icons based on state
+                              color: buttonFeedback ? Colors.green : Colors.red,
+                              size: 50,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                buttonFeedback = !buttonFeedback;  // Toggle button state
+                                if(buttonFeedback == false) {
+                                  for (Message message in messages) {
+                                    if (message.isUser == 'assistant'){
+                                      message.showFeedback = false;
+                                    }
+                                  }
+                                } else if(buttonFeedback == true) {
+                                  for (int i = 1; i < messages.length; i++) {
+                                    if (messages[i].isUser == 'assistant'){
+                                      messages[i].showFeedback = true;
+                                    }
+                                  }
                                 }
                               }
-                            } else if(buttonFeedback == true) {
-                              for (int i = 1; i < messages.length; i++) {
-                                if (messages[i].isUser == 'assistant'){
-                                  messages[i].showFeedback = true;
-                                }
-                              }
-                            }
-                          });
-                        },
-                        ),
-                        Text("feedback"),
+                            );
+                            },
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left:17),
+                              child: Text("feedback"),
+                            ),
+                        ]),
+                        SizedBox(width: 30),
                       ],
                     ),
                   Expanded(

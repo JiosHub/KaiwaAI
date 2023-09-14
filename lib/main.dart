@@ -9,7 +9,7 @@ void main() async {
   await Firebase.initializeApp();
   bool isLoggedIn = await SharedPreferencesHelper.getIsLoggedIn();
   
-  runApp(MyApp(isLoggedIn: isLoggedIn));
+  runApp(MyApp(isLoggedIn: isLoggedIn)); 
 }
 
 class MyApp extends StatelessWidget {

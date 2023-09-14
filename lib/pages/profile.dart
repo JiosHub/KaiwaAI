@@ -28,12 +28,17 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    print("yo");
     _initInAppPurchase();
+    print("yo1");
     _fetchProducts();
+    print("yo2");
     selectedLanguage = "...";
     personalAPIKey = "";
     _loadLanguagePreference();
+    print("yo3");
     _loadAPIKey();
+    print("yo4");
     apiKeyController = TextEditingController(text: personalAPIKey);
     textEditingController = TextEditingController(text: selectedLanguage);
   }
