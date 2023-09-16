@@ -48,26 +48,25 @@ class ApiService{
       
       if (jsonResponse["choices"].length > 0) {
         String fullResponse = jsonResponse["choices"][0]["message"]["content"];
-        // Split the full response at "Feedback:"
-        List<String> responseParts = fullResponse.split("Feedback:");
-        String japanesePartWithTranslation = responseParts[0].trim();
+        
+        // Split the full response at "Translation:"
+        List<String> responsePartsTranslation = fullResponse.split("Translation:");
+        String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
+        
+        String translation = "";
+        String feedback = "";
+        
+        if (responsePartsTranslation.length > 1) {  // Check if "Translation:" was present
+          // Split the remaining part at "Feedback:"
+          List<String> responsePartsFeedback = responsePartsTranslation[1].split("Feedback:");
+          translation = responsePartsFeedback[0].trim();  // Between "Translation:" and "Feedback:"
+          
+          if (responsePartsFeedback.length > 1) {  // Check if "Feedback:" was present
+              feedback = responsePartsFeedback[1].trim();
+          }
+        }
 
-        // Split the Japanese part at "(" to separate the main message and the optional translation
-        List<String> japaneseParts = japanesePartWithTranslation.split("(");
-        String japanesePart = japaneseParts[0].trim();
-
-        String feedback = responseParts.length > 1 ? responseParts[1].trim() : "";
-
-        return Message(content: japanesePart, feedback: feedback, isUser: "assistant");
-
-        //return fullResponse;
-        // Split the full response by the opening bracket "("
-        //List<String> responseParts = fullResponse.split("Feedback:");
-
-        // The Japanese part of the message should be the first element of the list
-        //String japanesePart = responseParts[0].trim();  // Use trim to remove any leading or trailing whitespace
-
-        //return japanesePart;
+        return Message(content: mainContent, feedback: feedback, isUser: "assistant");
       }
 
       return Message(
@@ -109,15 +108,28 @@ class ApiService{
     }
 
     if (jsonResponse["choices"].length > 0) {
-        String fullResponse = jsonResponse["choices"][0]["message"]["content"];
-        List<String> responseParts = fullResponse.split("Feedback:");
-        String japanesePartWithTranslation = responseParts[0].trim();
-        List<String> japaneseParts = japanesePartWithTranslation.split("(");
-        String japanesePart = japaneseParts[0].trim();
-        String feedback = responseParts.length > 1 ? responseParts[1].trim() : "";
-
-        return Message(content: japanesePart, feedback: "", isUser: "assistant");
+      String fullResponse = jsonResponse["choices"][0]["message"]["content"];
+      
+      // Split the full response at "Translation:"
+      List<String> responsePartsTranslation = fullResponse.split("Translation:");
+      String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
+      
+      String translation = "";
+      String feedback = "";
+      
+      if (responsePartsTranslation.length > 1) {  // Check if "Translation:" was present
+        // Split the remaining part at "Feedback:"
+        List<String> responsePartsFeedback = responsePartsTranslation[1].split("Feedback:");
+        translation = responsePartsFeedback[0].trim();  // Between "Translation:" and "Feedback:"
+        
+        if (responsePartsFeedback.length > 1) {  // Check if "Feedback:" was present
+            feedback = responsePartsFeedback[1].trim();
+        }
       }
+
+      return Message(content: mainContent, feedback: feedback, isUser: "assistant");
+    }
+
 
       return Message(
           content: "Sorry, I couldn't process that request.",
