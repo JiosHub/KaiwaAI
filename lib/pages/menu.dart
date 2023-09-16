@@ -59,12 +59,12 @@ class _MenuPageState extends State<MenuPage> {
               Card(
                 color: Colors.grey[300],
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                   child: Center(
                     child: Text(
-                      "      Custom \n (click for info)",
+                      "    Custom \n (click info)",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
@@ -104,8 +104,8 @@ class _MenuPageState extends State<MenuPage> {
               child: topics.isNotEmpty
                 ? GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.5,
+                  crossAxisCount: 1,
+                  childAspectRatio: 5.5,
                   crossAxisSpacing: 8.0,
                   mainAxisSpacing: 8.0,
                 ),
@@ -119,12 +119,13 @@ class _MenuPageState extends State<MenuPage> {
                     child: Card(
                       color: Colors.grey[300],
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Center(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
                           child: Text(
                             topics[index]['title'] ?? '',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),

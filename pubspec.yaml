@@ -33,5 +33,14 @@ flutter:
   uses-material-design: true
   assets:
     - lib/constants/topics.txt
+    - assets/airplane.png
+    - assets/camping.png
+    - assets/food.png
+    - assets/interview.png
+    - assets/key-chain.png
+    - assets/teach.png
+    - assets/train.png
+    - assets/watching-a-movie.png
+    - assets/wave.png
 
 
