@@ -7,12 +7,28 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:222702678502:android:4ca40a6e5b123b96eca627",
+        "mobilesdk_app_id": "1:222702678502:android:ef88a0ef49def58beca627",
         "android_client_info": {
           "package_name": "com.jios.unichat_ai"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "222702678502-g9bflkhskkhpc5erc8mt10ho79eaurv1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jios.unichat_ai",
+            "certificate_hash": "424b71224013c9f8c47d70a202d84727fdd79445"
+          }
+        },
+        {
+          "client_id": "222702678502-puobsptk783bld7vh3f88gmm36avum45.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jios.unichat_ai",
+            "certificate_hash": "4f9e842e628c30474c83fb2d2bc277b6c5ea665b"
+          }
+        },
         {
           "client_id": "222702678502-r3122ck1168oqcdrbqv1qlljk24u65ts.apps.googleusercontent.com",
           "client_type": 3

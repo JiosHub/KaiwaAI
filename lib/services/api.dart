@@ -65,8 +65,8 @@ class ApiService{
               feedback = responsePartsFeedback[1].trim();
           }
         }
-
-        return Message(content: mainContent, feedback: feedback, isUser: "assistant");
+        log("main $mainContent       translation: $translation         feedback: $feedback");
+        return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
       }
 
       return Message(
@@ -126,8 +126,8 @@ class ApiService{
             feedback = responsePartsFeedback[1].trim();
         }
       }
-
-      return Message(content: mainContent, feedback: feedback, isUser: "assistant");
+      log("main $mainContent       translation: $translation         feedback: $feedback");
+      return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
     }
 
 

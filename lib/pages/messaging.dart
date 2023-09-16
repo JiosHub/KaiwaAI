@@ -134,6 +134,19 @@ class _MessengerPageState extends State<MessengerPage> {
                             onPressed: () {
                               setState(() {
                                 buttonTranslate = !buttonTranslate;  // Toggle button state
+                                if(buttonTranslate == true) {
+                                  for (Message message in messages) {
+                                    if (message.isUser == 'assistant'){
+                                      message.showTranslation = true;
+                                    }
+                                  }
+                                } else if(buttonTranslate == false) {
+                                  for (Message message in messages) {
+                                    if (message.isUser == 'assistant'){
+                                      message.showTranslation = false;
+                                    }
+                                  }
+                                }
                               });
                             },
                           ),
@@ -168,8 +181,7 @@ class _MessengerPageState extends State<MessengerPage> {
                                     }
                                   }
                                 }
-                              }
-                            );
+                              });
                             },
                             ),
                             Padding(

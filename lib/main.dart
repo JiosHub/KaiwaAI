@@ -4,11 +4,12 @@ import 'package:unichat_ai/services/shared_preferences_helper.dart';
 import 'package:unichat_ai/widgets/bottom_menu.dart';
 import 'pages/login.dart'; // Adjust the import path based on your project structure
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   bool isLoggedIn = await SharedPreferencesHelper.getIsLoggedIn();
-  
+  await Firebase.initializeApp();
   runApp(MyApp(isLoggedIn: isLoggedIn)); 
 }
 

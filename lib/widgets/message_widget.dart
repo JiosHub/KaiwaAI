@@ -62,7 +62,11 @@ class _MessageWidgetState extends State<MessageWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SelectableText(widget.message.content, style: TextStyle(color: Colors.black)),
+                SelectableText(widget.message.showTranslation && widget.message.isUser == "assistant"
+                    ? widget.message.translation
+                    : widget.message.content,
+                    style: TextStyle(color: Colors.black),
+                ),
                 //SelectableText(widget.message.content),
                 if (widget.message.showFeedback && widget.message.isUser != "user") ...[
                   SizedBox(height: 5),
