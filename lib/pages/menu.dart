@@ -42,37 +42,27 @@ class _MenuPageState extends State<MenuPage> {
       ),
     );
     } catch (e, stacktrace) {
-    print("Exception during build: $e");
-    print(stacktrace);
-  }
+      print("Exception during build: $e");
+      print(stacktrace);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: topics.isNotEmpty
-          ? GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 1.5,
-            crossAxisSpacing: 8.0,
-            mainAxisSpacing: 8.0,
-          ),
-          itemCount: topics.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {
-                //String selectedTopicContent = topics[index]['content'] ?? '';
-                _selectTopic(index);
-              },
-              child: Card(
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Card(
                 color: Colors.grey[300],
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                   child: Center(
                     child: Text(
-                      topics[index]['title'] ?? '',
+                      "      Custom \n (click for info)",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -82,11 +72,74 @@ class _MenuPageState extends State<MenuPage> {
                   ),
                 ),
               ),
-            );
-          },
-        )
-        : Center(child: CircularProgressIndicator()),
-      );
-    
+              SizedBox(width: 25),
+              IconButton(
+                icon: Icon(Icons.info),
+                iconSize: 35,
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Information'),
+                        content: Text('You can type any language you want, but the pre-set options are what ChatGPT has been trained on the most/fluent in'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                            child: Text('Close'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ]
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: topics.isNotEmpty
+                ? GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1.5,
+                  crossAxisSpacing: 8.0,
+                  mainAxisSpacing: 8.0,
+                ),
+                itemCount: topics.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      //String selectedTopicContent = topics[index]['content'] ?? '';
+                      _selectTopic(index);
+                    },
+                    child: Card(
+                      color: Colors.grey[300],
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Center(
+                          child: Text(
+                            topics[index]['title'] ?? '',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              )
+              : Center(child: CircularProgressIndicator()),
+            ),
+          ),
+        ]
+      
+    );
   }
 }
