@@ -22,9 +22,6 @@ class _MenuPageState extends State<MenuPage> {
   void initState() {
     super.initState();
     topics = getTopics();
-    for (int i = 0; i < topics.length; i += 1) {
-      print("Attempting to load: ${topics[i]['icon']}");
-    }
   }
 
   void _selectTopic(int index) {

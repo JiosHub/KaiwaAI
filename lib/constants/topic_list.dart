@@ -12,7 +12,7 @@ List<Map<String, String>> getTopics() {
     },
     {
     'title': 'Speak to language teacher for the first time.',
-    'content': 'You (assistant) should act like a langauge teacher meeting me (the user) one-on-one for the first time. The user will respond as the pupil.',
+    'content': 'You (assistant) should act like a language teacher meeting me (the user) one-on-one for the first time. The user will respond as the pupil.',
     'icon': 'assets/teach.png'
     },
     {
@@ -27,7 +27,7 @@ List<Map<String, String>> getTopics() {
     },
     {
     'title': 'Ask for directions for a train station.',
-    'content': 'You (assistant) are a normal \$language person, I (the user) is looking for a train station, ask if I am lost.',
+    'content': 'You (assistant) are a normal native person, I (the user) is looking for a train station, ask if I am lost.',
     'icon': 'assets/train.png'
     },
     {
