@@ -20,12 +20,10 @@ class _MenuPageState extends State<MenuPage> {
   @override
   void initState() {
     super.initState();
-    _fetchTopics();
-  }
-
-  _fetchTopics() async {
-    topics = await readTopicsFromFile();
-    setState(() {});  // Rebuild the widget
+    topics = getTopics();
+    for (int i = 0; i < topics.length; i += 1) {
+      print("Attempting to load: ${topics[i]['icon']}");
+    }
   }
 
   void _selectTopic(int index) {
@@ -56,19 +54,54 @@ class _MenuPageState extends State<MenuPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Card(
-                color: Colors.grey[300],
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                  child: Center(
-                    child: Text(
-                      "    Custom \n (click info)",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+              Container(
+                height: 65,
+                width: 175,
+                child: Card(
+                  clipBehavior: Clip.antiAlias,
+                  color: Colors.grey[300],
+                  child: Row(
+                    children: [
+                      // This Expanded ensures the text takes as much space as available
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Custom",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      // Container for the decorative Icon with a different background color
+                      Expanded(
+                        child: Container(
+                          alignment: Alignment.centerRight,
+                          decoration: BoxDecoration(
+                            color: Colors.cyan[700],
+                            border: Border(
+                              left: BorderSide(
+                                color: Colors.black,
+                                width: 2.0,
+                              ),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 7),
+                            child: Image.asset(
+                              'assets/cog.png',
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -116,21 +149,53 @@ class _MenuPageState extends State<MenuPage> {
                       //String selectedTopicContent = topics[index]['content'] ?? '';
                       _selectTopic(index);
                     },
-                    child: Card(
+                    child:Card(
+                      clipBehavior: Clip.antiAlias,
                       color: Colors.grey[300],
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            topics[index]['title'] ?? '',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                      child: Row(
+                        children: [
+                          // This Expanded ensures the text takes as much space as available
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  topics[index]['title'] ?? 'error getting topic',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          // Container for the decorative Icon with a different background color
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Container(
+                              height: double.infinity,  // takes up full height of its parent
+                              decoration: BoxDecoration(
+                                color: Colors.cyan[700],
+                                border: Border(
+                                  left: BorderSide(
+                                    color: Colors.black,
+                                    width: 2.0,
+                                  ),
+                                ),
+                              ),
+                              padding: EdgeInsets.all(8.0),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 3),
+                                child: Image.asset(
+                                  topics[index]['icon'] ?? '',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
                       ),
                     ),
                   );
