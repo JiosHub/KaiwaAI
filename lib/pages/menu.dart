@@ -60,7 +60,7 @@ class _MenuPageState extends State<MenuPage> {
               width: 185,
               child: Card(
                 clipBehavior: Clip.antiAlias,
-                color: Colors.grey[800],
+                color: const Color.fromARGB(255, 75, 75, 75),
                 child: Row(
                   children: [
                     // This Expanded ensures the text takes as much space as available
@@ -73,7 +73,7 @@ class _MenuPageState extends State<MenuPage> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey[100],
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -151,7 +151,7 @@ class _MenuPageState extends State<MenuPage> {
                   },
                   child:Card(
                     clipBehavior: Clip.antiAlias,
-                    color: Colors.grey[800],
+                    color: const Color.fromARGB(255, 75, 75, 75),
                     child: Row(
                       children: [
                         // This Expanded ensures the text takes as much space as available
@@ -164,7 +164,7 @@ class _MenuPageState extends State<MenuPage> {
                                 topics[index]['title'] ?? 'error getting topic',
                                 style: TextStyle(
                                   fontSize: 17,
-                                  color: Colors.grey[100],
+                                  color: Colors.white,
                                 ),
                               ),
                             ),

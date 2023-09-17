@@ -59,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
   _loadPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      selectedLanguage = prefs.getString('selectedLanguage') ?? "English";
+      selectedLanguage = prefs.getString('selectedLanguage') ?? "Japanese";
       print('yoooooooooooooooooooooooooo $selectedLanguage');
 
       selectedGPT = prefs.getString('selectedGPT') ?? "gpt-3.5-turbo";
@@ -262,13 +262,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         _saveGPTPreference(selection);
                       });
                     },
-                    items: <String>['gpt-3.5-turbo', 'gpt-3.5-turbo-0613', 'gpt-4', 'davinci', 'text-curie-001']
+                    items: <String>['gpt-3.5-turbo', 'gpt-3.5-turbo-0613', 'gpt-4']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Padding(
                           padding: EdgeInsets.only(left: 2),
-                          child: Text(value)
+                          child: Text(value, style: TextStyle(fontSize: 15))
                         ),
                       );
                     }).toList(),
