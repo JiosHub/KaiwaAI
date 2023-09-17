@@ -98,12 +98,17 @@ class _ProfilePageState extends State<ProfilePage> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
-            
+            height: 80,
+            decoration: BoxDecoration(
+              color:  Colors.grey[800],
+              borderRadius: BorderRadius.circular(5)
+            ),
             child: Row(
               //mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                SizedBox(width: 15),
                 Icon(Icons.person, size: 50),
-                SizedBox(width: 16),
+                SizedBox(width: 10),
                 FutureBuilder<String>(
                   future: _getUsername(),
                   builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
@@ -133,138 +138,155 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-          SizedBox(height: 32),
-          ListTile(
-            leading: Text("Chat Language"), 
-            title: Container(
-              child: Transform.translate(
-                offset: Offset(0, -5),  // Adjust the y-coordinate as needed
-                child: GestureDetector(
-                  onTap: () {
-                    _showLabelLang = false;
-                  },
-                  child: Stack(
-                    alignment: Alignment.centerLeft,
-                    children: [
-                      if (_showLabelLang) Text(selectedLanguage),  // _showLabel is a bool you would control
-                      Autocomplete<String>(
-                        optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text == '') {
-                            setState(() {
-                              _showLabelLang = true;  // Show label when field is empty
-                            });
-                          } else {
-                            setState(() {
-                              _showLabelLang = false;  // Hide label otherwise
-                            });
-                          }
-                          return ["English", "Japanese", "Korean", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese","Chinese (Simplified)", "Arabic"].where((String option) {
-                            return option.contains(textEditingValue.text.toLowerCase());
-                          });
-                        },
-                        onSelected: (String selection) {
-                          setState(() {
-                            selectedLanguage = selection;
-                            _saveLanguagePreference(selection);
-                            _showLabelLang = true;  // Hide label when something is selected
-                          });
-                        },
-                        optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
-                          //TextField(controller: textEditingController, onTap: () {textEditingController.clear();});
-                          return Align(
-                            alignment: Alignment.topLeft,
-                            child: Material(
-                              //elevation: 4.0,
-                              child: SizedBox(
-                                width: 175, // Set the width to match your field
-                                height: 200, // Set the maximum height
-                                
-                                  child: ListView.builder(
-                                    padding: EdgeInsets.zero,
-                                    shrinkWrap: true,
-                                    itemCount: options.length,
-                                    itemBuilder: (BuildContext context, int index) {
-                                      final String option = options.elementAt(index);
-                                      return GestureDetector(
-                                        onTap: () {
-                                          onSelected(option);
+          SizedBox(height: 15),
+          Container(
+            decoration: BoxDecoration(
+              color:  Colors.grey[800],
+              borderRadius: BorderRadius.circular(5)
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                leading: Text("Chat Language", style: TextStyle(fontSize: 14),), 
+                title: Container(
+                  child: Transform.translate(
+                    offset: Offset(0, -5),  // Adjust the y-coordinate as needed
+                    child: GestureDetector(
+                      onTap: () {
+                        _showLabelLang = false;
+                      },
+                      child: Stack(
+                        alignment: Alignment.centerLeft,
+                        children: [
+                          if (_showLabelLang) Text(selectedLanguage),  // _showLabel is a bool you would control
+                          Autocomplete<String>(
+                            optionsBuilder: (TextEditingValue textEditingValue) {
+                              if (textEditingValue.text == '') {
+                                setState(() {
+                                  _showLabelLang = true;  // Show label when field is empty
+                                });
+                              } else {
+                                setState(() {
+                                  _showLabelLang = false;  // Hide label otherwise
+                                });
+                              }
+                              return ["English", "Japanese", "Korean", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese","Chinese (Simplified)", "Arabic"].where((String option) {
+                                return option.contains(textEditingValue.text.toLowerCase());
+                              });
+                            },
+                            onSelected: (String selection) {
+                              setState(() {
+                                selectedLanguage = selection;
+                                _saveLanguagePreference(selection);
+                                _showLabelLang = true;  // Hide label when something is selected
+                              });
+                            },
+                            optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+                              //TextField(controller: textEditingController, onTap: () {textEditingController.clear();});
+                              return Align(
+                                alignment: Alignment.topLeft,
+                                child: Material(
+                                  //elevation: 4.0,
+                                  child: SizedBox(
+                                    width: 175, // Set the width to match your field
+                                    height: 200, // Set the maximum height
+                                    
+                                      child: ListView.builder(
+                                        padding: EdgeInsets.zero,
+                                        shrinkWrap: true,
+                                        itemCount: options.length,
+                                        itemBuilder: (BuildContext context, int index) {
+                                          final String option = options.elementAt(index);
+                                          return GestureDetector(
+                                            onTap: () {
+                                              onSelected(option);
+                                            },
+                                            child: Container(
+                                              height: 40, // Adjust the height of each option here
+                                              child: ListTile(
+                                                title: Text(option),
+                                              ),
+                                            ),
+                                          );
                                         },
-                                        child: Container(
-                                          height: 40, // Adjust the height of each option here
-                                          child: ListTile(
-                                            title: Text(option),
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                      ),
+                                    
                                   ),
-                                
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              
+                trailing: Material(
+                  color: Colors.transparent,
+                  child: IconButton(
+                    icon: Icon(Icons.info),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('Information'),
+                            content: Text('You can type any language you want, but the pre-set options are what ChatGPT has been trained on the most/fluent in'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Close the dialog
+                                },
+                                child: Text('Close'),
                               ),
-                            ),
+                            ],
                           );
                         },
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
               ),
-            ),
-          
-            trailing: IconButton(
-              icon: Icon(Icons.info),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text('Information'),
-                      content: Text('You can type any language you want, but the pre-set options are what ChatGPT has been trained on the most/fluent in'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(); // Close the dialog
-                          },
-                          child: Text('Close'),
+                          ListTile(
+                leading: Text("GPT version     "), 
+                title: Container(
+                  height: 30,
+                  child: DropdownButton<String>(
+                    value: selectedGPT,
+                    isDense: true,
+                    isExpanded: true,
+                    onChanged: (String? selection) {
+                      setState(() {
+                        selectedGPT = selection ?? 'gpt-3.5-turbo';
+                        _saveGPTPreference(selection);
+                      });
+                    },
+                    items: <String>['gpt-3.5-turbo', 'gpt-3.5-turbo-0613', 'gpt-4', 'davinci', 'text-curie-001']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 2),
+                          child: Text(value)
                         ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          ListTile(
-            leading: Text("GPT version     "), 
-            title: Container(
-              height: 30,
-              child: DropdownButton<String>(
-                value: selectedGPT,
-                isDense: true,
-                isExpanded: true,
-                onChanged: (String? selection) {
-                  setState(() {
-                    selectedGPT = selection ?? 'gpt-3.5-turbo';
-                    _saveGPTPreference(selection);
-                  });
-                },
-                items: <String>['gpt-3.5-turbo', 'gpt-3.5-turbo-0613', 'gpt-4', 'davinci', 'text-curie-001']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 2),
-                      child: Text(value)
-                    ),
-                  );
-                }).toList(),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                trailing: Material(
+                  color: Colors.transparent,
+                  //borderRadius: ,
+                  child: IconButton(
+                    icon: Icon(Icons.info),
+                    onPressed: () {},
+                  ),
+                ),
               ),
-            ),
-            trailing: IconButton(
-              icon: Icon(Icons.info),
-              onPressed: () {},
+              ]
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 15),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 10.0),
             child: Row(
@@ -311,53 +333,84 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-          ListTile(
-            trailing: Padding(
-              padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
-              child: Icon(Icons.info),
+          SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color:  Colors.grey[800],
+              borderRadius: BorderRadius.circular(5)
             ),
-            title: Text('Buy API Access'),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                   return AlertDialog(
-                    title: Text('Information'),
-                    content: Text('This is a pop-up dialog.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          _buyProduct;
-                          //Navigator.of(context).pop(); // Close the dialog
-                        },
-                        child: Text('Buy'),
-                      ),
-                    ],
+            child: Material(
+              color: Colors.transparent,
+              child: ListTile(
+                trailing: Padding(
+                  padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
+                  child: Icon(Icons.info),
+                ),
+                title: Text('Buy API Access'),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                        return AlertDialog(
+                        title: Text('Information'),
+                        content: Text('This is a pop-up dialog.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              _buyProduct;
+                              //Navigator.of(context).pop(); // Close the dialog
+                            },
+                            child: Text('Buy'),
+                          ),
+                        ],
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
-          ListTile(
-            trailing: Padding(
-              padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
-              child: Icon(Icons.arrow_forward),
+              ),
             ),
-            title: Text('Settings'),
-            onTap: () {
-              // Navigate to settings page
-            },
           ),
-          ListTile(
-            trailing: Padding(
-              padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
-              child: Icon(Icons.arrow_forward),
+          SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color:  Colors.grey[800],
+              borderRadius: BorderRadius.circular(5)
             ),
-            title: Text('Contact'),
-            onTap: () {
-              // Navigate to contact page
-            },
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(30),
+              child: ListTile(
+                trailing: Padding(
+                  padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
+                  child: Icon(Icons.arrow_forward),
+                ),
+                title: Text('Settings'),
+                onTap: () {
+                  // Navigate to settings page
+                },
+              ),
+            ),
           ),
+          SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color:  Colors.grey[800],
+              borderRadius: BorderRadius.circular(5)
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: ListTile(
+                trailing: Padding(
+                  padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
+                  child: Icon(Icons.arrow_forward),
+                ),
+                title: Text('Contact'),
+                onTap: () {
+                  // Navigate to contact page
+                },
+              )
+            )
+          )
         ],
       ),
     );

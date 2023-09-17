@@ -109,10 +109,6 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                           child: TextFormField(
                             decoration: InputDecoration(labelText: 'Email'),
                             validator: (value) {
-                              print("yooooooooooooooooooooooooooooooooooooooo");
-                              //if (!regex.hasMatch(value!)) {
-                              //  return 'Enter a valid email address';
-                              //}
                               if (signUpCheck == true && (value == null || value.isEmpty)) {
                                 return 'Enter email to create account';
                               } else if (signUpCheck == true && !regexEmail.hasMatch(value!)) {
@@ -128,8 +124,6 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                               } else if (signUpFailed == true) {
                                 return 'account creation failed';
                               }
-                              
-                              print("yooooooooooooooooooooooooooooooooooooooo1");
                               return null;
                             },
                             
@@ -165,7 +159,6 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                       SizedBox(height: 30.0),
                       TextButton(
                         onPressed: () async {
-                          print("yooooooooooooooooooooooooooooooooooooooo22");
                           signUpCheck = true;
                           signInCheck = false;
                           signInFailed = false;
@@ -176,12 +169,10 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                             User? user = await authService.signUpWithEmail(_email, _password);
                             SharedPreferencesHelper.setUsername(user?.email ?? 'username not found');
                             if (user != null) {
-                              print("yooooooooooooooooooooooooooooooooooooooo2");
                               //signUpCorrect = true;
                               SharedPreferencesHelper.setIsLoggedIn(true);
                               _submit();
                             } else {
-                              print("yooooooooooooooooooooooooooooooooooooooo3");
                               signUpFailed = true;
                               setState(() {
                                 _autoValidate = AutovalidateMode.always;
@@ -224,23 +215,19 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                       SizedBox(height: 15.0),
                       ElevatedButton(
                         onPressed: () async {
-                          print("yooooooooooooooooooooooooooooooooooooooo33");
                           signInCheck = true;
                           signUpCheck = false;
                           signInFailed = false;
                           signUpFailed = false;
                           if (_formKey.currentState!.validate()) {
-                            print("yooooooooooooooooooooooooooooooooooooooo");
                               _formKey.currentState!.save();
                             AuthService authService = AuthService();
                             User? user = await authService.signInWithEmail(_email, _password);
                             SharedPreferencesHelper.setUsername(user?.email ?? 'username not found');
                             if (user != null) {
-                              print("yooooooooooooooooooooooooooooooooooooooo5");
                               SharedPreferencesHelper.setIsLoggedIn(true);
                               _submit();
                             } else {
-                              print("yooooooooooooooooooooooooooooooooooooooo6");
                               signInFailed = true;
                               setState(() {
                                 _autoValidate = AutovalidateMode.always;

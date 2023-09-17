@@ -60,7 +60,7 @@ class _MenuPageState extends State<MenuPage> {
               width: 185,
               child: Card(
                 clipBehavior: Clip.antiAlias,
-                color: Colors.grey[400],
+                color: Colors.grey[800],
                 child: Row(
                   children: [
                     // This Expanded ensures the text takes as much space as available
@@ -73,7 +73,7 @@ class _MenuPageState extends State<MenuPage> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: Colors.grey[100],
                           ),
                         ),
                       ),
@@ -106,7 +106,7 @@ class _MenuPageState extends State<MenuPage> {
             ),
             SizedBox(width: 15),
             IconButton(
-              color: Colors.grey[300],
+              color: Colors.grey[500],
               icon: Icon(Icons.info),
               iconSize: 40,
               onPressed: () {
@@ -151,7 +151,7 @@ class _MenuPageState extends State<MenuPage> {
                   },
                   child:Card(
                     clipBehavior: Clip.antiAlias,
-                    color: Colors.grey[400],
+                    color: Colors.grey[800],
                     child: Row(
                       children: [
                         // This Expanded ensures the text takes as much space as available
@@ -163,9 +163,8 @@ class _MenuPageState extends State<MenuPage> {
                               child: Text(
                                 topics[index]['title'] ?? 'error getting topic',
                                 style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                                  fontSize: 17,
+                                  color: Colors.grey[100],
                                 ),
                               ),
                             ),
