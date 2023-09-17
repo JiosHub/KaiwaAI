@@ -12,10 +12,11 @@ class ApiService{
   static Future<Message> sendMessage({required List<Message> messages})async {
     log("all messages: ${(messages.map((m) => {"role": m.isUser, "content": m.content})).join(', ')}");
     try{
-      String? API_KEY = await SharedPreferencesHelper.getAPIKey();
+      String API_KEY = await SharedPreferencesHelper.getAPIKey() ?? "no API key registered"; 
+      String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
       print("----------------------------------$API_KEY");
       var requestBody = jsonEncode({
-          "model": "gpt-4",
+          "model": "$selectedGPT",
           "messages": messages.map((message) => {
             "role": message.isUser, 
             "content": message.content
@@ -83,7 +84,8 @@ class ApiService{
 
   static Future<Message> fetchInitialReply(String content) async {
   try{
-    String? API_KEY = await SharedPreferencesHelper.getAPIKey();
+    String API_KEY = await SharedPreferencesHelper.getAPIKey() ?? "no API key registered"; 
+    String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
     print("----------------------------------$API_KEY");
     log("all messages: $content");
     var response = await http.post(
@@ -91,7 +93,7 @@ class ApiService{
       headers: {'Authorization': 'Bearer $API_KEY', 
       "Content-Type": "application/json; charset=UTF-8"},
       body: jsonEncode({
-        "model": "gpt-4",
+        "model": "$selectedGPT",
         "messages": [{"role": "system", "content": content}]
       }));
     String decodedResponse = utf8.decode(response.bodyBytes);

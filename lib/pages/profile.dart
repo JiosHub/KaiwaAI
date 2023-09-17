@@ -22,25 +22,20 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _showLabelLang = true;
   bool _showLabelKey = true;
   late String selectedLanguage;
+  late String selectedGPT;
   late String personalAPIKey;
 
 
   @override
   void initState() {
     super.initState();
-    print("yo");
     _initInAppPurchase();
-    print("yo1");
     _fetchProducts();
-    print("yo2");
     selectedLanguage = "...";
+    selectedGPT = "gpt-3.5-turbo";
     personalAPIKey = "";
-    _loadLanguagePreference();
-    print("yo3");
-    _loadAPIKey();
-    print("yo4");
     apiKeyController = TextEditingController(text: personalAPIKey);
-    textEditingController = TextEditingController(text: selectedLanguage);
+    _loadPreference();
   }
 
   Future<void> _initInAppPurchase() async {
@@ -61,25 +56,27 @@ class _ProfilePageState extends State<ProfilePage> {
     return username;
   }
 
-  _loadAPIKey() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      personalAPIKey = prefs.getString('personalAPIKey') ?? '';
-      apiKeyController = TextEditingController(text: personalAPIKey);
-    });
-  }
-
-  _loadLanguagePreference() async {
+  _loadPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       selectedLanguage = prefs.getString('selectedLanguage') ?? "English";
-      textEditingController = TextEditingController(text: selectedLanguage);
+      print('yoooooooooooooooooooooooooo $selectedLanguage');
+
+      selectedGPT = prefs.getString('selectedGPT') ?? "gpt-3.5-turbo";
+
+      personalAPIKey = prefs.getString('personalAPIKey') ?? '';
+      apiKeyController = TextEditingController(text: personalAPIKey);
     });
   }
 
   _saveLanguagePreference(String language) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('selectedLanguage', language);
+  }
+
+  _saveGPTPreference(String? selectedGPT) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('selectedGPT', selectedGPT ?? 'gpt-3.5-turbo');
   }
 
   _saveAPIKey(String APIKey) async {
@@ -100,38 +97,41 @@ class _ProfilePageState extends State<ProfilePage> {
         //crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Row(
-            //mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Icon(Icons.person, size: 50),
-              SizedBox(width: 16),
-              FutureBuilder<String>(
-                future: _getUsername(),
-                builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    return Text('${snapshot.data}');
-                  }
-                },
-              ),
-              Spacer(),
-              Padding(
-                padding: EdgeInsets.only(right: 20),
-                child: TextButton.icon(
-                  icon: Icon(Icons.logout),
-                  label: Text("Logout"),
-                  onPressed: () async {
-                    AuthService authService = AuthService();
-                    await authService.signOut();
-                    SharedPreferencesHelper.setIsLoggedIn(false);
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => WelcomePage()));
+          Container(
+            
+            child: Row(
+              //mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Icon(Icons.person, size: 50),
+                SizedBox(width: 16),
+                FutureBuilder<String>(
+                  future: _getUsername(),
+                  builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return Text('${snapshot.data}');
+                    }
                   },
                 ),
-              ),
-            ],
+                Spacer(),
+                Padding(
+                  padding: EdgeInsets.only(right: 20),
+                  child: TextButton.icon(
+                    icon: Icon(Icons.logout),
+                    label: Text("Logout"),
+                    onPressed: () async {
+                      AuthService authService = AuthService();
+                      await authService.signOut();
+                      SharedPreferencesHelper.setIsLoggedIn(false);
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => WelcomePage()));
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
           SizedBox(height: 32),
           ListTile(
@@ -231,6 +231,37 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                 );
               },
+            ),
+          ),
+          ListTile(
+            leading: Text("GPT version     "), 
+            title: Container(
+              height: 30,
+              child: DropdownButton<String>(
+                value: selectedGPT,
+                isDense: true,
+                isExpanded: true,
+                onChanged: (String? selection) {
+                  setState(() {
+                    selectedGPT = selection ?? 'gpt-3.5-turbo';
+                    _saveGPTPreference(selection);
+                  });
+                },
+                items: <String>['gpt-3.5-turbo', 'gpt-3.5-turbo-0613', 'gpt-4', 'davinci', 'text-curie-001']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 2),
+                      child: Text(value)
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.info),
+              onPressed: () {},
             ),
           ),
           SizedBox(height: 10),

@@ -4,6 +4,7 @@ class SharedPreferencesHelper {
   static final String isLoggedInKey = "isLoggedIn";
   static final String usernameKey = "username";
   static final String personalAPIKey = "personalAPIKey";
+  static final String selectedGPT = "selectedGPT";
 
 
   static Future<void> setUsername(String username) async {
@@ -24,6 +25,16 @@ class SharedPreferencesHelper {
   static Future<String?> getAPIKey() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(personalAPIKey);
+  }
+
+  static Future<void> setSelectedGPT(String valueGPT) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(selectedGPT, valueGPT);
+  }
+
+  static Future<String?> getSelectedGPT() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(selectedGPT);
   }
 
   static Future<bool> getIsLoggedIn() async {
