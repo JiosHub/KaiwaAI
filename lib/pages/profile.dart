@@ -3,6 +3,7 @@ import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unichat_ai/pages/login.dart';
 import 'package:unichat_ai/services/auth_service.dart';
+import 'package:unichat_ai/services/global_state.dart';
 import 'package:unichat_ai/services/shared_preferences_helper.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -147,7 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               children: [
                 ListTile(
-                leading: Text("Chat Language", style: TextStyle(fontSize: 14),), 
+                leading: Text("Chat Language", style: TextStyle(fontSize: 14)), 
                 title: Container(
                   child: Transform.translate(
                     offset: Offset(0, -5),  // Adjust the y-coordinate as needed
@@ -177,6 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             onSelected: (String selection) {
                               setState(() {
                                 selectedLanguage = selection;
+                                GlobalState().globalLanguage = selection;
                                 _saveLanguagePreference(selection);
                                 _showLabelLang = true;  // Hide label when something is selected
                               });
@@ -232,7 +234,15 @@ class _ProfilePageState extends State<ProfilePage> {
                         builder: (context) {
                           return AlertDialog(
                             title: Text('Information'),
-                            content: Text('You can type any language you want, but the pre-set options are what ChatGPT has been trained on the most/fluent in'),
+                            content: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  SelectableText('You can type any language you want, but the pre-set options are what ChatGPT has been trained on the most/fluent in.'),
+                                  SizedBox(height: 15),
+                                  SelectableText('If a language that is not listed is used, tts will not work.'),
+                                ]
+                              ),
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () {
@@ -279,7 +289,35 @@ class _ProfilePageState extends State<ProfilePage> {
                   //borderRadius: ,
                   child: IconButton(
                     icon: Icon(Icons.info),
-                    onPressed: () {},
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('Information'),
+                            content: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  SelectableText('ChatGPT 3.5 is an improved version of gpt 3. Responses will be a lot faster and API calls are cheaper.'),
+                                  SizedBox(height: 15),
+                                  SelectableText('ChatGPT 4 has a more detailed prompt and is much more consistant and accurate but is limited as it costs 20x more'),
+                                  SizedBox(height: 15),
+                                  SelectableText('If you have purchased API Access, you can see the GPT 4 message limit on the info page')
+                                ]
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Close the dialog
+                                },
+                                child: Text('Close'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
               ),
@@ -352,15 +390,30 @@ class _ProfilePageState extends State<ProfilePage> {
                     context: context,
                     builder: (context) {
                         return AlertDialog(
-                        title: Text('Information'),
-                        content: Text('This is a pop-up dialog.'),
+                        title: Text('Buy API Access: \£3.99'),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              SelectableText('Messages to GPT 3.5 turbo are unlimited, Messages to GPT 4 are limited to 100 per month unless increased.'),
+                              SizedBox(height: 15),
+                              SelectableText('You can create your own API key at https://platform.openai.com'),
+                              SizedBox(height: 15),
+                              SelectableText('GPT 4 will not be accessable until you have a payment history with openai, see the following: https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4')
+                            ]
+                          ),
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () {
-                              _buyProduct;
-                              //Navigator.of(context).pop(); // Close the dialog
+                              Navigator.of(context).pop(); // Close the dialog
                             },
                             child: Text('Buy'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                            child: Text('Close'),
                           ),
                         ],
                       );
@@ -370,7 +423,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
-          SizedBox(height: 10),
+          /*SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(
               color:  Colors.grey[800],
@@ -390,7 +443,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
             ),
-          ),
+          ),*/
           SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(

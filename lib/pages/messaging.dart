@@ -89,8 +89,10 @@ class _MessengerPageState extends State<MessengerPage> {
         });
       }
     });
+    
     messages = GlobalState().globalMessageList;
     apiMessages = GlobalState().globalApiMessageList;
+    language = GlobalState().globalLanguage;
     print("2222222222222222222222222222222");
     //_loadFirstMessage();
     print("77777777777777777777777777777");

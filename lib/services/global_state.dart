@@ -13,6 +13,7 @@ class GlobalState {
 
   List<Message> globalMessageList = [];
   List<Message> globalApiMessageList = [];
+  String globalLanguage = "";
 
   void clearMessageList() {
     globalMessageList.clear();

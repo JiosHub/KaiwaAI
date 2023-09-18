@@ -90,9 +90,13 @@ class _MessageWidgetState extends State<MessageWidget> {
                 padding: EdgeInsets.zero,
                 onPressed: () async {
                   String language = widget.language;
+                  print("yoooooooooooooooooooooooo $language");
+                  var voices = await flutterTts.getVoices;
+                  print(voices);
                   try {
                   if (language == "English") {
                       await flutterTts.setLanguage("en-US");
+                      await flutterTts.setVoice({"name": "Aaron"});
                   } else if (language == "Japanese") {
                       await flutterTts.setLanguage("ja-JP");
                   } else if (language == "Korean") {
