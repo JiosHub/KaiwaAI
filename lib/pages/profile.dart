@@ -248,7 +248,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
-                          ListTile(
+              ListTile(
                 leading: Text("GPT version     "), 
                 title: Container(
                   height: 30,
@@ -262,7 +262,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         _saveGPTPreference(selection);
                       });
                     },
-                    items: <String>['gpt-3.5-turbo', 'gpt-3.5-turbo-0613', 'gpt-4']
+                    items: <String>['gpt-3.5-turbo', 'gpt-4']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,

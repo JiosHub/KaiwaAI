@@ -190,15 +190,15 @@ class _MessengerPageState extends State<MessengerPage> {
                                 }
                               });
                             },
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left:17),
-                              child: Text("feedback"),
-                            ),
-                        ]),
-                        SizedBox(width: 30),
-                      ],
-                    ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left:17),
+                            child: Text("feedback"),
+                          ),
+                      ]),
+                      SizedBox(width: 30),
+                    ],
+                  ),
                   Expanded(
                     child: FutureBuilder<void>(
                       future: _loadFirstMessage(),
@@ -212,7 +212,7 @@ class _MessengerPageState extends State<MessengerPage> {
                             reverse: true,
                             itemCount: messages.length,
                             itemBuilder: (context, index) {
-                              return MessageWidget(message: messages[messages.length - 1 - index]);
+                              return MessageWidget(message: messages[messages.length - 1 - index], language: language);
                             },
                           );
                         }

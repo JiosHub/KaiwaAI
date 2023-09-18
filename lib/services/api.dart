@@ -10,7 +10,7 @@ import 'dart:convert' show utf8;
 class ApiService{
   
   static Future<Message> sendMessage({required List<Message> messages})async {
-    log("all messages: ${(messages.map((m) => {"role": m.isUser, "content": m.content})).join(', ')}");
+    print("all messages: ${(messages.map((m) => {"role": m.isUser, "content": m.content})).join(', ')}");
     try{
       String API_KEY = await SharedPreferencesHelper.getAPIKey() ?? "no API key registered"; 
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
@@ -31,7 +31,7 @@ class ApiService{
         "Content-Type": "application/json; charset=UTF-8"},
         body: requestBody);
 
-      log("full post: $requestBody");
+      print("full post: $requestBody");
       // Decode the response body as UTF-8
       String decodedResponse = utf8.decode(response.bodyBytes);
       
@@ -39,7 +39,7 @@ class ApiService{
       Map jsonResponse = jsonDecode(decodedResponse);
 
       //Map jsonResponse = jsonDecode(response.body);
-      log("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
+      print("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
 
       if(jsonResponse['error'] != null){
         //print("jsonResponse['error']['message'] ${jsonResponse['error']['message']}");
@@ -66,7 +66,7 @@ class ApiService{
               feedback = responsePartsFeedback[1].trim();
           }
         }
-        log("main $mainContent       translation: $translation         feedback: $feedback");
+        print("main $mainContent       translation: $translation         feedback: $feedback");
         return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
       }
 
@@ -77,7 +77,7 @@ class ApiService{
       );
 
     }catch(error){
-      log("error $error");
+      print("error $error");
       rethrow;
     }
   }
@@ -87,7 +87,7 @@ class ApiService{
     String API_KEY = await SharedPreferencesHelper.getAPIKey() ?? "no API key registered"; 
     String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
     print("----------------------------------$API_KEY");
-    log("all messages: $content");
+    print("all messages: $content");
     var response = await http.post(
       Uri.parse("$BASE_URL/chat/completions"),
       headers: {'Authorization': 'Bearer $API_KEY', 
@@ -102,7 +102,7 @@ class ApiService{
     Map jsonResponse = jsonDecode(decodedResponse);
 
     //Map jsonResponse = jsonDecode(response.body);
-    log("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
+    print("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
 
     if(jsonResponse['error'] != null){
       //print("jsonResponse['error']['message'] ${jsonResponse['error']['message']}");
@@ -128,7 +128,7 @@ class ApiService{
             feedback = responsePartsFeedback[1].trim();
         }
       }
-      log("main $mainContent       translation: $translation         feedback: $feedback");
+      print("main $mainContent       translation: $translation         feedback: $feedback");
       return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
     }
 
@@ -140,7 +140,7 @@ class ApiService{
       );
 
   }catch(error){
-    log("error $error");
+    print("error $error");
     rethrow;
   }
   }
