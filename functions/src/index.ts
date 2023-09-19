@@ -1,11 +1,24 @@
 import * as functions from "firebase-functions";
-import * as fetch from "node-fetch";
-import * as admin from "firebase-admin";
+import fetch from "node-fetch";
+// import * as admin from "firebase-admin";
 
 const BASE_URL = "https://api.openai.com/v1"; // I'm assuming this is the base URL
 
-export const sendMessage = functions.https.onCall(async (data, context) => {
-  const API_KEY = ""; // Place your API key here
+export const sendFunctionMessage =
+functions.https.onCall(async (data) => {
+  // try {
+  // const idToken = request.headers.authorization;
+  // or wherever you put the token
+  // const decodedToken = await admin.auth().verifyIdToken(idToken);
+  // const uid = decodedToken.uid;
+
+  // } catch (error) {
+  // response.status(401).send("Unauthorized");
+  // return;
+  // }
+  // eslint-disable-next-line
+  const API_KEY = "";
+  // Place your API key here
   const selectedGPT = data.selectedGPT; // Default value
   const messages = data.messages;
 
@@ -40,13 +53,13 @@ export const sendMessage = functions.https.onCall(async (data, context) => {
     }
 
     if (jsonResponse.choices && jsonResponse.choices.length > 0) {
-      return {content: jsonResponse.choices[0].message.content,
-        isUser: "assistant"};
+      const fullResponse = jsonResponse.choices[0].message.content;
+      return {content: fullResponse};
       // content: jsonResponse.choices[0].message.content,
       // isUser: "assistant",
     } else {
-      return {content: "Sorry, I couldn't process that request.",
-        isUser: "error"};
+      throw new functions.https.HttpsError("internal",
+        "An internal error occurred.");
     }
   } catch (error) {
     console.error("Error in sendMessage function:", error);

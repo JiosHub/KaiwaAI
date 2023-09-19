@@ -1,4 +1,5 @@
 module.exports = {
+  "extends": ["google"],
   root: true,
   env: {
     es6: true,
