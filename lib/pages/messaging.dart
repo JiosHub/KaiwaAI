@@ -58,7 +58,7 @@ class _MessengerPageState extends State<MessengerPage> {
       ));
       //messages.add(Message(content: contentString, isUser: "system"));
     
-      ApiService.fetchInitialReply(apiMessages[0].content).then((response){
+      ApiService.fetchFirstFunctionMessage(apiMessages[0].content).then((response){
         setState(() {
           messages.add(response);
           apiMessages.add(Message(content: response.content, translation: response.translation, isUser: "assistant"));
@@ -281,12 +281,12 @@ class _MessengerPageState extends State<MessengerPage> {
                                     _showVoiceMessage = false;
                                     String userMessage = messageController.text.trim();
                                     messageController.clear();
-                                      if (userMessage.isNotEmpty) {
+                                    if (userMessage.isNotEmpty) {
                                       setState(() {
                                         messages.add(Message(content: userMessage, isUser: "user"));
                                         apiMessages.add(Message(content: userMessage, isUser: "user"));
                                       });
-                                        final chatbotReply = await ApiService.sendMessage(messages: apiMessages);
+                                      final chatbotReply = await ApiService.sendFunctionMessage(messages: apiMessages);
                                       setState(() {
                                         messages.add(Message(content: chatbotReply.content, translation: chatbotReply.translation, feedback: chatbotReply.feedback, isUser: "assistant", showFeedback: true));
                                         apiMessages.add(Message(content: chatbotReply.content, translation: chatbotReply.translation, feedback: chatbotReply.feedback, isUser: "assistant", showFeedback: true));

@@ -4,8 +4,8 @@ import fetch from "node-fetch";
 
 const BASE_URL = "https://api.openai.com/v1"; // I'm assuming this is the base URL
 
-export const sendFunctionMessage =
-functions.https.onCall(async (data) => {
+export const sendFunctionMessage = functions.https.onCall(async (data) => {
+  console.log("plzplzplzplzplzplzplzplzplzplzplzplzplzplzplzplzplzplz");
   // try {
   // const idToken = request.headers.authorization;
   // or wherever you put the token
@@ -17,21 +17,21 @@ functions.https.onCall(async (data) => {
   // return;
   // }
   // eslint-disable-next-line
-  const API_KEY = "";
+  const API_KEY = "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";
   // Place your API key here
   const selectedGPT = data.selectedGPT; // Default value
   const messages = data.messages;
-
+  console.log(selectedGPT);
   // If you're using Firebase Firestore to store preferences,
   // you can retrieve it like:
   // const preferences =
   // await admin.firestore().collection('preferences').doc('someDocId').get();
   // selectedGPT = preferences.data()?.selectedGPT || 'gpt-3.5-turbo';
-
+  console.log("model:", selectedGPT, "Received messages:", messages);
   const requestBody = JSON.stringify({
     model: selectedGPT,
     messages: messages.map((message: any) => ({
-      role: message.isUser,
+      role: message.role,
       content: message.content,
     })),
   });

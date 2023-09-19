@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 import 'package:unichat_ai/constants/api_consts.dart';
 import 'package:unichat_ai/models/message.dart';
@@ -14,6 +15,8 @@ class ApiService{
     try{
 
       FirebaseFunctions functions = FirebaseFunctions.instance;
+      functions.useFunctionsEmulator('localhost', 5001);
+      print("----------------------$functions");
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
       final response = await functions.httpsCallable('sendFunctionMessage').call({
         'selectedGPT': 'gpt-3.5-turbo', // or any other model you want
@@ -54,14 +57,20 @@ class ApiService{
     try{
       
       FirebaseFunctions functions = FirebaseFunctions.instance;
+      functions.useFunctionsEmulator('10.0.2.2', 5001);
+      print("----------------------${functions}");
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
-      final response = await functions.httpsCallable('sendFunctionMessage').call({
+      print("----------------------$selectedGPT");
+      final dataToSend = {
         'selectedGPT': 'gpt-3.5-turbo', // or any other model you want
         'messages': [{
-          "role": "system", 
+          "role": "system",
           "content": content
         }]
-      });
+      };
+      print('Sending data: $dataToSend');
+      final response = await functions.httpsCallable('sendFunctionMessage').call(dataToSend);
+      print("----------------------doneeeeeee");
       
       // Split the full response at "Translation:"
       final Map<String, dynamic> data = response.data;
