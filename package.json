@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "eslint": "^8.49.0"
+    "eslint": "^8.49.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.5"
   }
 }
