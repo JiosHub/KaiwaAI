@@ -19,9 +19,9 @@ class ApiService{
       print("----------------------$functions");
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
       final response = await functions.httpsCallable('sendFunctionMessage').call({
-        'selectedGPT': 'gpt-3.5-turbo', // or any other model you want
+        'selectedGPT': selectedGPT, // or any other model you want
         'messages': messages.map((message) => {
-          "role": message.isUser, 
+          "role": message.isUser,
           "content": message.content
         })
       });
@@ -62,7 +62,7 @@ class ApiService{
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
       print("----------------------$selectedGPT");
       final dataToSend = {
-        'selectedGPT': 'gpt-3.5-turbo', // or any other model you want
+        'selectedGPT': selectedGPT, // or any other model you want
         'messages': [{
           "role": "system",
           "content": content
@@ -235,5 +235,3 @@ class ApiService{
   }
   }
 }
-
-
