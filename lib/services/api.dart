@@ -14,17 +14,18 @@ class ApiService{
   static Future<Message> sendFunctionMessage({required List<Message> messages})async {
     try{
 
-      FirebaseFunctions functions = FirebaseFunctions.instance;
-      functions.useFunctionsEmulator('localhost', 5001);
+      FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
+      //functions.useFunctionsEmulator('localhost', 5001);
       print("----------------------$functions");
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
-      final response = await functions.httpsCallable('sendFunctionMessage').call({
+      final dataToSend = {
         'selectedGPT': selectedGPT, // or any other model you want
         'messages': messages.map((message) => {
           "role": message.isUser,
           "content": message.content
         })
-      });
+      };
+      final response = await functions.httpsCallable('sendFunctionMessage').call(dataToSend);
       
       // Split the full response at "Translation:"
       final Map<String, dynamic> data = response.data;
@@ -55,9 +56,10 @@ class ApiService{
 
   static Future<Message> fetchFirstFunctionMessage(String content) async {
     try{
-      
-      FirebaseFunctions functions = FirebaseFunctions.instance;
-      functions.useFunctionsEmulator('10.0.2.2', 5001);
+      //curl -X POST -H "Content-Type: application/json" -d '{"selectedGPT": "gpt-3.5-turbo", "messages": [{"role": "system", "content": "content"}]}' https://europe-west1-unichat-ai.cloudfunctions.net/sendFunctionMessage
+
+      FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
+      //functions.useFunctionsEmulator('10.0.2.2', 5001);
       print("----------------------${functions}");
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
       print("----------------------$selectedGPT");

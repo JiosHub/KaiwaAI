@@ -1,33 +1,22 @@
+/* eslint-disable require-jsdoc */
 import * as functions from "firebase-functions";
 import fetch from "node-fetch";
-// import * as admin from "firebase-admin";
 
-const BASE_URL = "https://api.openai.com/v1"; // I'm assuming this is the base URL
+const BASE_URL = "https://api.openai.com/v1";
 
-export const sendFunctionMessage = functions.https.onCall(async (data) => {
-  console.log("plzplzplzplzplzplzplzplzplzplzplzplzplzplzplzplzplzplz");
-  // try {
-  // const idToken = request.headers.authorization;
-  // or wherever you put the token
-  // const decodedToken = await admin.auth().verifyIdToken(idToken);
-  // const uid = decodedToken.uid;
-
-  // } catch (error) {
-  // response.status(401).send("Unauthorized");
-  // return;
-  // }
-  // eslint-disable-next-line
-  const API_KEY = "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";
-  // Place your API key here
-  const selectedGPT = data.selectedGPT; // Default value
+async function sendMessage(data: any) {
+  const selectedGPT = data.selectedGPT || "gpt-3.5-turbo";
   const messages = data.messages;
-  console.log(selectedGPT);
-  // If you're using Firebase Firestore to store preferences,
-  // you can retrieve it like:
-  // const preferences =
-  // await admin.firestore().collection('preferences').doc('someDocId').get();
-  // selectedGPT = preferences.data()?.selectedGPT || 'gpt-3.5-turbo';
-  console.log("model:", selectedGPT, "Received messages:", messages);
+
+  if (!messages || !Array.isArray(messages)) {
+    throw new Error(messages+" must be an array.");
+  }
+
+  if (messages.some((message: any) => !message.role || !message.content)) {
+    // eslint-disable-next-line max-len
+    throw new Error("role and content are required properties for each message.");
+  }
+
   const requestBody = JSON.stringify({
     model: selectedGPT,
     messages: messages.map((message: any) => ({
@@ -36,34 +25,37 @@ export const sendFunctionMessage = functions.https.onCall(async (data) => {
     })),
   });
 
+  const response = await fetch(`${BASE_URL}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${functions.config().openai.key}`,
+      "Content-Type": "application/json",
+    },
+    body: requestBody,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.text();
+    throw new Error(`OpenAI request failed: ${errorData}`);
+  }
+
+  const responseData = await response.json();
+  const latestMessage = responseData.choices?.[0]?.message?.content;
+  return {content: latestMessage};
+}
+
+// eslint-disable-next-line max-len
+export const sendFunctionMessage = functions.region("europe-west1").https.onRequest(async (request, response) => {
   try {
-    const response = await fetch(`${BASE_URL}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: requestBody,
-    });
-
-    const jsonResponse = await response.json();
-
-    if (jsonResponse.error) {
-      throw new Error(jsonResponse.error.message);
+    if (request.method !== "POST") {
+      response.status(405).send("Method Not Allowed");
+      return;
     }
 
-    if (jsonResponse.choices && jsonResponse.choices.length > 0) {
-      const fullResponse = jsonResponse.choices[0].message.content;
-      return {content: fullResponse};
-      // content: jsonResponse.choices[0].message.content,
-      // isUser: "assistant",
-    } else {
-      throw new functions.https.HttpsError("internal",
-        "An internal error occurred.");
-    }
+    const data = request.body;
+    const result = await sendMessage(data);
+    response.status(200).send(result);
   } catch (error) {
-    console.error("Error in sendMessage function:", error);
-    throw new functions.https.HttpsError("internal",
-      "An internal error occurred.");
+    response.status(500).send((error as Error).message || "An error occurred.");
   }
 });
