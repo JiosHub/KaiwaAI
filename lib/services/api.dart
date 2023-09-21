@@ -64,10 +64,10 @@ class ApiService{
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
       print("----------------------$selectedGPT");
       final dataToSend = {
-        'selectedGPT': selectedGPT, // or any other model you want
-        'messages': [{
+        "selectedGPT": selectedGPT, // or any other model you want
+        "messages": [{
           "role": "system",
-          "content": content
+          content: content
         }]
       };
       print('Sending data: $dataToSend');
