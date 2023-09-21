@@ -67,7 +67,7 @@ class ApiService{
         "selectedGPT": selectedGPT, // or any other model you want
         "messages": [{
           "role": "system",
-          content: content
+          "content": content
         }]
       };
       print('Sending data: $dataToSend');
