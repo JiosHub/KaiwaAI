@@ -54,7 +54,7 @@ class _MessengerPageState extends State<MessengerPage> {
     
     
       apiMessages.add(Message(
-        content: contentString,isUser: "system",
+        content: contentString, isUser: "system",
       ));
       //messages.add(Message(content: contentString, isUser: "system"));
     
