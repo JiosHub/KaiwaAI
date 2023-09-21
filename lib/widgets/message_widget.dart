@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:unichat_ai/models/message.dart';
 
 class MessageWidget extends StatefulWidget {
@@ -69,10 +70,23 @@ class _MessageWidgetState extends State<MessageWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SelectableText(widget.message.showTranslation && widget.message.isUser == "assistant"
-                        ? widget.message.translation
-                        : widget.message.content,
-                        style: TextStyle(color: Colors.black),
+                    Stack(
+                      children: [
+                        // This will only show if isLoading is false
+                        if (!widget.message.isLoading)
+                          SelectableText(
+                            widget.message.showTranslation && widget.message.isUser == "assistant"
+                                ? widget.message.translation
+                                : widget.message.content,
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        // This will only show if isLoading is true
+                        if (widget.message.isLoading)
+                          Padding(
+                            padding: EdgeInsets.only(right: 10, left: 10, top: 2),
+                            child: LoadingAnimationWidget.staggeredDotsWave(color: Colors.black, size: 27),
+                          ),
+                      ],
                     ),
                     //SelectableText(widget.message.content),
                     if (widget.message.showFeedback && widget.message.isUser != "user") ...[

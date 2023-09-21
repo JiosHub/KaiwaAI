@@ -13,7 +13,6 @@ class ApiService{
 
   static Future<Message> sendFunctionMessage({required List<Message> messages})async {
     try{
-
       FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
       //functions.useFunctionsEmulator('localhost', 5001);
       print("----------------------$functions");

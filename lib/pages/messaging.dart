@@ -33,9 +33,6 @@ class _MessengerPageState extends State<MessengerPage> {
   bool buttonTranslate = false;
   bool buttonFeedback = true;
   late String contentString;
-  
-  int _limit = 20;
-  int _limitIncrement = 20;
 
   Future<void> _loadFirstMessage() async {
     if(messages.isEmpty){
@@ -56,10 +53,16 @@ class _MessengerPageState extends State<MessengerPage> {
       apiMessages.add(Message(
         content: contentString, isUser: "system",
       ));
+
+      final loadingMessage = Message(content: "", isUser: "assistant", isLoading: true);
+      setState(() {
+        messages.add(loadingMessage);
+      });
       //messages.add(Message(content: contentString, isUser: "system"));
     
       ApiService.fetchFirstFunctionMessage(apiMessages[0].content).then((response){
         setState(() {
+          messages.removeLast();
           messages.add(response);
           apiMessages.add(Message(content: response.content, translation: response.translation, isUser: "assistant"));
         });
@@ -282,12 +285,15 @@ class _MessengerPageState extends State<MessengerPage> {
                                     String userMessage = messageController.text.trim();
                                     messageController.clear();
                                     if (userMessage.isNotEmpty) {
+                                      final loadingMessage = Message(isLoading: true, content: "", isUser: "assistant");
                                       setState(() {
                                         messages.add(Message(content: userMessage, isUser: "user"));
+                                        messages.add(loadingMessage);
                                         apiMessages.add(Message(content: userMessage, isUser: "user"));
                                       });
                                       final chatbotReply = await ApiService.sendFunctionMessage(messages: apiMessages);
                                       setState(() {
+                                        messages.removeLast();
                                         messages.add(Message(content: chatbotReply.content, translation: chatbotReply.translation, feedback: chatbotReply.feedback, isUser: "assistant", showFeedback: true));
                                         apiMessages.add(Message(content: chatbotReply.content, translation: chatbotReply.translation, feedback: chatbotReply.feedback, isUser: "assistant", showFeedback: true));
                                       });
