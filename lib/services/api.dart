@@ -15,7 +15,7 @@ class ApiService{
     try{
 
       FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
-      //functions.useFunctionsEmulator('localhost', 5001);
+      functions.useFunctionsEmulator('localhost', 5001);
       print("----------------------$functions");
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
       final dataToSend = {
@@ -59,7 +59,7 @@ class ApiService{
       //curl -X POST -H "Content-Type: application/json" -d '{"selectedGPT": "gpt-3.5-turbo", "messages": [{"role": "system", "content": "content"}]}' https://europe-west1-unichat-ai.cloudfunctions.net/sendFunctionMessage
 
       FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
-      //functions.useFunctionsEmulator('10.0.2.2', 5001);
+      functions.useFunctionsEmulator('10.0.2.2', 5001);
       print("----------------------${functions}");
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
       print("----------------------$selectedGPT");
