@@ -11,12 +11,44 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
-exports.createUserRecord = functions.auth.user().onCreate((user) => {
+// eslint-disable-next-line max-len
+exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate((user) => {
   return admin.firestore().collection("users").doc(user.uid).set({
     gpt4_message_count: 25,
     gpt3_5_message_count: 100,
     // other initial fields if necessary
   });
+});
+
+// eslint-disable-next-line max-len
+export const checkMessageCount = functions.region("europe-west1").https.onCall(async (data, context) => {
+  // If the user is not authenticated, throw an error
+  if (!context.auth) {
+    // eslint-disable-next-line max-len
+    throw new functions.https.HttpsError("unauthenticated", "The function must be called while authenticated.");
+  }
+
+  const uid = context.auth.uid;
+
+  // Fetch the user's data from Firestore
+  const userRef = db.collection("users").doc(uid);
+  const userData = await userRef.get();
+  const userDocData = userData.data();
+
+  // If data doesn't exist for the user, throw an error
+  if (!userDocData) {
+    throw new functions.https.HttpsError("not-found", "User data not found");
+  }
+
+  // Retrieve the message counts
+  const messageCountGPT4 = userDocData.gpt4_message_count;
+  const messageCountGPT35 = userDocData.gpt3_5_message_count;
+  console.log(messageCountGPT4 +" "+ messageCountGPT35);
+  // Return the counts as a response
+  return {
+    gpt4_message_count: messageCountGPT4,
+    gpt3_5_message_count: messageCountGPT35,
+  };
 });
 
 // eslint-disable-next-line max-len

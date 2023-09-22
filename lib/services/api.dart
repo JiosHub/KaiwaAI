@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 import 'package:unichat_ai/constants/api_consts.dart';
@@ -10,6 +11,37 @@ import 'package:unichat_ai/services/shared_preferences_helper.dart';
 import 'dart:convert' show utf8;
 
 class ApiService{
+
+  static Future<Map<String, int>?> getMessageLimitCount() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        print("User not logged in!");
+        return null;
+      }
+
+      final idToken = await user.getIdToken();
+
+      FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
+      final response = await functions.httpsCallable('checkMessageCount').call();
+
+      final Map<String, dynamic> data = response.data as Map<String, dynamic>;
+      final gpt4MessageCount = data['gpt4_message_count'] as int;
+      final gpt35MessageCount = data['gpt3_5_message_count'] as int;
+
+      print("GPT-4 Message Count: $gpt4MessageCount");
+      print("GPT-3.5 Message Count: $gpt35MessageCount");
+      return {
+        'gpt4_message_count': gpt4MessageCount,
+        'gpt3_5_message_count': gpt35MessageCount,
+      };
+    } catch (e) {
+      print("Error calling checkMessageCount: $e");
+      return null;
+    }
+  }
+
 
   static Future<Message> sendFunctionMessage({required List<Message> messages})async {
     try{
@@ -93,7 +125,6 @@ class ApiService{
       }
       print("main $mainContent       translation: $translation         feedback: $feedback");
       return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
-
     }catch(error){
       print("error $error");
       rethrow;

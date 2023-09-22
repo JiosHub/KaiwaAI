@@ -33,6 +33,8 @@ class _MessengerPageState extends State<MessengerPage> {
   bool buttonTranslate = false;
   bool buttonFeedback = true;
   late String contentString;
+  late int gpt4MessageCount;
+  late int gpt35MessageCount;
 
   Future<void> _loadFirstMessage() async {
     if(messages.isEmpty){
@@ -67,6 +69,7 @@ class _MessengerPageState extends State<MessengerPage> {
           apiMessages.add(Message(content: response.content, translation: response.translation, isUser: "assistant"));
         });
       });
+      ApiService.getMessageLimitCount();
     }
   }
 
