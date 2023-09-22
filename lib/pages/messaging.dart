@@ -53,13 +53,13 @@ class _MessengerPageState extends State<MessengerPage> {
       apiMessages.add(Message(
         content: contentString, isUser: "system",
       ));
-
+      
       final loadingMessage = Message(content: "", isUser: "assistant", isLoading: true);
       setState(() {
         messages.add(loadingMessage);
       });
-      //messages.add(Message(content: contentString, isUser: "system"));
-    
+
+      //messages.add(Message(co ntent: contentString, isUser: "system"));
       ApiService.fetchFirstFunctionMessage(apiMessages[0].content).then((response){
         setState(() {
           messages.removeLast();
