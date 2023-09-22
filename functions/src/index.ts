@@ -26,60 +26,50 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
     const userIdToken = request.get("Authorization")?.split("Bearer ")[1];
     console.log(userIdToken);
     let uid: string | undefined;
+
     if (!userIdToken) {
       response.status(403).send("Unauthorized");
       return;
     }
+
     console.log("2");
     try {
       const decodedToken = await admin.auth().verifyIdToken(userIdToken);
       uid = decodedToken.uid;
     } catch (error) {
-      console.error("Error verifying token", error);
       response.status(403).send("Unauthorized");
       return;
     }
-    console.log("3 "+uid);
-    if (!uid) {
-      response.status(403).send("UID not found after token verification");
+    console.log("3"+uid);
+    const userRef = db.collection("users").doc(uid);
+    const userData = await userRef.get();
+    console.log("Document exists:", userData.exists);
+    console.log("3.5"+ JSON.stringify(userData.data()));
+    if (!userData.exists) {
+      // Handle the case where the user's data doesn't exist
+      response.status(404).send("User data not found");
       return;
     }
     console.log("4");
-    // Fetch the user"s data from Firestore
-    const userRef = db.collection("users").doc(uid);
-    const userData = await userRef.get();
-    const userDocData = await userData.data();
-    console.log("5 "+ userData);
-    let messageCountGPT4 = 0;
-    let messageCountGPT35 = 0;
-
-    if (userDocData) {
-      messageCountGPT4 = userDocData.gpt4_message_count;
-      messageCountGPT35 = userDocData.gpt3_5_message_count;
-      console.log("7 " + messageCountGPT4 + " " + messageCountGPT35);
-    } else {
-      console.log("Failed to retrieve data for user.");
-    }
-
-    console.log("6");
+    const messageCountGPT4 = userData.get("gpt4_message_count");
+    const messageCountGPT35 = userData.get("gpt3_5_message_count");
+    console.log("5");
     // {data:{selectedGPT:, messages:[{role:,content:,}]}}
     const requestData = request.body.data;
-    // eslint-disable-next-line max-len
     const selectedGPT = requestData.selectedGPT;
     const messages = requestData.messages;
     console.log("7 "+messageCountGPT4+messageCountGPT35);
-    if (selectedGPT === "gpt-4" && messageCountGPT4 >= 0) {
+    if (selectedGPT === "gpt-4" && messageCountGPT4 <= 0) {
       // Handle this case
       response.status(400).send("Message limit reached for gpt-4");
       return;
     // eslint-disable-next-line max-len
-    } else if (selectedGPT === "gpt-3.5-turbo" && messageCountGPT35 >= 0) {
+    } else if (selectedGPT === "gpt-3.5-turbo" && messageCountGPT35 <= 0) {
       // Handle this case
       response.status(400).send("Message limit reached for gpt-3.5-turbo");
       return;
     }
     console.log("8");
-
     let requestBody = "undefined";
 
     if (!Array.isArray(messages)) {
@@ -103,23 +93,22 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
       },
       body: requestBody,
     });
-    console.log("10");
     if (!apiResponse.ok) {
       const errorData = await apiResponse.text();
       console.log(`OpenAI request failed: ${errorData}`);
       throw new Error(`OpenAI request failed: ${errorData}`);
     }
-    console.log("11");
+
     const responseData = await apiResponse.json();
     const latestMessage = responseData.choices?.[0]?.message?.content;
-    console.log("12");
+
     if (selectedGPT === "gpt-4") {
       await userRef.update({
-        gpt3_5_message_count: admin.firestore.FieldValue.increment(-1),
+        gpt4_message_count: admin.firestore.FieldValue.increment(-1),
       });
     } else if (selectedGPT === "gpt-3.5-turbo") {
       await userRef.update({
-        gpt4_message_count: admin.firestore.FieldValue.increment(-1),
+        gpt3_5_message_count: admin.firestore.FieldValue.increment(-1),
       });
     }
     console.log("13");

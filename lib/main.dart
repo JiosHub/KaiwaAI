@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:unichat_ai/services/shared_preferences_helper.dart';
 import 'package:unichat_ai/widgets/bottom_menu.dart';
-import 'pages/login.dart'; // Adjust the import path based on your project structure
+import 'pages/login.dart';
 
 
 void main() async {
