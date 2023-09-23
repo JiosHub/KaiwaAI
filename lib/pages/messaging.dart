@@ -182,105 +182,6 @@ class _MessengerPageState extends State<MessengerPage> {
             children: <Widget>[
               Column(
                 children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 20, top: 15),
-                        child: Column(
-                          //mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("GPT 4:"),
-                                SizedBox(width: 20),  // A space between the text and the number
-                                Text(gpt4MessageCount == -1 ? "loading..." : gpt4MessageCount.toString()),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("GPT 3.5:"),
-                                SizedBox(width: 9),  // A space between the text and the number
-                                Text(gpt35MessageCount == -1 ? "loading..." : gpt35MessageCount.toString()),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Spacer(),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,  // To make the Column as small as possible
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              buttonTranslate ? Icons.toggle_on : Icons.toggle_off,  // Use toggle_on/off icons based on state
-                              color: buttonTranslate ? Colors.green : Colors.red,
-                              size: 50,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                buttonTranslate = !buttonTranslate;  // Toggle button state
-                                if(buttonTranslate == true) {
-                                  for (Message message in messages) {
-                                    if (message.isUser == 'assistant'){
-                                      message.showTranslation = true;
-                                    }
-                                  }
-                                } else if(buttonTranslate == false) {
-                                  for (Message message in messages) {
-                                    if (message.isUser == 'assistant'){
-                                      message.showTranslation = false;
-                                    }
-                                  }
-                                }
-                              });
-                            },
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left:17),
-                            child: Text("translate"),
-                          ),
-                        ]
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              buttonFeedback ? Icons.toggle_on : Icons.toggle_off,  // Use toggle_on/off icons based on state
-                              color: buttonFeedback ? Colors.green : Colors.red,
-                              size: 50,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                buttonFeedback = !buttonFeedback;  // Toggle button state
-                                if(buttonFeedback == false) {
-                                  for (Message message in messages) {
-                                    if (message.isUser == 'assistant'){
-                                      message.showFeedback = false;
-                                    }
-                                  }
-                                } else if(buttonFeedback == true) {
-                                  for (int i = 1; i < messages.length; i++) {
-                                    if (messages[i].isUser == 'assistant'){
-                                      messages[i].showFeedback = true;
-                                    }
-                                  }
-                                }
-                              });
-                            },
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left:17),
-                            child: Text("feedback"),
-                          ),
-                      ]),
-                      SizedBox(width: 30),
-                    ],
-                  ),
                   Expanded(
                     child: FutureBuilder<void>(
                       future: _loadFirstMessage(),
@@ -387,6 +288,150 @@ class _MessengerPageState extends State<MessengerPage> {
                     ),
                   ),
                 ],
+              ),
+              Positioned(
+                right: 22,  // This positions the container to the right edge of the stack
+                top: 15,   // Adjust this as needed
+                width: 140, // Width of the container
+                height: 55, // Height of the container
+                child: Container(
+                  decoration: BoxDecoration(
+                    color:  Colors.cyan[900],
+                    borderRadius: BorderRadius.circular(5)
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 20, top: 0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color:  Colors.cyan[900],
+                          borderRadius: BorderRadius.circular(5)
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                        child: Column(
+                          //mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("GPT 4:"),
+                                SizedBox(width: 20),  // A space between the text and the number
+                                Text(gpt4MessageCount == -1 ? "loading..." : gpt4MessageCount.toString()),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("GPT 3.5:"),
+                                SizedBox(width: 9),  // A space between the text and the number
+                                Text(gpt35MessageCount == -1 ? "loading..." : gpt35MessageCount.toString()),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Spacer(),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisSize: MainAxisSize.min,  // Center the contents by default
+                            children: [
+                              InkWell(
+                                child: Icon(
+                                  buttonTranslate ? Icons.toggle_on : Icons.toggle_off,  // Use toggle_on/off icons based on state
+                                  color: buttonTranslate ? Colors.green : Colors.red,
+                                  size: 50,
+                                ),
+                                onTap: () {
+                                  setState(() {
+                                    buttonTranslate = !buttonTranslate;  // Toggle button state
+                                    if(buttonTranslate == true) {
+                                      for (Message message in messages) {
+                                        if (message.isUser == 'assistant'){
+                                          message.showTranslation = true;
+                                        }
+                                      }
+                                    } else if(buttonTranslate == false) {
+                                      for (Message message in messages) {
+                                        if (message.isUser == 'assistant'){
+                                          message.showTranslation = false;
+                                        }
+                                      }
+                                    }
+                                  });
+                                },
+                              ),
+                              Transform.translate(
+                                offset: Offset(0, -10),  // Adjust the y value (-10) to change the upward shift
+                                child: Text(
+                                  "translate",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    backgroundColor: Colors.transparent,
+                                  ),
+                                ),
+                              ),
+                            ]
+                          ),
+                          SizedBox(width:10,),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,  // Center the contents by default
+                            children: [
+                              InkWell(
+                                child: Icon(
+                                  buttonFeedback ? Icons.toggle_on : Icons.toggle_off,
+                                  color: buttonFeedback ? Colors.green : Colors.red,
+                                  size: 50,
+                                ),
+                                onTap: () {
+                                  setState(() {
+                                    buttonFeedback = !buttonFeedback;  // Toggle button state
+                                    if(buttonFeedback == false) {
+                                      for (Message message in messages) {
+                                        if (message.isUser == 'assistant'){
+                                          message.showFeedback = false;
+                                        }
+                                      }
+                                    } else if(buttonFeedback == true) {
+                                      for (int i = 1; i < messages.length; i++) {
+                                        if (messages[i].isUser == 'assistant'){
+                                          messages[i].showFeedback = true;
+                                        }
+                                      }
+                                    }
+                                  });
+                                },
+                              ),
+                              Transform.translate(
+                                offset: Offset(0, -10),  // Adjust the y value (-10) to change the upward shift
+                                child: Text(
+                                  "feedback",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    backgroundColor: Colors.transparent,
+                                  ),
+                                ),
+                              ),
+                            ]
+                          ),
+                        ]
+                      ),
+                    ),
+                    SizedBox(width: 30),
+                  ],
+                ),
               ),
               if (_isKeyboardVisible && _showVoiceMessage)
                     GestureDetector(
