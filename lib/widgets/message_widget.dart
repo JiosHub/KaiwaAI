@@ -103,43 +103,41 @@ class _MessageWidgetState extends State<MessageWidget> {
                 color: Colors.blue,
                 padding: EdgeInsets.zero,
                 onPressed: () async {
-                  String language = widget.language;
-                  print("yoooooooooooooooooooooooo $language");
-                  var voices = await flutterTts.getVoices;
-                  print(voices);
                   try {
-                  if (language == "English") {
-                      await flutterTts.setLanguage("en-US");
-                      await flutterTts.setVoice({"name": "Aaron"});
-                  } else if (language == "Japanese") {
-                      await flutterTts.setLanguage("ja-JP");
-                  } else if (language == "Korean") {
-                      await flutterTts.setLanguage("ko-KR");
-                  } else if (language == "Spanish") {
-                      await flutterTts.setLanguage("es-ES");
-                  } else if (language == "French") {
-                      await flutterTts.setLanguage("fr-FR");
-                  } else if (language == "German") {
-                      await flutterTts.setLanguage("de-DE");
-                  } else if (language == "Swedish") {
-                      await flutterTts.setLanguage("sv-SE");
-                  } else if (language == "Italian") {
-                      await flutterTts.setLanguage("it-IT");
-                  } else if (language == "Russian") {
-                      await flutterTts.setLanguage("ru-RU");
-                  } else if (language == "Dutch") {
-                      await flutterTts.setLanguage("nl-NL");
-                  } else if (language == "Danish") {
-                      await flutterTts.setLanguage("da-DK");
-                  } else if (language == "Portuguese") {
-                      await flutterTts.setLanguage("pt-PT");  // For European Portuguese. Use "pt-BR" for Brazilian Portuguese
-                  } else if (language == "Chinese (Simplified)") {
-                      await flutterTts.setLanguage("zh-CN");  // Simplified Chinese
-                  } else if (language == "Arabic") {
-                      await flutterTts.setLanguage("ar-SA");  // This is for Saudi Arabia Arabic. Arabic has various dialects so you might need to adjust based on your target audience.
-                  } 
-                  await flutterTts.setPitch(1);
-                  await flutterTts.speak(widget.message.content);
+                    String language = widget.language;
+                    var voices = await flutterTts.getVoices.timeout(Duration(seconds: 5));
+                    if (language == "English") {
+                        await flutterTts.setLanguage("en-US");
+                        await flutterTts.setVoice({"name": "Aaron"});
+                    } else if (language == "Japanese") {
+                        await flutterTts.setLanguage("ja-JP");
+                    } else if (language == "Korean") {
+                        await flutterTts.setLanguage("ko-KR");
+                    } else if (language == "Spanish") {
+                        await flutterTts.setLanguage("es-ES");
+                    } else if (language == "French") {
+                        await flutterTts.setLanguage("fr-FR");
+                    } else if (language == "German") {
+                        await flutterTts.setLanguage("de-DE");
+                    } else if (language == "Swedish") {
+                        await flutterTts.setLanguage("sv-SE");
+                    } else if (language == "Italian") {
+                        await flutterTts.setLanguage("it-IT");
+                    } else if (language == "Russian") {
+                        await flutterTts.setLanguage("ru-RU");
+                    } else if (language == "Dutch") {
+                        await flutterTts.setLanguage("nl-NL");
+                    } else if (language == "Danish") {
+                        await flutterTts.setLanguage("da-DK");
+                    } else if (language == "Portuguese") {
+                        await flutterTts.setLanguage("pt-PT");  // For European Portuguese. Use "pt-BR" for Brazilian Portuguese
+                    } else if (language == "Chinese (Simplified)") {
+                        await flutterTts.setLanguage("zh-CN");  // Simplified Chinese
+                    } else if (language == "Arabic") {
+                        await flutterTts.setLanguage("ar-SA");  // This is for Saudi Arabia Arabic. Arabic has various dialects so you might need to adjust based on your target audience.
+                    } 
+                    await flutterTts.setPitch(1);
+                    await flutterTts.speak(widget.message.content);
                   } catch (e) {print("Language not supported or not listed, error: $e");}
                 },
               ),  // audio icon for assistant messages

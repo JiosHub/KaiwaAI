@@ -63,10 +63,10 @@ class ApiService{
       final fullResponse = data['content'];
       List<String> responsePartsTranslation = fullResponse.split("Translation:");
       String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
-      
+
       String translation = "";
       String feedback = "";
-      
+
       if (responsePartsTranslation.length > 1) {  // Check if "Translation:" was present
         // Split the remaining part at "Feedback:"
         List<String> responsePartsFeedback = responsePartsTranslation[1].split("Feedback:");

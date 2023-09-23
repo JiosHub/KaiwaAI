@@ -33,13 +33,13 @@ class _MessengerPageState extends State<MessengerPage> {
   bool buttonTranslate = false;
   bool buttonFeedback = true;
   late String contentString;
-  late int gpt4MessageCount;
-  late int gpt35MessageCount;
+  int gpt4MessageCount = -1;
+  int gpt35MessageCount = -1;
 
   Future<void> _loadFirstMessage() async {
     if(messages.isEmpty){
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      language = prefs.getString('selectedLanguage') ?? "English";
+      language = prefs.getString('selectedLanguage') ?? "Japanese";
       topicContent = widget.topicContent;
       
       String contentString35 = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence, DO NOT translate this part to english. 2: AFTER the $language part, translate your provided sentence to English, you MUST mark this with \"Translation:\". 3: AFTER the translation, in English give feedback on MY (the user) usage of $language, you MUST mark this with \"Feedback:\". 3: DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
@@ -73,6 +73,26 @@ class _MessengerPageState extends State<MessengerPage> {
     }
   }
 
+  Future<void> _MessageLimit() async {
+    if (gpt4MessageCount == -1 && gpt35MessageCount == -1) {
+      final data = await ApiService.getMessageLimitCount();
+      if (data != null) {
+        gpt4MessageCount = data['gpt4_message_count'] as int;
+        gpt35MessageCount = data['gpt3_5_message_count'] as int;
+      }
+    } else {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (prefs.getString('selectedGPT') == "gpt-4") {
+        setState(() {
+          gpt4MessageCount--;
+        });
+      } else if (prefs.getString('selectedGPT') == "gpt-3.5-turbo") {
+        setState(() {
+          gpt35MessageCount--;
+        });
+      }
+    }
+  }
   
 
   @override
@@ -80,6 +100,7 @@ class _MessengerPageState extends State<MessengerPage> {
     try{
     super.initState();
     print("1111111111111111111111111111111");
+    _MessageLimit();
     messageController.addListener(_onTextChanged);
     var keyboardVisibilityController = KeyboardVisibilityController();
     keyboardVisibilityController.onChange.listen((bool visible) {
@@ -135,8 +156,34 @@ class _MessengerPageState extends State<MessengerPage> {
               Column(
                 children: <Widget>[
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: 20, top: 15),
+                        child: Column(
+                          //mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("GPT 4:"),
+                                SizedBox(width: 20),  // A space between the text and the number
+                                Text(gpt4MessageCount == -1 ? "loading..." : gpt4MessageCount.toString()),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("GPT 3.5:"),
+                                SizedBox(width: 9),  // A space between the text and the number
+                                Text(gpt35MessageCount == -1 ? "loading..." : gpt35MessageCount.toString()),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Spacer(),
                       Column(
                         mainAxisSize: MainAxisSize.min,  // To make the Column as small as possible
                         children: [
@@ -287,6 +334,7 @@ class _MessengerPageState extends State<MessengerPage> {
                                     _showVoiceMessage = false;
                                     String userMessage = messageController.text.trim();
                                     messageController.clear();
+                                    _MessageLimit();
                                     if (userMessage.isNotEmpty) {
                                       final loadingMessage = Message(isLoading: true, content: "", isUser: "assistant");
                                       setState(() {
