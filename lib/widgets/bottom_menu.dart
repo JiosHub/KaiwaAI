@@ -20,7 +20,7 @@ class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
 
   final List<Widget> _pages = [
       // Replace these with your actual pages
-      Text('Info Page'),
+      Text('You can create your own API key at https://platform.openai.com GPT 4 will not be accessable until you have a payment history with openai, see the following: https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4'),
       ProfilePage(),
       MenuPage(),
       Text('Please select a topic')

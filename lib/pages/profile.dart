@@ -223,7 +223,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-              
                 trailing: Material(
                   color: Colors.transparent,
                   child: IconButton(
@@ -336,6 +335,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                       border: OutlineInputBorder(),
                       labelText: 'Personal OpenAI API Key',
+                      suffixIcon: IconButton(
+                      icon: Icon(Icons.clear),
+                        onPressed: () {
+                          apiKeyController.clear();
+                        },
+                      ),
                     ),
                     
                     onSubmitted: (String value) {
@@ -353,7 +358,18 @@ class _ProfilePageState extends State<ProfilePage> {
                         builder: (context) {
                           return AlertDialog(
                             title: Text('Information'),
-                            content: Text('This is a pop-up dialog.'),
+                            content: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                SizedBox(height: 20),
+                                SelectableText("If an API Key has been entered, it will always be prioritised over any purchased messages/message limits on the app."),
+                                SizedBox(height: 15),
+                                SelectableText("If you have selected GPT-4 and your API Key doesn't have access to it, please remove the API Key to use any of your remaining GPT-4 message limits."),
+                                SizedBox(height: 20),
+                                SelectableText("To see steps for creating your own OpenAI API key, go to the info page."),
+                              ]
+                            ),
+                          ),
                             actions: [
                               TextButton(
                                 onPressed: () {
@@ -384,31 +400,65 @@ class _ProfilePageState extends State<ProfilePage> {
                   padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
                   child: Icon(Icons.info),
                 ),
-                title: Text('Buy API Access'),
+                title: Text('Buy More Messages'),
                 onTap: () {
                   showDialog(
                     context: context,
                     builder: (context) {
-                        return AlertDialog(
-                        title: Text('Buy API Access: \£3.99'),
+                      return AlertDialog(
+                        backgroundColor: Colors.grey[800],
+                        title: Text('Options'),
                         content: SingleChildScrollView(
                           child: Column(
                             children: [
-                              SelectableText('Messages to GPT 3.5 turbo are unlimited, Messages to GPT 4 are limited to 100 per month unless increased.'),
                               SizedBox(height: 15),
-                              SelectableText('You can create your own API key at https://platform.openai.com'),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color:  Colors.grey[700],
+                                  borderRadius: BorderRadius.circular(5)
+                                ),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: ListTile(
+                                    trailing: Padding(
+                                      padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
+                                      child: Icon(Icons.arrow_forward),
+                                    ),
+                                    title: Text("GPT4 +100 for £4"),
+                                    onTap: () {
+                                      // Navigate to contact page
+                                    },
+                                  )
+                                )
+                              ),
+                              SizedBox(height: 10),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color:  Colors.grey[700],
+                                  borderRadius: BorderRadius.circular(5)
+                                ),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: ListTile(
+                                    trailing: Padding(
+                                      padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
+                                      child: Icon(Icons.arrow_forward),
+                                    ),
+                                    title: Text("GPT4 +500 for £15"),
+                                    onTap: () {
+                                      // Navigate to contact page
+                                    },
+                                  )
+                                )
+                              ),
+                              SizedBox(height: 20),
+                              SelectableText("Both options will set GPT-3.5's message limit to 5000."),
                               SizedBox(height: 15),
-                              SelectableText('GPT 4 will not be accessable until you have a payment history with openai, see the following: https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4')
+                              SelectableText("To see steps for creating your own OpenAI API key, go to the info page.")
                             ]
                           ),
                         ),
                         actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(); // Close the dialog
-                            },
-                            child: Text('Buy'),
-                          ),
                           TextButton(
                             onPressed: () {
                               Navigator.of(context).pop(); // Close the dialog

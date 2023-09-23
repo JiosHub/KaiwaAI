@@ -57,6 +57,7 @@ class ApiService{
         }).toList()
       };
       final response = await functions.httpsCallable('sendFunctionMessage').call(dataToSend);
+      print("Response from Firebase Function: ${response.data}");
       
       // Split the full response at "Translation:"
       final Map<String, dynamic> data = response.data;
@@ -101,6 +102,7 @@ class ApiService{
           "content": content
         }]
       };
+
       print('Sending data: $dataToSend');
       final response = await functions.httpsCallable('sendFunctionMessage').call(dataToSend);
       print("Response from Firebase Function: ${response.data}");
@@ -204,7 +206,7 @@ class ApiService{
     }
   }
 
-  static Future<Message> fetchInitialReply(String content) async {
+  static Future<Message> fetchFirstMessage(String content) async {
   try{
     String API_KEY = await SharedPreferencesHelper.getAPIKey() ?? "no API key registered"; 
     String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";

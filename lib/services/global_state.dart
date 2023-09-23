@@ -14,6 +14,8 @@ class GlobalState {
   List<Message> globalMessageList = [];
   List<Message> globalApiMessageList = [];
   String globalLanguage = "";
+  int globalGPT4MessageCount = -1;
+  int globalGPT35MessageCount = -1;
 
   void clearMessageList() {
     globalMessageList.clear();

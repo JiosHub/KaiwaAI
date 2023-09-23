@@ -62,7 +62,7 @@ class _MessengerPageState extends State<MessengerPage> {
       });
 
       //messages.add(Message(co ntent: contentString, isUser: "system"));
-      ApiService.fetchFirstFunctionMessage(apiMessages[0].content).then((response){
+      ApiService.fetchFirstMessage(apiMessages[0].content).then((response){
         setState(() {
           messages.removeLast();
           messages.add(response);
@@ -73,26 +73,53 @@ class _MessengerPageState extends State<MessengerPage> {
     }
   }
 
-  Future<void> _MessageLimit() async {
-    if (gpt4MessageCount == -1 && gpt35MessageCount == -1) {
-      final data = await ApiService.getMessageLimitCount();
-      if (data != null) {
-        gpt4MessageCount = data['gpt4_message_count'] as int;
-        gpt35MessageCount = data['gpt3_5_message_count'] as int;
-      }
-    } else {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      if (prefs.getString('selectedGPT') == "gpt-4") {
-        setState(() {
+  Future<void> _MessageLimit({bool sendButton = false}) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  // Check if it's a new conversation
+  if (messages.isEmpty) {
+    // Fetch message limits from API for new conversation
+    final data = await ApiService.getMessageLimitCount();
+    if (data != null) {
+      gpt4MessageCount = data['gpt4_message_count'] as int;
+      gpt35MessageCount = data['gpt3_5_message_count'] as int;
+      setState(() {
+        if (prefs.getString('selectedGPT') == "gpt-4"){
           gpt4MessageCount--;
-        });
-      } else if (prefs.getString('selectedGPT') == "gpt-3.5-turbo") {
-        setState(() {
+        }
+        else if (prefs.getString('selectedGPT') == "gpt-3.5-turbo"){
           gpt35MessageCount--;
-        });
-      }
+        }
+      });
+      // Update the global state
+      GlobalState().globalGPT4MessageCount = gpt4MessageCount;
+      GlobalState().globalGPT35MessageCount = gpt35MessageCount;
+      // Reset the flag
+    }
+  } else {
+    // If it's not a new conversation, try loading from the global state
+    if (GlobalState().globalGPT4MessageCount != -1) {
+      setState(() {
+        gpt4MessageCount = GlobalState().globalGPT4MessageCount;
+        gpt35MessageCount = GlobalState().globalGPT35MessageCount;
+      });
     }
   }
+
+  if (prefs.getString('selectedGPT') == "gpt-4" && sendButton == true) {
+    setState(() {
+      gpt4MessageCount--;
+      // Update the global state
+      GlobalState().globalGPT4MessageCount = gpt4MessageCount;
+    });
+  } else if (prefs.getString('selectedGPT') == "gpt-3.5-turbo"  && sendButton == true) {
+    setState(() {
+      gpt35MessageCount--;
+      // Update the global state
+      GlobalState().globalGPT35MessageCount = gpt35MessageCount;
+    });
+  }
+}
+
   
 
   @override
@@ -100,7 +127,6 @@ class _MessengerPageState extends State<MessengerPage> {
     try{
     super.initState();
     print("1111111111111111111111111111111");
-    _MessageLimit();
     messageController.addListener(_onTextChanged);
     var keyboardVisibilityController = KeyboardVisibilityController();
     keyboardVisibilityController.onChange.listen((bool visible) {
@@ -120,6 +146,7 @@ class _MessengerPageState extends State<MessengerPage> {
     messages = GlobalState().globalMessageList;
     apiMessages = GlobalState().globalApiMessageList;
     language = GlobalState().globalLanguage;
+    _MessageLimit();
     print("2222222222222222222222222222222");
     //_loadFirstMessage();
     print("77777777777777777777777777777");
@@ -334,7 +361,7 @@ class _MessengerPageState extends State<MessengerPage> {
                                     _showVoiceMessage = false;
                                     String userMessage = messageController.text.trim();
                                     messageController.clear();
-                                    _MessageLimit();
+                                    _MessageLimit(sendButton: true);
                                     if (userMessage.isNotEmpty) {
                                       final loadingMessage = Message(isLoading: true, content: "", isUser: "assistant");
                                       setState(() {
@@ -342,7 +369,7 @@ class _MessengerPageState extends State<MessengerPage> {
                                         messages.add(loadingMessage);
                                         apiMessages.add(Message(content: userMessage, isUser: "user"));
                                       });
-                                      final chatbotReply = await ApiService.sendFunctionMessage(messages: apiMessages);
+                                      final chatbotReply = await ApiService.sendMessage(messages: apiMessages);
                                       setState(() {
                                         messages.removeLast();
                                         messages.add(Message(content: chatbotReply.content, translation: chatbotReply.translation, feedback: chatbotReply.feedback, isUser: "assistant", showFeedback: true));
