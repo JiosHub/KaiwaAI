@@ -2,6 +2,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:unichat_ai/pages/info.dart';
 import 'package:unichat_ai/pages/menu.dart';
 import 'package:unichat_ai/pages/messaging.dart';
 import 'package:unichat_ai/pages/profile.dart';
@@ -20,7 +21,7 @@ class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
 
   final List<Widget> _pages = [
       // Replace these with your actual pages
-      Text('You can create your own API key at https://platform.openai.com GPT 4 will not be accessable until you have a payment history with openai, see the following: https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4'),
+      InfoPage(),
       ProfilePage(),
       MenuPage(),
       Text('Please select a topic')

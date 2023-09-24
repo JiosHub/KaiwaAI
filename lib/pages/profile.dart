@@ -474,27 +474,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           ),
-          /*SizedBox(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              color:  Colors.grey[800],
-              borderRadius: BorderRadius.circular(5)
-            ),
-            child: Material(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(30),
-              child: ListTile(
-                trailing: Padding(
-                  padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
-                  child: Icon(Icons.arrow_forward),
-                ),
-                title: Text('Settings'),
-                onTap: () {
-                  // Navigate to settings page
-                },
-              ),
-            ),
-          ),*/
           SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(

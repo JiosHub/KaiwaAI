@@ -38,6 +38,7 @@ class _MessengerPageState extends State<MessengerPage> {
   late String? selectedGPT;
   late String? APIKey;
 
+  //i wrote this litterally today and i forgot what it does but im pretty sure i need it
   Future<void> _loadCount() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     selectedGPT = prefs.getString('selectedGPT');
@@ -92,51 +93,67 @@ class _MessengerPageState extends State<MessengerPage> {
   }
 
   Future<void> _MessageLimit({bool sendButton = false}) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  // Check if it's a new conversation
-  if (messages.isEmpty && prefs.getString("personalAPIKey") == "") {
-    // Fetch message limits from Firestore for new conversation
-    final data = await ApiService.getMessageLimitCount();
-    if (data != null) {
-      gpt4MessageCount = data['gpt4_message_count'] as int;
-      gpt35MessageCount = data['gpt3_5_message_count'] as int;
-      setState(() {
-        if (prefs.getString('selectedGPT') == "gpt-4"){
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedGPT = prefs.getString('selectedGPT');
+    // Check if it's a new conversation
+    if (messages.isEmpty && prefs.getString("personalAPIKey") == "" && GlobalState().globalGPT4MessageCount == -1) {
+      // Fetch message limits from Firestore for new conversation
+      final data = await ApiService.getMessageLimitCount();
+      if (data != null) {
+        gpt4MessageCount = data['gpt4_message_count'] as int;
+        gpt35MessageCount = data['gpt3_5_message_count'] as int;
+        setState(() {
+          if (selectedGPT == "gpt-4"){
+            gpt4MessageCount--;
+          }
+          else if (selectedGPT == "gpt-3.5-turbo"){
+            gpt35MessageCount--;
+          }
+        });
+        // Update the global state
+        GlobalState().globalGPT4MessageCount = gpt4MessageCount;
+        GlobalState().globalGPT35MessageCount = gpt35MessageCount;
+        // Reset the flag
+      }
+    } else if(messages.isEmpty && GlobalState().globalGPT4MessageCount != -1){
+      gpt4MessageCount = GlobalState().globalGPT4MessageCount;
+      gpt35MessageCount = GlobalState().globalGPT35MessageCount;
+      if (selectedGPT == "gpt-4") {
+        setState(() {
           gpt4MessageCount--;
-        }
-        else if (prefs.getString('selectedGPT') == "gpt-3.5-turbo"){
+          GlobalState().globalGPT4MessageCount = gpt4MessageCount;
+        });
+      } else if (selectedGPT == "gpt-3.5-turbo") {
+        setState(() {
           gpt35MessageCount--;
-        }
-      });
-      // Update the global state
-      GlobalState().globalGPT4MessageCount = gpt4MessageCount;
-      GlobalState().globalGPT35MessageCount = gpt35MessageCount;
-      // Reset the flag
+        // Update the global state
+          GlobalState().globalGPT35MessageCount = gpt35MessageCount;
+        });
+      }
+    } else {
+      // If it's not a new conversation, try loading from the global state
+      if (GlobalState().globalGPT4MessageCount != -1) {
+        setState(() {
+          gpt4MessageCount = GlobalState().globalGPT4MessageCount;
+          gpt35MessageCount = GlobalState().globalGPT35MessageCount;
+        });
+      }
     }
-  } else {
-    // If it's not a new conversation, try loading from the global state
-    if (GlobalState().globalGPT4MessageCount != -1) {
-      setState(() {
-        gpt4MessageCount = GlobalState().globalGPT4MessageCount;
-        gpt35MessageCount = GlobalState().globalGPT35MessageCount;
-      });
-    }
-  }
 
-  if (prefs.getString('selectedGPT') == "gpt-4" && sendButton == true) {
-    setState(() {
-      gpt4MessageCount--;
-      // Update the global state
-      GlobalState().globalGPT4MessageCount = gpt4MessageCount;
-    });
-  } else if (prefs.getString('selectedGPT') == "gpt-3.5-turbo"  && sendButton == true) {
-    setState(() {
-      gpt35MessageCount--;
-      // Update the global state
-      GlobalState().globalGPT35MessageCount = gpt35MessageCount;
-    });
+    if (selectedGPT == "gpt-4" && sendButton == true) {
+      setState(() {
+        gpt4MessageCount--;
+        // Update the global state
+        GlobalState().globalGPT4MessageCount = gpt4MessageCount;
+      });
+    } else if (selectedGPT == "gpt-3.5-turbo"  && sendButton == true) {
+      setState(() {
+        gpt35MessageCount--;
+        // Update the global state
+        GlobalState().globalGPT35MessageCount = gpt35MessageCount;
+      });
+    }
   }
-}
 
   
 
