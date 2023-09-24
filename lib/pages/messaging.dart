@@ -35,17 +35,27 @@ class _MessengerPageState extends State<MessengerPage> {
   late String contentString;
   int gpt4MessageCount = -1;
   int gpt35MessageCount = -1;
+  late String? selectedGPT;
+  late String? APIKey;
+
+  Future<void> _loadCount() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedGPT = prefs.getString('selectedGPT');
+    APIKey = prefs.getString('personalAPIKey');
+  }
 
   Future<void> _loadFirstMessage() async {
     if(messages.isEmpty){
       SharedPreferences prefs = await SharedPreferences.getInstance();
+      selectedGPT = prefs.getString('selectedGPT');
+      APIKey = prefs.getString('personalAPIKey');
       language = prefs.getString('selectedLanguage') ?? "Japanese";
       topicContent = widget.topicContent;
       
       String contentString35 = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence, DO NOT translate this part to english. 2: AFTER the $language part, translate your provided sentence to English, you MUST mark this with \"Translation:\". 3: AFTER the translation, in English give feedback on MY (the user) usage of $language, you MUST mark this with \"Feedback:\". 3: DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
       String contentString4 = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the $language part, translate the sentence as literally as possible to English, you MUST mark this with \"Translation:\". 3: AFTER the translation, in English give feedback on ONLY my (the users) last messages' usage of $language, you MUST mark this with \"Feedback:\". 4: For the feedback, only give a blunt sentence i.e. do not say \"Great job!\", \"keep it up\" etc";
       
-      if (prefs.getString('selectedGPT') == "gpt-4") {
+      if (selectedGPT == "gpt-4") {
         contentString = contentString4;
       } else {
         contentString = contentString35;
@@ -60,24 +70,32 @@ class _MessengerPageState extends State<MessengerPage> {
       setState(() {
         messages.add(loadingMessage);
       });
-
-      //messages.add(Message(co ntent: contentString, isUser: "system"));
-      ApiService.fetchFirstMessage(apiMessages[0].content).then((response){
-        setState(() {
-          messages.removeLast();
-          messages.add(response);
-          apiMessages.add(Message(content: response.content, translation: response.translation, isUser: "assistant"));
+      print("$APIKey<------------");
+      if (APIKey == ""){
+        ApiService.fetchFirstFunctionMessage(apiMessages[0].content).then((response){
+          setState(() {
+            messages.removeLast();
+            messages.add(response);
+            apiMessages.add(Message(content: response.content, translation: response.translation, isUser: "assistant"));
+          });
         });
-      });
-      ApiService.getMessageLimitCount();
+      } else {
+        ApiService.fetchFirstMessage(apiMessages[0].content).then((response){
+          setState(() {
+            messages.removeLast();
+            messages.add(response);
+            apiMessages.add(Message(content: response.content, translation: response.translation, isUser: "assistant"));
+          });
+        });
+      }
     }
   }
 
   Future<void> _MessageLimit({bool sendButton = false}) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   // Check if it's a new conversation
-  if (messages.isEmpty) {
-    // Fetch message limits from API for new conversation
+  if (messages.isEmpty && prefs.getString("personalAPIKey") == "") {
+    // Fetch message limits from Firestore for new conversation
     final data = await ApiService.getMessageLimitCount();
     if (data != null) {
       gpt4MessageCount = data['gpt4_message_count'] as int;
@@ -262,15 +280,23 @@ class _MessengerPageState extends State<MessengerPage> {
                                     _showVoiceMessage = false;
                                     String userMessage = messageController.text.trim();
                                     messageController.clear();
-                                    _MessageLimit(sendButton: true);
+                                    
                                     if (userMessage.isNotEmpty) {
+                                      _MessageLimit(sendButton: true);
                                       final loadingMessage = Message(isLoading: true, content: "", isUser: "assistant");
                                       setState(() {
                                         messages.add(Message(content: userMessage, isUser: "user"));
                                         messages.add(loadingMessage);
                                         apiMessages.add(Message(content: userMessage, isUser: "user"));
                                       });
-                                      final chatbotReply = await ApiService.sendMessage(messages: apiMessages);
+                                      print("$APIKey<------------");
+                                      final Message chatbotReply;
+                                      if (APIKey == "") {
+                                        chatbotReply = await ApiService.sendFunctionMessage(messages: apiMessages);
+
+                                      } else {
+                                        chatbotReply = await ApiService.sendMessage(messages: apiMessages);
+                                      }
                                       setState(() {
                                         messages.removeLast();
                                         messages.add(Message(content: chatbotReply.content, translation: chatbotReply.translation, feedback: chatbotReply.feedback, isUser: "assistant", showFeedback: true));
@@ -302,47 +328,71 @@ class _MessengerPageState extends State<MessengerPage> {
                 ),
               ),
               Positioned(
-                top: 0,
+                top: -15,
                 left: 0,
                 right: 0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 20, top: 0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color:  Colors.cyan[900],
-                          borderRadius: BorderRadius.circular(5)
-                        ),
-                        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                        child: Column(
-                          //mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("GPT 4:"),
-                                SizedBox(width: 20),  // A space between the text and the number
-                                Text(gpt4MessageCount == -1 ? "loading..." : gpt4MessageCount.toString()),
-                              ],
+                    FutureBuilder<void>(
+                      future: _loadCount(),
+                      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          // If the Future is still running, show a loading indicator
+                          return CircularProgressIndicator();
+                        }
+                        if (snapshot.hasError) {
+                          // If we run into an error, display it to the user
+                          return Text('Error: ${snapshot.error}');
+                        }
+                        if (selectedGPT == "gpt-4" && APIKey == "") {
+                          return Padding(
+                            padding: EdgeInsets.only(left: 20, top: 0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color:  Colors.cyan[900],
+                                borderRadius: BorderRadius.circular(5)
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                              //mainAxisSize: MainAxisSize.min,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("GPT 4:"),
+                                  SizedBox(width: 20),  // A space between the text and the number
+                                  Text(gpt4MessageCount == -1 ? "loading..." : gpt4MessageCount.toString()),
+                                ],
+                              ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("GPT 3.5:"),
-                                SizedBox(width: 9),  // A space between the text and the number
-                                Text(gpt35MessageCount == -1 ? "loading..." : gpt35MessageCount.toString()),
-                              ],
+                          );
+                        } else if (selectedGPT == "gpt-3.5-turbo" && APIKey == "" && gpt35MessageCount < 100) {
+                          print(APIKey);
+                          return Padding(
+                            padding: EdgeInsets.only(left: 20, top: 0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color:  Colors.cyan[900],
+                                borderRadius: BorderRadius.circular(5)
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("GPT 3.5:"),
+                                  SizedBox(width: 9),  // A space between the text and the number
+                                  Text(gpt35MessageCount == -1 ? "loading..." : gpt35MessageCount.toString()),
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
-                      ),
+                          );
+                        } else {
+                          return Text("");
+                        }
+                      },
                     ),
                     Spacer(),
                     Padding(
-                      padding: EdgeInsets.only(top: 10),
+                      padding: EdgeInsets.only(top: 24),
                       child: Row(
                         children: [
                           Column(

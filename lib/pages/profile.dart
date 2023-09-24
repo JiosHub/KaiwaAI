@@ -339,6 +339,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icon(Icons.clear),
                         onPressed: () {
                           apiKeyController.clear();
+                          _saveAPIKey("");
                         },
                       ),
                     ),
