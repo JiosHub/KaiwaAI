@@ -3,38 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unichat_ai/services/api.dart';
 import 'package:unichat_ai/services/global_state.dart';
 
-// guide, gpt 4 works very consistently, gpt 3.5 works most of the time, but can sometimes
-// forgot to give a translation, feedback or even the main message
-
-// create your own api key https://platform.openai.com
-// GPT 4 will not be accessable until you have a payment history with openai, see the following:
-// https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4'
-
-// message count
-
-// REMEMBER TO UPDATE GLOBAL STATE FOR COUNT AFTER PURCHASE
-
-/*if (messages.isEmpty && prefs.getString("personalAPIKey") == "" && GlobalState().globalGPT4MessageCount == -1) {
-      // Fetch message limits from Firestore for new conversation
-      final data = await ApiService.getMessageLimitCount();
-      if (data != null) {
-        gpt4MessageCount = data['gpt4_message_count'] as int;
-        gpt35MessageCount = data['gpt3_5_message_count'] as int;
-        setState(() {
-          if (selectedGPT == "gpt-4"){
-            gpt4MessageCount--;
-          }
-          else if (selectedGPT == "gpt-3.5-turbo"){
-            gpt35MessageCount--;
-          }
-        });
-        // Update the global state
-        GlobalState().globalGPT4MessageCount = gpt4MessageCount;
-        GlobalState().globalGPT35MessageCount = gpt35MessageCount;
-        // Reset the flag
-      }
-    }*/
-
 class InfoPage extends StatefulWidget {
   @override
   _InfoPageState createState() => _InfoPageState();
@@ -47,8 +15,7 @@ class _InfoPageState extends State<InfoPage> {
   late String? selectedGPT;
 
   Future<void> _MessageCount() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // Check if it's a new conversation
+    // Check if global variable was previously initialised
     if (GlobalState().globalGPT4MessageCount == -1) {
       // Fetch message limits from Firestore for new conversation
       final data = await ApiService.getMessageLimitCount();
@@ -65,6 +32,7 @@ class _InfoPageState extends State<InfoPage> {
       });
     }
   }
+
   @override
   void initState() {
     _MessageCount();
@@ -73,45 +41,107 @@ class _InfoPageState extends State<InfoPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.only(left: 15, right: 15, top: 25),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        //crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
-            'Subheader',
+            'Messages Remaining',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 10),
-          _infoTile('Info Tile 1'),
+          _countTile("GPT 4 Messages",gpt4MessageCount),
           SizedBox(height: 10),
-          _infoTile('Info Tile 2'),
-          SizedBox(height: 10),
-          _infoTile('Info Tile 3'),
+          _countTile("GPT 3.5 Messages", gpt35MessageCount),
+          
+          
+          // guide, gpt 4 works very consistently, gpt 3.5 works most of the time, but can sometimes
+          // forgot to give a translation, feedback or even the main message
+
+          // create your own api key https://platform.openai.com
+          // GPT 4 will not be accessable until you have a payment history with openai, see the following:
+          // https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4'
+
+          // message count
+
+          // REMEMBER TO UPDATE GLOBAL STATE FOR COUNT AFTER PURCHASE
           SizedBox(height: 20),
           Text(
-            'Another Subheader',
+            'Guide - What to Expect',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 10),
-          _infoTile("GPT 4 Messages Left: ${gpt4MessageCount ?? ""}"),
-          _infoTile("GPT 3.5 Messages Left: ${gpt35MessageCount ?? ""}"),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.grey[800],
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Text(
+              "When GPT 4 is selected, conversation works very consistently although when GPT 3.5 turbo is selected"+
+              " it can be much less consistent. It works well most of the time but it can, for example, forgot to "+
+              "give the translation or feedback. A semi-precise format is needed for app functionality and GPT 3.5 may"+
+              " often forget to put it in a format as a conversation progresses. Again GPT 4 is very consistant"+
+              " compared to GPT 3.5 regarding this. Also note GPT will only have a memory of the last 5 replies.",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Information for API Key Creation',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          ),
+          SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.grey[800],
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Text(
+              "create your own api key https://platform.openai.com " +
+              "GPT 4 will not be accessable until you have a payment history with openai, see the following: "+
+              "https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _infoTile(String title) {
+  Widget _countTile(String title, int? count) {
     return Container(
-      padding: EdgeInsets.all(15),
+      width: double.infinity,
+      padding: EdgeInsets.only(top: 18, bottom: 18, left: 25, right: 50),
       decoration: BoxDecoration(
         color: Colors.grey[800],
         borderRadius: BorderRadius.circular(5),
       ),
-      child: Text(
-        title,
-        style: TextStyle(color: Colors.white),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontSize: 16),
+          ),
+          Spacer(),
+          count == null 
+            ? SizedBox(
+                width: 20.0, // specify the width of the circle
+                height: 18.0, // specify the height of the circle
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.0, // adjust the thickness of the circular progress bar
+                ),
+              )
+            : Text(
+                count.toString(), 
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              )
+        ]
       ),
     );
   }
-  
 }
