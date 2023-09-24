@@ -41,7 +41,7 @@ class _InfoPageState extends State<InfoPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.only(left: 15, right: 15, top: 25),
+      padding: EdgeInsets.only(left: 15, right: 15, top: 15),
       child: Column(
         //crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -55,18 +55,7 @@ class _InfoPageState extends State<InfoPage> {
           SizedBox(height: 10),
           _countTile("GPT 3.5 Messages", gpt35MessageCount),
           
-          
-          // guide, gpt 4 works very consistently, gpt 3.5 works most of the time, but can sometimes
-          // forgot to give a translation, feedback or even the main message
-
-          // create your own api key https://platform.openai.com
-          // GPT 4 will not be accessable until you have a payment history with openai, see the following:
-          // https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4'
-
-          // message count
-
-          // REMEMBER TO UPDATE GLOBAL STATE FOR COUNT AFTER PURCHASE
-          SizedBox(height: 20),
+          SizedBox(height: 15),
           Text(
             'Guide - What to Expect',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
@@ -88,7 +77,7 @@ class _InfoPageState extends State<InfoPage> {
               style: TextStyle(color: Colors.white),
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 15),
           Text(
             'Information for API Key Creation',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
@@ -102,7 +91,7 @@ class _InfoPageState extends State<InfoPage> {
               borderRadius: BorderRadius.circular(5),
             ),
             child: Text(
-              "create your own api key https://platform.openai.com " +
+              "Create your own api key: https://platform.openai.com " +
               "GPT 4 will not be accessable until you have a payment history with openai, see the following: "+
               "https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4",
               style: TextStyle(color: Colors.white),

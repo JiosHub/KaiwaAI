@@ -13,6 +13,8 @@ void main() async {
   runApp(MyApp(isLoggedIn: isLoggedIn)); 
 }
 
+// REMEMBER TO UPDATE GLOBAL STATE FOR COUNT AFTER PURCHASE
+
 class MyApp extends StatelessWidget {
   
   final bool isLoggedIn;
