@@ -32,8 +32,8 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _initInAppPurchase();
     _fetchProducts();
-    selectedLanguage = "...";
-    selectedGPT = "gpt-3.5-turbo";
+    selectedLanguage = "";
+    selectedGPT = "";
     personalAPIKey = "";
     apiKeyController = TextEditingController(text: personalAPIKey);
     _loadPreference();
@@ -60,10 +60,10 @@ class _ProfilePageState extends State<ProfilePage> {
   _loadPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      selectedLanguage = prefs.getString('selectedLanguage') ?? "Japanese";
+      selectedLanguage = prefs.getString('selectedLanguage') ?? "";
       print('yoooooooooooooooooooooooooo $selectedLanguage');
 
-      selectedGPT = prefs.getString('selectedGPT') ?? "gpt-3.5-turbo";
+      selectedGPT = "gpt-4";
 
       personalAPIKey = prefs.getString('personalAPIKey') ?? '';
       apiKeyController = TextEditingController(text: personalAPIKey);
@@ -159,7 +159,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Stack(
                         alignment: Alignment.centerLeft,
                         children: [
-                          if (_showLabelLang) Text(selectedLanguage),  // _showLabel is a bool you would control
+                          _showLabelLang 
+                            ? (selectedLanguage != "" 
+                                ? Text(selectedLanguage) 
+                                : CircularProgressIndicator()) 
+                            : Container(), // _showLabel is a bool you would control
                           Autocomplete<String>(
                             optionsBuilder: (TextEditingValue textEditingValue) {
                               if (textEditingValue.text == '') {
@@ -267,7 +271,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     isExpanded: true,
                     onChanged: (String? selection) {
                       setState(() {
-                        selectedGPT = selection ?? 'gpt-3.5-turbo';
+                        selectedGPT = selection ?? "";
                         _saveGPTPreference(selection);
                       });
                     },

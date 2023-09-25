@@ -1,7 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unichat_ai/services/api.dart';
 import 'package:unichat_ai/services/global_state.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class InfoPage extends StatefulWidget {
   @override
@@ -24,6 +26,8 @@ class _InfoPageState extends State<InfoPage> {
           gpt4MessageCount = data['gpt4_message_count'] as int;
           gpt35MessageCount = data['gpt3_5_message_count'] as int;
         });
+        GlobalState().globalGPT4MessageCount = gpt4MessageCount ?? -1;
+        GlobalState().globalGPT35MessageCount = gpt35MessageCount ?? -1;
       }
     } else if (GlobalState().globalGPT4MessageCount != -1) {
       setState(() {
@@ -32,6 +36,13 @@ class _InfoPageState extends State<InfoPage> {
       });
     }
   }
+
+  Future<void> _launchURL(Uri url) async {
+    if (!await launchUrl(url, mode: LaunchMode.inAppWebView)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
 
   @override
   void initState() {
@@ -52,7 +63,7 @@ class _InfoPageState extends State<InfoPage> {
           ),
           SizedBox(height: 10),
           _countTile("GPT 4 Messages",gpt4MessageCount),
-          SizedBox(height: 10),
+          SizedBox(height: 7),
           _countTile("GPT 3.5 Messages", gpt35MessageCount),
           
           SizedBox(height: 15),
@@ -63,18 +74,25 @@ class _InfoPageState extends State<InfoPage> {
           SizedBox(height: 10),
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(15),
+            padding: EdgeInsets.only(top: 15, bottom: 15, left: 25, right:25),
             decoration: BoxDecoration(
               color: Colors.grey[800],
               borderRadius: BorderRadius.circular(5),
             ),
-            child: Text(
-              "When GPT 4 is selected, conversation works very consistently although when GPT 3.5 turbo is selected"+
-              " it can be much less consistent. It works well most of the time but it can, for example, forgot to "+
-              "give the translation or feedback. A semi-precise format is needed for app functionality and GPT 3.5 may"+
-              " often forget to put it in a format as a conversation progresses. Again GPT 4 is very consistant"+
-              " compared to GPT 3.5 regarding this. Also note GPT will only have a memory of the last 5 replies.",
-              style: TextStyle(color: Colors.white),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center, // centers the children vertically
+              children: [
+                Text("When GPT 4 is selected, conversation works very consistently although when GPT 3.5 turbo is selected"+
+                  " it can be much less consistent.", textAlign: TextAlign.center),
+                SizedBox(height: 7),
+                Text("GPT 3.5 works well most of the time but it can, for example, forget to give the translation"+
+                  " or feedback. A semi-precise format is needed for app functionality and GPT 3.5 may often forget"+
+                  " to put it in a format as a conversation progresses.", textAlign: TextAlign.center),
+                SizedBox(height: 7),
+                Text("Again, GPT 4 is very consistant \ncompared to GPT 3.5 regarding this.", textAlign: TextAlign.center),
+                SizedBox(height: 7),
+                Text("Also note GPT will only have a \nmemory of the last 5 replies.", textAlign: TextAlign.center),
+              ]
             ),
           ),
           SizedBox(height: 15),
@@ -90,12 +108,44 @@ class _InfoPageState extends State<InfoPage> {
               color: Colors.grey[800],
               borderRadius: BorderRadius.circular(5),
             ),
-            child: Text(
-              "Create your own api key: https://platform.openai.com " +
-              "GPT 4 will not be accessable until you have a payment history with openai, see the following: "+
-              "https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4",
-              style: TextStyle(color: Colors.white),
-            ),
+            child: Column(
+              children: [
+                //"Create your own api key: https://platform.openai.com "
+                //"GPT 4 will not be accessable until you have a payment history with openai, see the following: "
+                //"https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4"
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Create an openai account: ',
+                      ),
+                      TextSpan(
+                        text: 'platform.openai.com',
+                        style: TextStyle(color: Colors.blue),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            _launchURL(Uri.parse('https://platform.openai.com/account/api-keys'));
+                          },
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 7),
+                Text("GPT 4 will not be accessable until you have a payment history with openai, see the following: ", textAlign: TextAlign.center),
+                SizedBox(height: 7),
+                InkWell(
+                  onTap: () => _launchURL(Uri.parse('https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4')),
+                  child: Text(
+                    "https://help.openai.com/en/articles",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+              ],
+            )
           ),
         ],
       ),
@@ -105,7 +155,7 @@ class _InfoPageState extends State<InfoPage> {
   Widget _countTile(String title, int? count) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.only(top: 18, bottom: 18, left: 25, right: 50),
+      padding: EdgeInsets.only(top: 15, bottom: 15, left: 25, right: 50),
       decoration: BoxDecoration(
         color: Colors.grey[800],
         borderRadius: BorderRadius.circular(5),
