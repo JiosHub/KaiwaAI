@@ -6,7 +6,6 @@ class SharedPreferencesHelper {
   static final String personalAPIKey = "personalAPIKey";
   static final String selectedGPT = "selectedGPT";
 
-
   static Future<void> setUsername(String username) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(usernameKey, username);

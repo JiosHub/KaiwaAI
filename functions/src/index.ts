@@ -12,11 +12,40 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 // eslint-disable-next-line max-len
-exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate((user) => {
-  return admin.firestore().collection("users").doc(user.uid).set({
-    gpt4_message_count: 25,
-    gpt3_5_message_count: 100,
-    // other initial fields if necessary
+exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate(async (user) => {
+  // Fetch the newly created user's document from Firestore
+  // eslint-disable-next-line max-len
+  const newUserDoc = await admin.firestore().collection("users").doc(user.uid).get();
+
+  if (!newUserDoc.exists) {
+    console.error(`No document found for user ${user.uid}`);
+    return null; // Or handle this case as appropriate for your application
+  }
+  // eslint-disable-next-line max-len
+  const userData = newUserDoc.data() as { deviceID: string, gpt4_message_count?: number, gpt3_5_message_count?: number };
+
+  const deviceID = userData.deviceID;
+
+  // Search for an existing account with this device ID
+  // eslint-disable-next-line max-len
+  const userSnapshot = await admin.firestore().collection("users").where("deviceID", "==", deviceID).get();
+
+  let gpt4MessageCount = 25;
+  let gpt35MessageCount = 100;
+
+  if (!userSnapshot.empty) {
+    // An account with this device ID already exists. Fetch the message counts.
+    const originalAccount = userSnapshot.docs[0].data();
+    gpt4MessageCount = originalAccount.gpt4_message_count || 25;
+    gpt35MessageCount = originalAccount.gpt3_5_message_count || 100;
+  }
+
+  // Update or set the user's document with the message counts
+  return newUserDoc.ref.set({
+    gpt4_message_count: gpt4MessageCount,
+    gpt3_5_message_count: gpt35MessageCount,
+    deviceID: deviceID,
+    // other fields if necessary
   });
 });
 

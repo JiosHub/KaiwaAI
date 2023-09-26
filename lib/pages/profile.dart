@@ -26,6 +26,10 @@ class _ProfilePageState extends State<ProfilePage> {
   late String selectedGPT;
   late String personalAPIKey;
 
+  Future<void> clearSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
 
   @override
   void initState() {
@@ -33,7 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _initInAppPurchase();
     _fetchProducts();
     selectedLanguage = "";
-    selectedGPT = "";
+    selectedGPT = "gpt-4";
     personalAPIKey = "";
     apiKeyController = TextEditingController(text: personalAPIKey);
     _loadPreference();
@@ -60,10 +64,12 @@ class _ProfilePageState extends State<ProfilePage> {
   _loadPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      selectedLanguage = prefs.getString('selectedLanguage') ?? "";
-      print('yoooooooooooooooooooooooooo $selectedLanguage');
-
-      selectedGPT = "gpt-4";
+      selectedLanguage = prefs.getString('selectedLanguage') ?? "Select Language...";
+      selectedGPT = prefs.getString('selectedGPT') ?? "";
+      if (selectedGPT == "") {
+        selectedGPT = "gpt-4";
+        SharedPreferencesHelper.setSelectedGPT(selectedGPT);
+      }
 
       personalAPIKey = prefs.getString('personalAPIKey') ?? '';
       apiKeyController = TextEditingController(text: personalAPIKey);
@@ -175,7 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   _showLabelLang = false;  // Hide label otherwise
                                 });
                               }
-                              return ["English", "Japanese", "Korean", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese","Chinese (Simplified)", "Arabic"].where((String option) {
+                              return ["Select Language...","English", "Japanese", "Korean", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese","Chinese (Simplified)", "Arabic"].where((String option) {
                                 return option.contains(textEditingValue.text.toLowerCase());
                               });
                             },
@@ -271,11 +277,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     isExpanded: true,
                     onChanged: (String? selection) {
                       setState(() {
-                        selectedGPT = selection ?? "";
+                        selectedGPT = selection ?? "gpt-4";
                         _saveGPTPreference(selection);
                       });
                     },
-                    items: <String>['gpt-3.5-turbo', 'gpt-4']
+                    items: <String>['gpt-4','gpt-3.5-turbo']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -343,6 +349,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icon(Icons.clear),
                         onPressed: () {
                           apiKeyController.clear();
+                          clearSharedPreferences();
                           _saveAPIKey("");
                         },
                       ),
@@ -429,7 +436,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
                                       child: Icon(Icons.arrow_forward),
                                     ),
-                                    title: Text("GPT4 +100 for £4"),
+                                    title: Text("GPT4 +100 for £3.99"),
                                     onTap: () {
                                       // Navigate to contact page
                                     },
@@ -449,7 +456,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
                                       child: Icon(Icons.arrow_forward),
                                     ),
-                                    title: Text("GPT4 +500 for £15"),
+                                    title: Text("GPT4 +500 for £16.99"),
                                     onTap: () {
                                       // Navigate to contact page
                                     },

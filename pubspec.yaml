@@ -26,6 +26,8 @@ dependencies:
   cloud_functions: ^4.4.1
   loading_animation_widget: ^1.2.0+4
   url_launcher: ^6.1.14
+  device_info: ^2.0.3
+  cloud_firestore: ^4.9.2
 
 dev_dependencies:
   flutter_test:
