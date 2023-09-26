@@ -32,13 +32,14 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
   Future<void> _googleSignIn() async {
     try {
       final user = await authService.signInWithGoogle();
+      print("object");
       SharedPreferencesHelper.setUsername(user?.displayName ?? user?.email ?? 'username not found');
-      
+      print("object2");
       // After successful Google authentication
       final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
       var deviceInfo = await deviceInfoPlugin.androidInfo;
       final uniqueID = deviceInfo.androidId;  // Use this ID as the unique device identifier
-      
+      print("object3");
       final userRef = FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
       await userRef.set({
         'deviceID': uniqueID,
