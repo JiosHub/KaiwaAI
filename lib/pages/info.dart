@@ -37,6 +37,18 @@ class _InfoPageState extends State<InfoPage> {
     }
   }
 
+  void _MessageCountRefresh () async {
+    final data = await ApiService.getMessageLimitCount();
+    if (data != null) {
+      setState(() {
+        gpt4MessageCount = data['gpt4_message_count'] as int;
+        gpt35MessageCount = data['gpt3_5_message_count'] as int;
+      });
+      GlobalState().globalGPT4MessageCount = gpt4MessageCount ?? -1;
+      GlobalState().globalGPT35MessageCount = gpt35MessageCount ?? -1;
+    }
+  }
+
   Future<void> _launchURL(Uri url) async {
     if (!await launchUrl(url, mode: LaunchMode.inAppWebView)) {
       throw Exception('Could not launch $url');
@@ -57,9 +69,20 @@ class _InfoPageState extends State<InfoPage> {
         //crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text(
-            'Messages Remaining',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Messages Remaining',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              ),
+              IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: () {
+                  _MessageCountRefresh();
+                },
+              ),
+            ]
           ),
           SizedBox(height: 10),
           _countTile("GPT 4 Messages",gpt4MessageCount),
@@ -80,18 +103,24 @@ class _InfoPageState extends State<InfoPage> {
               borderRadius: BorderRadius.circular(5),
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, // centers the children vertically
+              mainAxisAlignment: MainAxisAlignment.start, // centers the children vertically
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("When GPT 4 is selected, conversation works very consistently although when GPT 3.5 turbo is selected"+
-                  " it can be much less consistent.", textAlign: TextAlign.center),
+                  " it can be much less consistent.", textAlign: TextAlign.left),
                 SizedBox(height: 7),
                 Text("GPT 3.5 works well most of the time but it can, for example, forget to give the translation"+
                   " or feedback. A semi-precise format is needed for app functionality and GPT 3.5 may often forget"+
-                  " to put it in a format as a conversation progresses.", textAlign: TextAlign.center),
+                  " to put it in a format as a conversation progresses.", textAlign: TextAlign.left),
                 SizedBox(height: 7),
-                Text("Again, GPT 4 is very consistant \ncompared to GPT 3.5 regarding this.", textAlign: TextAlign.center),
+                Text("Again, GPT 4 is very consistant \ncompared to GPT 3.5 regarding this.", textAlign: TextAlign.left),
                 SizedBox(height: 7),
-                Text("Also note GPT will only have a \nmemory of the last 5 replies.", textAlign: TextAlign.center),
+                Text("Other things to note:"),
+                SizedBox(height: 5),
+                Text("- Only the last 5 replies will be saved.\n- If an error occurs with recieving a "+
+                "message, the message count can go down in the app, but the message won't actually be taken "+
+                "off your account server-side. You can press the refresh button at the top of this page to get"+
+                " your message count from the server.", textAlign: TextAlign.left),
               ]
             ),
           ),

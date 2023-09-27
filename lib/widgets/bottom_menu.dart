@@ -1,6 +1,4 @@
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:unichat_ai/pages/info.dart';
 import 'package:unichat_ai/pages/menu.dart';
