@@ -6,7 +6,7 @@ import 'package:unichat_ai/models/message.dart';
 
 class MessageWidget extends StatefulWidget {
   final Message message;
-  String language;
+  String? language;
   MessageWidget({required this.message, required this.language});
 
   @override
@@ -104,38 +104,40 @@ class _MessageWidgetState extends State<MessageWidget> {
                 padding: EdgeInsets.zero,
                 onPressed: () async {
                   try {
-                    String language = widget.language;
+                    String language = widget.language ?? "";
                     var voices = await flutterTts.getVoices.timeout(Duration(seconds: 5));
                     if (language == "English") {
-                        await flutterTts.setLanguage("en-US");
-                        await flutterTts.setVoice({"name": "Aaron"});
+                      await flutterTts.setLanguage("en-US");
+                      await flutterTts.setVoice({"name": "Aaron"});
                     } else if (language == "Japanese") {
-                        await flutterTts.setLanguage("ja-JP");
+                      await flutterTts.setLanguage("ja-JP");
                     } else if (language == "Korean") {
-                        await flutterTts.setLanguage("ko-KR");
+                      await flutterTts.setLanguage("ko-KR");
                     } else if (language == "Spanish") {
-                        await flutterTts.setLanguage("es-ES");
+                      await flutterTts.setLanguage("es-ES");
                     } else if (language == "French") {
-                        await flutterTts.setLanguage("fr-FR");
+                      await flutterTts.setLanguage("fr-FR");
                     } else if (language == "German") {
-                        await flutterTts.setLanguage("de-DE");
+                      await flutterTts.setLanguage("de-DE");
                     } else if (language == "Swedish") {
-                        await flutterTts.setLanguage("sv-SE");
+                      await flutterTts.setLanguage("sv-SE");
                     } else if (language == "Italian") {
-                        await flutterTts.setLanguage("it-IT");
+                      await flutterTts.setLanguage("it-IT");
                     } else if (language == "Russian") {
-                        await flutterTts.setLanguage("ru-RU");
+                      await flutterTts.setLanguage("ru-RU");
                     } else if (language == "Dutch") {
-                        await flutterTts.setLanguage("nl-NL");
+                      await flutterTts.setLanguage("nl-NL");
                     } else if (language == "Danish") {
-                        await flutterTts.setLanguage("da-DK");
+                      await flutterTts.setLanguage("da-DK");
                     } else if (language == "Portuguese") {
-                        await flutterTts.setLanguage("pt-PT");  // For European Portuguese. Use "pt-BR" for Brazilian Portuguese
+                      await flutterTts.setLanguage("pt-PT");  // For European Portuguese. Use "pt-BR" for Brazilian Portuguese
                     } else if (language == "Chinese (Simplified)") {
-                        await flutterTts.setLanguage("zh-CN");  // Simplified Chinese
+                      await flutterTts.setLanguage("zh-CN");  // Simplified Chinese
                     } else if (language == "Arabic") {
-                        await flutterTts.setLanguage("ar-SA");  // This is for Saudi Arabia Arabic. Arabic has various dialects so you might need to adjust based on your target audience.
-                    } 
+                      await flutterTts.setLanguage("ar-SA");  // This is for Saudi Arabia Arabic. Arabic has various dialects so you might need to adjust based on your target audience.
+                    } else {
+                      print("Language not supported or not listed");
+                    }
                     await flutterTts.setPitch(1);
                     await flutterTts.speak(widget.message.content);
                   } catch (e) {print("Language not supported or not listed, error: $e");}

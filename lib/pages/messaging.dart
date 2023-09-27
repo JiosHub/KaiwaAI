@@ -21,7 +21,7 @@ class MessengerPage extends StatefulWidget {
 class _MessengerPageState extends State<MessengerPage> {
   
   late String topicContent;
-  late String language;
+  late String? language;
   List<Message> messages = [];
   List<Message> apiMessages = [];  // List of messages to send to the API
   String currentUser = 'user1';
@@ -50,7 +50,7 @@ class _MessengerPageState extends State<MessengerPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       selectedGPT = prefs.getString('selectedGPT');
       APIKey = prefs.getString('personalAPIKey');
-      language = prefs.getString('selectedLanguage') ?? "Japanese";
+      language = prefs.getString('selectedLanguage');
       topicContent = widget.topicContent;
       
       String contentString35 = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence, DO NOT translate this part to english. 2: AFTER the $language part, translate your provided sentence to English, you MUST mark this with \"Translation:\". 3: AFTER the translation, in English give feedback on MY (the user) usage of $language, you MUST mark this with \"Feedback:\". 3: DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
@@ -61,7 +61,6 @@ class _MessengerPageState extends State<MessengerPage> {
       } else {
         contentString = contentString35;
       }
-    
     
       apiMessages.add(Message(
         content: contentString, isUser: "system",

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unichat_ai/constants/topic_list.dart';
 import 'package:unichat_ai/pages/messaging.dart';
 import 'package:unichat_ai/constants/api_consts.dart';
@@ -18,6 +19,7 @@ class MenuPage extends StatefulWidget {
 class _MenuPageState extends State<MenuPage> {
   late List<Map<String, String>> topics = [];
   String selectedTopic = 'Option 1';
+  late String selectedLanguage;
 
   @override
   void initState() {
@@ -25,24 +27,31 @@ class _MenuPageState extends State<MenuPage> {
     topics = getTopics();
   }
 
-  void _selectTopic(int index) {
-    try {
-    GlobalState().clearMessageList();
-    MenuPage.topicContent = topics[index]['content'] ?? '';
-    BottomMenuRibbon.cachedMessengerPage = MessengerPage(topicContent: MenuPage.topicContent);
-    print("2: ${BottomMenuRibbon.cachedMessengerPage!.topicContent}");
-    
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BottomMenuRibbon.cachedMessengerPage!,
-      ),
-    );
-    } catch (e, stacktrace) {
-      print("Exception during build: $e");
-      print(stacktrace);
+  void _selectTopic(int index) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedLanguage = prefs.getString('selectedLanguage') ?? " ";
+    if (selectedLanguage == " ") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: Duration(seconds: 2),
+          content: Text('Please select a language first.'),
+        ),
+      );
+    } else {
+      GlobalState().clearMessageList();
+      MenuPage.topicContent = topics[index]['content'] ?? '';
+      BottomMenuRibbon.cachedMessengerPage = MessengerPage(topicContent: MenuPage.topicContent);
+      print("2: ${BottomMenuRibbon.cachedMessengerPage!.topicContent}");
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BottomMenuRibbon.cachedMessengerPage!,
+        ),
+      );
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {

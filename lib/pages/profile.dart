@@ -36,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _initInAppPurchase();
     _fetchProducts();
-    selectedLanguage = "";
+    selectedLanguage = "Select Language...";
     selectedGPT = "gpt-4";
     personalAPIKey = "";
     apiKeyController = TextEditingController(text: personalAPIKey);
