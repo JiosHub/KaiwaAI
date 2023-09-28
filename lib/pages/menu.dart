@@ -24,6 +24,9 @@ class _MenuPageState extends State<MenuPage> {
   List<String> savedTopicDesc = [];
   late String selectedLanguage;
 
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -129,11 +132,13 @@ class _MenuPageState extends State<MenuPage> {
                             SizedBox(height: 20),
                             Text("Leave the text fields blank if using a saved topic. Create new topic:"),
                             TextField(
+                              controller: titleController,
                               decoration: InputDecoration(
                                 hintText: "short title",
                               ),
                             ),
                             TextField(
+                              controller: descController,
                               maxLines: null, // Makes it multiline
                               keyboardType: TextInputType.multiline,
                               decoration: InputDecoration(
@@ -147,7 +152,10 @@ class _MenuPageState extends State<MenuPage> {
                               alignment: Alignment.centerRight,
                               child: TextButton(
                                 onPressed: () {
-                                  // Handle button press
+                                  if (titleController.text != "" && descController.text != ""){
+                                    _saveTopic(titleController.text+'|||'+descController.text);
+                                    _loadCustomTopics();
+                                  }
                                 },
                                 child: Text("Save"),
                               ),
