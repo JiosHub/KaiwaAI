@@ -154,7 +154,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Expanded(
                       child: Autocomplete<String>(
                         optionsBuilder: (TextEditingValue textEditingValue) {
-                          return ["English", "Japanese", "Korean", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese","Chinese (Simplified)", "Arabic"].where((String option) {
+                          return ["Japanese", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese", "Korean", "Chinese (Simplified)", "Arabic"].where((String option) {
                             return option.contains(textEditingValue.text.toLowerCase());
                           });
                         },

@@ -18,13 +18,44 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage> {
   late List<Map<String, String>> topics = [];
-  String selectedTopic = 'Option 1';
+  List<String> savedTopicNames = [];
+  String selectedCustomTopic = 'No saved topics.';
+  List<String> savedTopicTitles = [];
+  List<String> savedTopicDesc = [];
   late String selectedLanguage;
 
   @override
   void initState() {
     super.initState();
+    _loadCustomTopics();
     topics = getTopics();
+  }
+
+  _loadCustomTopics() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> fullTopics = prefs.getStringList('savedTopics') ?? ["No saved topics."];
+    if (fullTopics[0] != "No saved topics.") {
+      for (String topic in fullTopics) {
+        List<String> parts = topic.split('|||');
+        if (parts.length == 3) {  // Ensure there are exactly 3 parts
+          savedTopicNames.add(parts[0]);
+          savedTopicTitles.add(parts[1]);
+          savedTopicDesc.add(parts[2]);
+        }
+      }
+      selectedCustomTopic = savedTopicNames[0];
+    } else {
+      savedTopicNames = [fullTopics[0]];
+    }
+    print("selectedCustomTopic"+selectedCustomTopic);
+    print("savedTopicNames"+savedTopicNames[0]);
+  }
+
+  void _saveTopic(String topic) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> existingList = prefs.getStringList('savedTopics') ?? [];
+    existingList.add(topic);
+    prefs.setStringList('savedTopics', existingList);
   }
 
   void _selectTopic(int index) async {
@@ -80,12 +111,12 @@ class _MenuPageState extends State<MenuPage> {
                               alignment: Alignment.centerRight,
                               child: DropdownButton<String>(
                                 isExpanded: true,
-                                value: selectedTopic,
+                                value: selectedCustomTopic,
                                 onChanged: (String? selection) {
                                   // Update the state accordingly
-                                  selectedTopic = selection!;
+                                  selectedCustomTopic = selection!;
                                 },
-                                items: <String>['Option 1', 'Option 2', 'Option 3']
+                                items: savedTopicNames
                                   .map<DropdownMenuItem<String>>((String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
