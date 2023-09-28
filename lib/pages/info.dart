@@ -64,7 +64,7 @@ class _InfoPageState extends State<InfoPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.only(left: 15, right: 15, top: 15),
+      padding: EdgeInsets.only(left: 15, right: 15, top: 5),
       child: Column(
         //crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -156,7 +156,7 @@ class _InfoPageState extends State<InfoPage> {
                           ..onTap = () {
                             _launchURL(Uri.parse('https://platform.openai.com/account/api-keys'));
                           },
-                      ),
+                        ),
                     ],
                   ),
                 ),

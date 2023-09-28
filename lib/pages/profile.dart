@@ -16,27 +16,19 @@ class _ProfilePageState extends State<ProfilePage> {
   
   //List<IAPItem> items = await FlutterInappPurchase.instance.getProducts(['your_product_id']);
   late List<IAPItem> items;
-  late TextEditingController apiKeyController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-  //FocusNode focusNode = FocusNode();
-  late TextEditingController textEditingController;  // And here
-  bool _showLabelLang = true;
-  bool _showLabelKey = true;
+  TextEditingController apiKeyController = TextEditingController();
+  //FocusNode focusNode = FocusNode();  // And here
+  TextEditingController languageController = TextEditingController();
   late String selectedLanguage;
   late String selectedGPT;
   late String personalAPIKey;
-
-  Future<void> clearSharedPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-  }
 
   @override
   void initState() {
     super.initState();
     _initInAppPurchase();
     _fetchProducts();
-    selectedLanguage = "Select Language...";
+    selectedLanguage = "";
     selectedGPT = "gpt-4";
     personalAPIKey = "";
     apiKeyController = TextEditingController(text: personalAPIKey);
@@ -64,7 +56,8 @@ class _ProfilePageState extends State<ProfilePage> {
   _loadPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      selectedLanguage = prefs.getString('selectedLanguage') ?? "Select Language...";
+      selectedLanguage = prefs.getString('selectedLanguage') ?? "";
+      languageController = TextEditingController(text: selectedLanguage);
       selectedGPT = prefs.getString('selectedGPT') ?? "";
       if (selectedGPT == "") {
         selectedGPT = "gpt-4";
@@ -153,183 +146,157 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             child: Column(
               children: [
-                ListTile(
-                leading: Text("Chat Language", style: TextStyle(fontSize: 14)), 
-                title: Container(
-                  child: Transform.translate(
-                    offset: Offset(0, -5),  // Adjust the y-coordinate as needed
-                    child: GestureDetector(
-                      onTap: () {
-                        _showLabelLang = false;
-                      },
-                      child: Stack(
-                        alignment: Alignment.centerLeft,
-                        children: [
-                          _showLabelLang 
-                            ? (selectedLanguage != "" 
-                                ? Text(selectedLanguage) 
-                                : CircularProgressIndicator()) 
-                            : Container(), // _showLabel is a bool you would control
-                          Autocomplete<String>(
-                            optionsBuilder: (TextEditingValue textEditingValue) {
-                              if (textEditingValue.text == '') {
-                                setState(() {
-                                  _showLabelLang = true;  // Show label when field is empty
-                                });
-                              } else {
-                                setState(() {
-                                  _showLabelLang = false;  // Hide label otherwise
-                                });
-                              }
-                              return ["Select Language...","English", "Japanese", "Korean", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese","Chinese (Simplified)", "Arabic"].where((String option) {
-                                return option.contains(textEditingValue.text.toLowerCase());
-                              });
+                Row(
+                  children: [
+                    SizedBox(width: 15),
+                    Text('Chat Language:'),
+                    SizedBox(width: 20),
+                    Expanded(
+                      child: Autocomplete<String>(
+                        optionsBuilder: (TextEditingValue textEditingValue) {
+                          return ["English", "Japanese", "Korean", "Spanish", "French", "German", "Swedish","Italian", "Russian", "Dutch", "Danish", "Portuguese","Chinese (Simplified)", "Arabic"].where((String option) {
+                            return option.contains(textEditingValue.text.toLowerCase());
+                          });
+                        },
+                        onSelected: (String selection) {
+                          languageController.text = selection;
+                          GlobalState().globalLanguage = selection;
+                          _saveLanguagePreference(selection);
+                        },
+                        fieldViewBuilder: (BuildContext context,
+                            TextEditingController textEditingController,
+                            FocusNode focusNode,
+                            VoidCallback onFieldSubmitted) {
+                            if (textEditingController.text.isEmpty) {
+                              textEditingController.text = selectedLanguage;
+                            }
+                            return TextField(
+                              controller: textEditingController,
+                              focusNode: focusNode,
+                              decoration: InputDecoration(
+                                hintText: 'Select language',
+                              ),
+                            onTap: () {
+                              textEditingController.clear();
                             },
-                            onSelected: (String selection) {
-                              setState(() {
-                                selectedLanguage = selection;
-                                GlobalState().globalLanguage = selection;
-                                _saveLanguagePreference(selection);
-                                _showLabelLang = true;  // Hide label when something is selected
-                              });
-                            },
-                            optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
-                              //TextField(controller: textEditingController, onTap: () {textEditingController.clear();});
-                              return Align(
-                                alignment: Alignment.topLeft,
-                                child: Material(
-                                  //elevation: 4.0,
-                                  child: SizedBox(
-                                    width: 175, // Set the width to match your field
-                                    height: 200, // Set the maximum height
-                                    
-                                      child: ListView.builder(
-                                        padding: EdgeInsets.zero,
-                                        shrinkWrap: true,
-                                        itemCount: options.length,
-                                        itemBuilder: (BuildContext context, int index) {
-                                          final String option = options.elementAt(index);
-                                          return GestureDetector(
-                                            onTap: () {
-                                              onSelected(option);
-                                            },
-                                            child: Container(
-                                              height: 40, // Adjust the height of each option here
-                                              child: ListTile(
-                                                title: Text(option),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    
-                                  ),
+                          );
+                        },
+                        optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+                          return Align(
+                            alignment: Alignment.topLeft,
+                            child: Material(
+                              color: Colors.grey[800],
+                              elevation: 4.0,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: 170, // width of the dropdown
+                                  maxHeight: 200, // maximum height of the dropdown
                                 ),
-                              );
-                            },
-                          ),
-                        ],
+                                child: ListView.builder(
+                                  padding: EdgeInsets.zero, // removing default padding
+                                  itemCount: options.length,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    final option = options.elementAt(index);
+                                    return GestureDetector(
+                                      onTap: () {
+                                        onSelected(option);
+                                      },
+                                      child: Container(
+                                        height: 40, // Adjust the height of each option here
+                                        padding: EdgeInsets.symmetric(horizontal: 10.0), // added to adjust the text alignment inside the container
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(option, style: TextStyle(fontSize: 16)),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        }
                       ),
                     ),
-                  ),
+                    SizedBox(width: 10),
+                    IconButton(
+                      icon: Icon(Icons.info),
+                      onPressed: () {
+                        // Handle info button press
+                      },
+                    ),
+                    SizedBox(width: 15),
+                  ],
                 ),
-                trailing: Material(
-                  color: Colors.transparent,
-                  child: IconButton(
-                    icon: Icon(Icons.info),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text('Information'),
-                            content: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  SelectableText('You can type any language you want, but the pre-set options are what ChatGPT has been trained on the most/fluent in.'),
-                                  SizedBox(height: 15),
-                                  SelectableText('If a language that is not listed is used, tts will not work.'),
-                                ]
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(width: 15),
+                    Text("GPT version:"),
+                    SizedBox(width: 38),
+                    Expanded(
+                      child: Container(
+                        height: 30,
+                        child: DropdownButton<String>(
+                          value: selectedGPT,
+                          isDense: true,
+                          isExpanded: true,
+                          onChanged: (String? selection) {
+                            setState(() {
+                              selectedGPT = selection ?? "gpt-4";
+                              _saveGPTPreference(selection);
+                            });
+                          },
+                          items: <String>['gpt-4','gpt-3.5-turbo']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 2),
+                                child: Text(value, style: TextStyle(fontSize: 15)),
                               ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // Close the dialog
-                                },
-                                child: Text('Close'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Text("GPT version     "), 
-                title: Container(
-                  height: 30,
-                  child: DropdownButton<String>(
-                    value: selectedGPT,
-                    isDense: true,
-                    isExpanded: true,
-                    onChanged: (String? selection) {
-                      setState(() {
-                        selectedGPT = selection ?? "gpt-4";
-                        _saveGPTPreference(selection);
-                      });
-                    },
-                    items: <String>['gpt-4','gpt-3.5-turbo']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 2),
-                          child: Text(value, style: TextStyle(fontSize: 15))
+                            );
+                          }).toList(),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                trailing: Material(
-                  color: Colors.transparent,
-                  //borderRadius: ,
-                  child: IconButton(
-                    icon: Icon(Icons.info),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text('Information'),
-                            content: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  SelectableText('ChatGPT 3.5 is an improved version of gpt 3. Responses will be a lot faster and API calls are cheaper.'),
-                                  SizedBox(height: 15),
-                                  SelectableText('ChatGPT 4 has a more detailed prompt and is much more consistant and accurate but is limited as it costs 20x more'),
-                                  SizedBox(height: 15),
-                                  SelectableText('If you have purchased API Access, you can see the GPT 4 message limit on the info page')
-                                ]
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // Close the dialog
-                                },
-                                child: Text('Close'),
-                              ),
-                            ],
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Material(
+                      color: Colors.transparent,
+                      child: IconButton(
+                        icon: Icon(Icons.info),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text('Information'),
+                                content: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      SelectableText('ChatGPT 3.5 is an improved version of gpt 3. Responses will be a lot faster and API calls are cheaper.'),
+                                      SizedBox(height: 15),
+                                      SelectableText('ChatGPT 4 has a more detailed prompt and is much more consistent and accurate but is limited as it costs 20x more'),
+                                      SizedBox(height: 15),
+                                      SelectableText('If you have purchased API Access, you can see the GPT 4 message limit on the info page')
+                                    ],
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); // Close the dialog
+                                    },
+                                    child: Text('Close'),
+                                  ),
+                                ],
+                              );
+                            },
                           );
                         },
-                      );
-                    },
-                  ),
-                ),
-              ),
+                      ),
+                    ),
+                    SizedBox(width: 15),
+                  ],
+                )
               ]
             ),
           ),
@@ -349,7 +316,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icon(Icons.clear),
                         onPressed: () {
                           apiKeyController.clear();
-                          clearSharedPreferences();
                           _saveAPIKey("");
                         },
                       ),

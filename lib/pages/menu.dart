@@ -30,7 +30,7 @@ class _MenuPageState extends State<MenuPage> {
   void _selectTopic(int index) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     selectedLanguage = prefs.getString('selectedLanguage') ?? " ";
-    if (selectedLanguage == " ") {
+    if (selectedLanguage == "") {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           duration: Duration(seconds: 2),
