@@ -18,10 +18,10 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage> {
   late List<Map<String, String>> topics = [];
-  List<String> savedTopicNames = [];
-  String selectedCustomTopic = 'No saved topics.';
-  List<String> savedTopicTitles = [];
-  List<String> savedTopicDesc = [];
+  //String selectedCustomTopic = 'No saved topics.';
+  //List<String> savedTopicTitles = [];
+  //List<String> savedTopicDesc = [];
+  final ValueNotifier<List<String>> savedTopicsNotifier = ValueNotifier<List<String>>(["No saved topics."]);
   late String selectedLanguage;
 
   TextEditingController titleController = TextEditingController();
@@ -30,35 +30,14 @@ class _MenuPageState extends State<MenuPage> {
   @override
   void initState() {
     super.initState();
-    _loadCustomTopics();
     topics = getTopics();
+    _loadCustomTopics();
   }
 
-  _loadCustomTopics() async {
+  void _loadCustomTopics() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> fullTopics = prefs.getStringList('savedTopics') ?? ["No saved topics."];
-    if (fullTopics[0] != "No saved topics.") {
-      for (String topic in fullTopics) {
-        List<String> parts = topic.split('|||');
-        if (parts.length == 3) {  // Ensure there are exactly 3 parts
-          savedTopicNames.add(parts[0]);
-          savedTopicTitles.add(parts[1]);
-          savedTopicDesc.add(parts[2]);
-        }
-      }
-      selectedCustomTopic = savedTopicNames[0];
-    } else {
-      savedTopicNames = [fullTopics[0]];
-    }
-    print("selectedCustomTopic"+selectedCustomTopic);
-    print("savedTopicNames"+savedTopicNames[0]);
-  }
-
-  void _saveTopic(String topic) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> existingList = prefs.getStringList('savedTopics') ?? [];
-    existingList.add(topic);
-    prefs.setStringList('savedTopics', existingList);
+    savedTopicsNotifier.value = fullTopics;
   }
 
   void _selectTopic(int index) async {
@@ -103,65 +82,168 @@ class _MenuPageState extends State<MenuPage> {
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: Text("Make a New Topic"),
-                      content: SingleChildScrollView( // Use SingleChildScrollView to avoid overflow issues
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(style: TextStyle(fontSize: 15),"Create a custom topic following the examples provided in the info button to the right. Clicking \"Load Chat\" will redirect to chat using the custom topic."),
-                            SizedBox(height: 10),
-                            Text("Saved Topics:"),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                value: selectedCustomTopic,
-                                onChanged: (String? selection) {
-                                  // Update the state accordingly
-                                  selectedCustomTopic = selection!;
-                                },
-                                items: savedTopicNames
-                                  .map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  })
-                                  .toList(),
-                              ),
-                            ),
-                            SizedBox(height: 20),
-                            Text("Leave the text fields blank if using a saved topic. Create new topic:"),
-                            TextField(
-                              controller: titleController,
-                              decoration: InputDecoration(
-                                hintText: "short title",
-                              ),
-                            ),
-                            TextField(
-                              controller: descController,
-                              maxLines: null, // Makes it multiline
-                              keyboardType: TextInputType.multiline,
-                              decoration: InputDecoration(
-                                hintText: "full topic description following example",
-                                hintStyle: TextStyle(
-                                  fontSize: 14.0, // Adjust the size as needed
-                                ),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: () {
-                                  if (titleController.text != "" && descController.text != ""){
-                                    _saveTopic(titleController.text+'|||'+descController.text);
-                                    _loadCustomTopics();
+                      content: ValueListenableBuilder<List<String>>(
+                        valueListenable: savedTopicsNotifier,
+                        builder: (context, savedTopics, child) {
+                          return StatefulBuilder(
+                            builder: (BuildContext context, StateSetter setState) {
+                                List<String> savedTopicTitles = [];
+                              List<String> savedTopicDesc = [];
+                              String selectedCustomTopic = 'No saved topics.';
+                                _loadCustomTopics() async {
+                                SharedPreferences prefs = await SharedPreferences.getInstance();
+                                //prefs.clear();
+                                List<String> fullTopics = prefs.getStringList('savedTopics') ?? ["No saved topics."];
+                                  savedTopicTitles.clear();
+                                savedTopicDesc.clear();
+                                  if (fullTopics[0] != "No saved topics.") {
+                                  for (String topic in fullTopics) {
+                                      List<String> parts = topic.split('|||');
+                                      if (parts.length == 2) {  // Ensure there are exactly 2 parts
+                                          savedTopicTitles.add(parts[0]);
+                                          savedTopicDesc.add(parts[1]);
+                                      }
                                   }
-                                },
-                                child: Text("Save"),
-                              ),
-                            ),
-                          ],
-                        ),
+                                } else {
+                                  savedTopicTitles = [fullTopics[0]];
+                                }
+                                  setState(() {
+                                    selectedCustomTopic = savedTopicTitles.isNotEmpty ? savedTopicTitles[0] : 'No saved topics.';
+                                });
+                                  print("$fullTopics \n$savedTopicTitles \n$savedTopicDesc \n$selectedCustomTopic");
+                              }
+                                _deleteCustomTopic() async {
+                                SharedPreferences prefs = await SharedPreferences.getInstance();
+                                List<String> fullTopics = prefs.getStringList('savedTopics') ?? ["No saved topics."];
+                                print(savedTopicTitles);
+                                int? indexToRemove;
+                                for (int i = 0; i < fullTopics.length; i++) {
+                                  if (fullTopics[i].startsWith(titleController.text)) {
+                                    indexToRemove = i;
+                                    break;
+                                  }
+                                }
+                                  if (indexToRemove != null) {
+                                  print(fullTopics[indexToRemove]);
+                                  print(savedTopicTitles[indexToRemove]);
+                                  print(savedTopicDesc[indexToRemove]);
+                                  fullTopics.removeAt(indexToRemove);
+                                  savedTopicTitles.removeAt(indexToRemove);
+                                  savedTopicDesc.removeAt(indexToRemove);
+                                  if (fullTopics.isEmpty) {
+                                    fullTopics.add("No saved topics.");
+                                    savedTopicTitles.add("No saved topics.");
+                                    savedTopicDesc.add("No saved topics.");
+                                  }
+                                  setState(() {
+                                    savedTopicTitles;
+                                    savedTopicDesc;
+                                  });
+                                }
+                                  prefs.setStringList('savedTopics', fullTopics);
+                                _loadCustomTopics();
+                              }
+                                void _saveTopic(String topic) async {
+                                SharedPreferences prefs = await SharedPreferences.getInstance();
+                                List<String> existingList = prefs.getStringList('savedTopics') ?? [];
+                                print(topic);
+                                print(existingList);
+                                existingList.add(topic);
+                                print(existingList[0]);
+                                if (existingList.contains("No saved topics.")){
+                                    existingList.remove("No saved topics.");
+                                }
+                                prefs.setStringList('savedTopics', existingList);
+                                print(existingList);
+                                // Reload the topics after saving to ensure consistency
+                                _loadCustomTopics();
+                              }
+                              
+                              return SingleChildScrollView( // Use SingleChildScrollView to avoid overflow issues
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(style: TextStyle(fontSize: 15),"Create a custom topic following the examples provided in the info button to the right. Clicking \"Load Chat\" will redirect to chat using the custom topic."),
+                                    SizedBox(height: 10),
+                                    Text("Saved Topics:"),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: DropdownButton<String>(
+                                        isExpanded: true,
+                                        value: selectedCustomTopic,
+                                        onChanged: (String? selection) {
+                                          // Update the state accordingly
+                                          selectedCustomTopic = selection!;
+                                          if (selectedCustomTopic != "No saved topics.") {
+                                            int index = savedTopicTitles.indexOf(selectedCustomTopic);
+                                            if (index != -1) {  // Ensure the index is valid
+                                              titleController.text = savedTopicTitles[index];
+                                              descController.text = savedTopicDesc[index];
+                                            }
+                                          }
+                                        },
+                                        items: savedTopicTitles
+                                          .map<DropdownMenuItem<String>>((String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(value),
+                                            );
+                                          })
+                                          .toList(),
+                                      ),
+                                    ),
+                                    SizedBox(height: 20),
+                                    Text("Leave the text fields blank if using a saved topic. Create new topic:"),
+                                    TextField(
+                                      controller: titleController,
+                                      decoration: InputDecoration(
+                                        hintText: "Short title.",
+                                        hintStyle: TextStyle(
+                                          fontSize: 14.0, // Adjust the size as needed
+                                        ),
+                                      ),
+                                    ),
+                                    TextField(
+                                      controller: descController,
+                                      maxLines: null, // Makes it multiline
+                                      keyboardType: TextInputType.multiline,
+                                      decoration: InputDecoration(
+                                        hintText: "Full topic description following example.",
+                                        hintStyle: TextStyle(
+                                          fontSize: 14.0, // Adjust the size as needed
+                                        ),
+                                      ),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Row(
+                                        children: [
+                                          Spacer(),
+                                          TextButton(
+                                            onPressed: () {
+                                              _deleteCustomTopic();
+                                            },
+                                            child: Text("Delete"),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              if (titleController.text != "" && descController.text != ""){
+                                                print(titleController.text+'|||'+descController.text);
+                                                _saveTopic(titleController.text+'|||'+descController.text);
+                                                print("done save");
+                                              }
+                                            },
+                                            child: Text("Save"),
+                                          ),
+                                        ]
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        }
                       ),
                       actions: [
                         TextButton(
