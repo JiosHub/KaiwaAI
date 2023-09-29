@@ -21,8 +21,10 @@ class _MenuPageState extends State<MenuPage> {
   //String selectedCustomTopic = 'No saved topics.';
   //List<String> savedTopicTitles = [];
   //List<String> savedTopicDesc = [];
-  final ValueNotifier<List<String>> savedTopicsNotifier = ValueNotifier<List<String>>(["No saved topics."]);
+  ValueNotifier<List<String>> savedTopicsNotifier = ValueNotifier<List<String>>(["No saved topics."]);
   late String selectedLanguage;
+  bool isFirstRun = true;
+  String selectedCustomTopic = "";
 
   TextEditingController titleController = TextEditingController();
   TextEditingController descController = TextEditingController();
@@ -31,13 +33,21 @@ class _MenuPageState extends State<MenuPage> {
   void initState() {
     super.initState();
     topics = getTopics();
-    _loadCustomTopics();
+    _loadCustomTopicsToNotifier(); 
+    _initializeSelectedTopic();
   }
 
-  void _loadCustomTopics() async {
+  void _initializeSelectedTopic() {
+    List<String> savedTopicTitles = savedTopicsNotifier.value.map((e) => e.split('|||').first).toList();
+    setState(() {
+      selectedCustomTopic = savedTopicTitles.isNotEmpty ? savedTopicTitles[0] : 'No saved topics.';
+    });
+  }
+
+  void _loadCustomTopicsToNotifier() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> fullTopics = prefs.getStringList('savedTopics') ?? ["No saved topics."];
-    savedTopicsNotifier.value = fullTopics;
+    savedTopicsNotifier.value = fullTopics;  // This will trigger the ValueListenableBuilder to rebuild
   }
 
   void _selectTopic(int index) async {
@@ -87,35 +97,34 @@ class _MenuPageState extends State<MenuPage> {
                         builder: (context, savedTopics, child) {
                           return StatefulBuilder(
                             builder: (BuildContext context, StateSetter setState) {
-                                List<String> savedTopicTitles = [];
-                              List<String> savedTopicDesc = [];
-                              String selectedCustomTopic = 'No saved topics.';
-                                _loadCustomTopics() async {
+
+                              List<String> savedTopicTitles = savedTopics.map((e) => e.split('|||').first).toList();
+                              List<String> savedTopicDesc = savedTopics.map((e) => e.split('|||').last).toList();
+                              //String selectedCustomTopic = savedTopicTitles.isNotEmpty ? savedTopicTitles[0] : 'No saved topics.';
+                              
+                              void _loadCustomTopics() async {
                                 SharedPreferences prefs = await SharedPreferences.getInstance();
-                                //prefs.clear();
                                 List<String> fullTopics = prefs.getStringList('savedTopics') ?? ["No saved topics."];
-                                  savedTopicTitles.clear();
+
+                                savedTopicTitles.clear();
                                 savedTopicDesc.clear();
-                                  if (fullTopics[0] != "No saved topics.") {
+                                if (fullTopics[0] != "No saved topics.") {
                                   for (String topic in fullTopics) {
-                                      List<String> parts = topic.split('|||');
-                                      if (parts.length == 2) {  // Ensure there are exactly 2 parts
-                                          savedTopicTitles.add(parts[0]);
-                                          savedTopicDesc.add(parts[1]);
-                                      }
+                                    List<String> parts = topic.split('|||');
+                                    if (parts.length == 2) {  // Ensure there are exactly 2 parts
+                                      savedTopicTitles.add(parts[0]);
+                                      savedTopicDesc.add(parts[1]);
+                                    }
                                   }
                                 } else {
                                   savedTopicTitles = [fullTopics[0]];
                                 }
-                                  setState(() {
-                                    selectedCustomTopic = savedTopicTitles.isNotEmpty ? savedTopicTitles[0] : 'No saved topics.';
-                                });
-                                  print("$fullTopics \n$savedTopicTitles \n$savedTopicDesc \n$selectedCustomTopic");
                               }
-                                _deleteCustomTopic() async {
+
+                              void _deleteCustomTopic() async {
                                 SharedPreferences prefs = await SharedPreferences.getInstance();
                                 List<String> fullTopics = prefs.getStringList('savedTopics') ?? ["No saved topics."];
-                                print(savedTopicTitles);
+
                                 int? indexToRemove;
                                 for (int i = 0; i < fullTopics.length; i++) {
                                   if (fullTopics[i].startsWith(titleController.text)) {
@@ -123,40 +132,50 @@ class _MenuPageState extends State<MenuPage> {
                                     break;
                                   }
                                 }
-                                  if (indexToRemove != null) {
-                                  print(fullTopics[indexToRemove]);
-                                  print(savedTopicTitles[indexToRemove]);
-                                  print(savedTopicDesc[indexToRemove]);
+                                
+                                if (indexToRemove != null) {
                                   fullTopics.removeAt(indexToRemove);
                                   savedTopicTitles.removeAt(indexToRemove);
                                   savedTopicDesc.removeAt(indexToRemove);
-                                  if (fullTopics.isEmpty) {
-                                    fullTopics.add("No saved topics.");
-                                    savedTopicTitles.add("No saved topics.");
-                                    savedTopicDesc.add("No saved topics.");
-                                  }
                                   setState(() {
-                                    savedTopicTitles;
-                                    savedTopicDesc;
+                                    if (fullTopics.isEmpty) {
+                                      fullTopics.add("No saved topics.");
+                                      savedTopicTitles.add("No saved topics.");
+                                      savedTopicDesc.add("No saved topics.");
+                                    }
+                                    selectedCustomTopic = savedTopicTitles[0];
                                   });
                                 }
-                                  prefs.setStringList('savedTopics', fullTopics);
+                                
+                                prefs.setStringList('savedTopics', fullTopics);
+                                savedTopicsNotifier.value = fullTopics;
                                 _loadCustomTopics();
                               }
-                                void _saveTopic(String topic) async {
+
+                              void _saveTopic(String topic) async {
                                 SharedPreferences prefs = await SharedPreferences.getInstance();
                                 List<String> existingList = prefs.getStringList('savedTopics') ?? [];
-                                print(topic);
-                                print(existingList);
+                                List<String> parts = topic.split('|||');
+                                print(parts[0]);
                                 existingList.add(topic);
-                                print(existingList[0]);
                                 if (existingList.contains("No saved topics.")){
-                                    existingList.remove("No saved topics.");
+                                  existingList.remove("No saved topics.");
+                                  setState(() {
+                                    selectedCustomTopic = parts[0];
+                                  });
                                 }
+
                                 prefs.setStringList('savedTopics', existingList);
-                                print(existingList);
-                                // Reload the topics after saving to ensure consistency
+                                savedTopicsNotifier.value = existingList;
                                 _loadCustomTopics();
+                              }
+
+                              if (isFirstRun) {
+                                _loadCustomTopics();
+                                setState(() {
+                                  selectedCustomTopic = savedTopicTitles.isNotEmpty ? savedTopicTitles[0] : 'No saved topics.';
+                                });                                
+                                isFirstRun = false;
                               }
                               
                               return SingleChildScrollView( // Use SingleChildScrollView to avoid overflow issues
