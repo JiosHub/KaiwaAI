@@ -22,9 +22,10 @@ class _MenuPageState extends State<MenuPage> {
   //List<String> savedTopicTitles = [];
   //List<String> savedTopicDesc = [];
   ValueNotifier<List<String>> savedTopicsNotifier = ValueNotifier<List<String>>(["No saved topics."]);
-  late String selectedLanguage;
-  bool isFirstRun = true;
+  late String selectedLanguage = "";
   String selectedCustomTopic = "";
+  bool isFirstRun = true;
+  bool loadCustom = false;
 
   TextEditingController titleController = TextEditingController();
   TextEditingController descController = TextEditingController();
@@ -52,7 +53,7 @@ class _MenuPageState extends State<MenuPage> {
 
   void _selectTopic(int index) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    selectedLanguage = prefs.getString('selectedLanguage') ?? " ";
+    selectedLanguage = prefs.getString('selectedLanguage') ?? "";
     if (selectedLanguage == "") {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -60,6 +61,18 @@ class _MenuPageState extends State<MenuPage> {
           content: Text('Please select a language first.'),
         ),
       );
+    } else if(loadCustom) {
+      GlobalState().clearMessageList();
+      MenuPage.topicContent = descController.text;
+      BottomMenuRibbon.cachedMessengerPage = MessengerPage(topicContent: MenuPage.topicContent);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BottomMenuRibbon.cachedMessengerPage!,
+        ),
+      );
+      loadCustom = false;
     } else {
       GlobalState().clearMessageList();
       MenuPage.topicContent = topics[index]['content'] ?? '';
@@ -105,10 +118,12 @@ class _MenuPageState extends State<MenuPage> {
                               void _loadCustomTopics() async {
                                 SharedPreferences prefs = await SharedPreferences.getInstance();
                                 List<String> fullTopics = prefs.getStringList('savedTopics') ?? ["No saved topics."];
-
+                                print("5");
                                 savedTopicTitles.clear();
                                 savedTopicDesc.clear();
+                                print("6");
                                 if (fullTopics[0] != "No saved topics.") {
+                                  print("7");
                                   for (String topic in fullTopics) {
                                     List<String> parts = topic.split('|||');
                                     if (parts.length == 2) {  // Ensure there are exactly 2 parts
@@ -117,6 +132,7 @@ class _MenuPageState extends State<MenuPage> {
                                     }
                                   }
                                 } else {
+                                  print("8");
                                   savedTopicTitles = [fullTopics[0]];
                                 }
                               }
@@ -137,16 +153,21 @@ class _MenuPageState extends State<MenuPage> {
                                   fullTopics.removeAt(indexToRemove);
                                   savedTopicTitles.removeAt(indexToRemove);
                                   savedTopicDesc.removeAt(indexToRemove);
+                                  titleController.clear();
+                                  descController.clear();
                                   setState(() {
                                     if (fullTopics.isEmpty) {
                                       fullTopics.add("No saved topics.");
                                       savedTopicTitles.add("No saved topics.");
                                       savedTopicDesc.add("No saved topics.");
+                                      selectedCustomTopic = savedTopicTitles[0];
+                                    } else {
+                                      selectedCustomTopic = savedTopicTitles[0];
+                                      titleController.text = savedTopicTitles[0];
+                                      descController.text = savedTopicDesc[0];
                                     }
-                                    selectedCustomTopic = savedTopicTitles[0];
                                   });
                                 }
-                                
                                 prefs.setStringList('savedTopics', fullTopics);
                                 savedTopicsNotifier.value = fullTopics;
                                 _loadCustomTopics();
@@ -154,17 +175,20 @@ class _MenuPageState extends State<MenuPage> {
 
                               void _saveTopic(String topic) async {
                                 SharedPreferences prefs = await SharedPreferences.getInstance();
+                                print("1");
                                 List<String> existingList = prefs.getStringList('savedTopics') ?? [];
                                 List<String> parts = topic.split('|||');
                                 print(parts[0]);
+                                print("2");
                                 existingList.add(topic);
                                 if (existingList.contains("No saved topics.")){
                                   existingList.remove("No saved topics.");
+                                  print("3");
                                   setState(() {
                                     selectedCustomTopic = parts[0];
                                   });
                                 }
-
+                                print("4");
                                 prefs.setStringList('savedTopics', existingList);
                                 savedTopicsNotifier.value = existingList;
                                 _loadCustomTopics();
@@ -192,6 +216,9 @@ class _MenuPageState extends State<MenuPage> {
                                         value: selectedCustomTopic,
                                         onChanged: (String? selection) {
                                           // Update the state accordingly
+                                          setState(() {
+                                            selectedCustomTopic = selection!;
+                                          });
                                           selectedCustomTopic = selection!;
                                           if (selectedCustomTopic != "No saved topics.") {
                                             int index = savedTopicTitles.indexOf(selectedCustomTopic);
@@ -246,6 +273,9 @@ class _MenuPageState extends State<MenuPage> {
                                           ),
                                           TextButton(
                                             onPressed: () {
+                                              setState(() {
+                                                selectedCustomTopic = titleController.text;
+                                              });
                                               if (titleController.text != "" && descController.text != ""){
                                                 print(titleController.text+'|||'+descController.text);
                                                 _saveTopic(titleController.text+'|||'+descController.text);
@@ -268,7 +298,8 @@ class _MenuPageState extends State<MenuPage> {
                         TextButton(
                           child: Text("Load Chat"),
                           onPressed: () {
-                            // Add the functionality for what should happen when "Load Chat" is pressed
+                            loadCustom = true;
+                            _selectTopic(0);
                           },
                         ),
                         TextButton(
