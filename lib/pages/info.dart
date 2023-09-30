@@ -117,7 +117,8 @@ class _InfoPageState extends State<InfoPage> {
                 SizedBox(height: 7),
                 Text("Other things to note:"),
                 SizedBox(height: 5),
-                Text("- Only the last 5 replies will be saved.\n- If an error occurs with recieving a "+
+                Text("- Only the last 5 replies will be saved.\n- Training data for GPT-4 go up to"+
+                " January 2022, GPT 3.5 up to  September 2021\n- If an error occurs with recieving a "+
                 "message, the message count can go down in the app, but the message won't actually be taken "+
                 "off your account server-side. You can press the refresh button at the top of this page to get"+
                 " your message count from the server.", textAlign: TextAlign.left),
