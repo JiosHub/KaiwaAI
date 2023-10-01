@@ -5,6 +5,7 @@ class IAPService {
   final InAppPurchase _iap = InAppPurchase.instance;
   List<ProductDetails>? products;
   StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
+  Completer<String> _purchaseCompleter = Completer<String>();
 
   IAPService() {
     _initialize();
@@ -36,22 +37,29 @@ class IAPService {
           // Handle pending transactions
         } else {
           if (purchaseDetails.status == PurchaseStatus.error) {
-            // Handle errors
+            print("yoooo ${purchaseDetails.error}");
+            _purchaseCompleter.complete("Error during purchase: ${purchaseDetails.error}");
           } else if (purchaseDetails.status == PurchaseStatus.purchased) {
-            // Verify purchase on your server, then deliver the content.
             if (purchaseDetails.pendingCompletePurchase) {
               await _iap.completePurchase(purchaseDetails);
             }
+            _purchaseCompleter.complete("Success");
           }
         }
       });
+    }, onError: (error) {
+      _purchaseCompleter.complete(error.toString());
     });
   }
 
-  Future<void> buyProduct(ProductDetails product) async {
-    print(product.id);
+  void resetPurchaseCompleter() {
+    _purchaseCompleter = Completer<String>();
+  }
+
+  Future<String> buyProduct(ProductDetails product) async {
     final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
     _iap.buyNonConsumable(purchaseParam: purchaseParam);
+    return _purchaseCompleter.future;
   }
 
   void dispose() {

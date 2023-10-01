@@ -25,6 +25,8 @@ class _ProfilePageState extends State<ProfilePage> {
   late String selectedGPT;
   late String personalAPIKey;
   final IAPService _iapService = IAPService();
+  String noCompletion = "";
+  bool errorCheck = false;
 
   @override
   void initState() {
@@ -372,72 +374,101 @@ class _ProfilePageState extends State<ProfilePage> {
                   showDialog(
                     context: context,
                     builder: (context) {
-                      return AlertDialog(
-                        backgroundColor: Colors.grey[800],
-                        title: Text('Options'),
-                        content: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              SizedBox(height: 15),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color:  Colors.grey[700],
-                                  borderRadius: BorderRadius.circular(5)
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: ListTile(
-                                    trailing: Padding(
-                                      padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
-                                      child: Icon(Icons.arrow_forward),
+                      return StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                          return AlertDialog(
+                            backgroundColor: Colors.grey[800],
+                            title: Text('Options'),
+                            content: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 15),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color:  Colors.grey[700],
+                                      borderRadius: BorderRadius.circular(5)
                                     ),
-                                    title: Text("GPT4 +100 for £4.99"),  //${item100?.price ?? "£4.99"}
-                                    onTap: () {
-                                      if (_iapService.products != null && _iapService.products!.isNotEmpty) {
-                                        print('Attempting to purchase product with ID: ${_iapService.products![0].id}');
-                                        _iapService.buyProduct(_iapService.products![0]);
-                                      }
-                                    },
-                                  )
-                                )
-                              ),
-                              SizedBox(height: 10),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color:  Colors.grey[700],
-                                  borderRadius: BorderRadius.circular(5)
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: ListTile(
-                                    trailing: Padding(
-                                      padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
-                                      child: Icon(Icons.arrow_forward),
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: ListTile(
+                                        trailing: Padding(
+                                          padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
+                                          child: Icon(Icons.arrow_forward),
+                                        ),
+                                        title: Text("GPT4 +100 for £4.99"),  //${item100?.price ?? "£4.99"}
+                                        onTap: () async {
+                                          errorCheck = false;
+                                          noCompletion = "";
+                                          if (_iapService.products != null && _iapService.products!.isNotEmpty) {
+                                            print('Attempting to purchase product with ID: ${_iapService.products![0].id}');
+                                            noCompletion = await _iapService.buyProduct(_iapService.products![0]);
+                                            print("yepyepyep $noCompletion");
+                                            if (noCompletion != "") {
+                                              setState(() {errorCheck = true;});
+                                              Future.delayed(Duration(seconds: 5), () {
+                                                // After 5 seconds, update errorCheck
+                                                setState(() {errorCheck = false;});
+                                              });
+                                            } 
+                                            _iapService.resetPurchaseCompleter();
+                                          }
+                                        },
+                                      )
+                                    )
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color:  Colors.grey[700],
+                                      borderRadius: BorderRadius.circular(5)
                                     ),
-                                    title: Text("GPT4 +500 for £16.99"), //${item500?.price ?? "£16.99"}
-                                    onTap: () {
-                                      if (_iapService.products != null && _iapService.products!.isNotEmpty) {
-                                        _iapService.buyProduct(_iapService.products![1]);
-                                      }
-                                    },
-                                  )
-                                )
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: ListTile(
+                                        trailing: Padding(
+                                          padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
+                                          child: Icon(Icons.arrow_forward),
+                                        ),
+                                        title: Text("GPT4 +500 for £16.99"), //${item500?.price ?? "£16.99"}
+                                        onTap: () async {
+                                          errorCheck = false;
+                                          noCompletion = "";
+                                          if (_iapService.products != null && _iapService.products!.isNotEmpty) {
+                                            noCompletion = await _iapService.buyProduct(_iapService.products![1]);
+                                            if (noCompletion != "") {
+                                              print(noCompletion);
+                                              setState(() {errorCheck = true;});
+                                              Future.delayed(Duration(seconds: 5), () {
+                                                // After 5 seconds, update errorCheck
+                                                setState(() {errorCheck = false;});
+                                              });
+                                            } 
+                                            _iapService.resetPurchaseCompleter();
+                                          }
+                                        },
+                                      )
+                                    )
+                                  ),
+                                  SizedBox(height: 15),
+                                  errorCheck ? Text("Purchase Unsuccessful",
+                                    style: TextStyle(color: Colors.red)) : Container(),
+                                  SizedBox(height: 15),
+                                  SelectableText("Both options will set GPT-3.5's message limit to 5000."),
+                                  SizedBox(height: 15),
+                                  SelectableText("To see steps for creating your own OpenAI API key, go to the info page.")
+                                ]
                               ),
-                              SizedBox(height: 20),
-                              SelectableText("Both options will set GPT-3.5's message limit to 5000."),
-                              SizedBox(height: 15),
-                              SelectableText("To see steps for creating your own OpenAI API key, go to the info page.")
-                            ]
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(); // Close the dialog
-                            },
-                            child: Text('Close'),
-                          ),
-                        ],
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Close the dialog
+                                },
+                                child: Text('Close'),
+                              ),
+                            ],
+                          );
+                        }
                       );
                     },
                   );
