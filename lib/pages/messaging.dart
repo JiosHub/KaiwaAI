@@ -303,6 +303,10 @@ class _MessengerPageState extends State<MessengerPage> {
                                       setState(() {
                                         messages.add(Message(content: userMessage, isUser: "user"));
                                         messages.add(loadingMessage);
+                                        if (apiMessages.length >= 5) {
+                                          //max 5 messages saved
+                                          apiMessages.removeAt(1);
+                                        } 
                                         apiMessages.add(Message(content: userMessage, isUser: "user"));
                                       });
                                       print("$APIKey<------------");
@@ -316,6 +320,10 @@ class _MessengerPageState extends State<MessengerPage> {
                                       setState(() {
                                         messages.removeLast();
                                         messages.add(Message(content: chatbotReply.content, translation: chatbotReply.translation, feedback: chatbotReply.feedback, isUser: "assistant", showFeedback: true));
+                                        if (apiMessages.length >= 5) {
+                                          //max 5 messages saved
+                                          apiMessages.removeAt(1);
+                                        } 
                                         apiMessages.add(Message(content: chatbotReply.content, translation: chatbotReply.translation, feedback: chatbotReply.feedback, isUser: "assistant", showFeedback: true));
                                       });
                                     }
