@@ -259,7 +259,7 @@ class _MenuPageState extends State<MenuPage> {
                                                 contentPadding: EdgeInsets.only(right:20),
                                               ),
                                               validator: (value) {
-                                                if (value == null || value.isEmpty) {
+                                                if (value == null || value.isEmpty) { 
                                                   return "Field can't be blank.";
                                                 } else if (topicExists) {
                                                   topicExists = false;

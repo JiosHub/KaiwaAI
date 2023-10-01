@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,12 +24,22 @@ class _ProfilePageState extends State<ProfilePage> {
   late String selectedLanguage;
   late String selectedGPT;
   late String personalAPIKey;
+  StreamSubscription? _conectionSubscription;
+  StreamSubscription? _purchaseUpdatedSubscription;
+  IAPItem? item100;
+  IAPItem? item500;
+
+  
 
   @override
   void initState() {
     super.initState();
-    _initInAppPurchase();
+    
     _fetchProducts();
+    initInAppPurchase();
+    _purchaseUpdatedSubscription = FlutterInappPurchase.purchaseUpdated.listen((productItem) {
+      // Handle the purchase logic here
+    });
     selectedLanguage = "";
     selectedGPT = "gpt-4";
     personalAPIKey = "";
@@ -35,8 +47,49 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadPreference();
   }
 
-  Future<void> _initInAppPurchase() async {
-    await FlutterInappPurchase.instance.initialize();
+  Future<void> initInAppPurchase() async {
+    var result = await FlutterInappPurchase.instance.initialize();
+    _conectionSubscription =
+        FlutterInappPurchase.connectionUpdated.listen((connected) {
+      print('connected: $connected');
+    });
+    print('In-app purchase initialized: $result');
+  }
+
+  Future<void> fetchProducts() async {
+    List<String> productIDs = ['100_messages', '500_messages'];
+    List<IAPItem> items = await FlutterInappPurchase.instance.getProducts(productIDs);
+    // Store these items in a state variable if needed
+    item100 = items.firstWhere((item) => item.productId == '100_messages');
+    if (item100 != null) {
+      print("Price for 100 messages: ${item100?.price ?? "£3.99"}");
+    }
+    item500 = items.firstWhere((item) => item.productId == '500_messages');
+    if (item500 != null) {
+      print("Price for 500 messages: ${item500?.price ?? "£16.99"}");
+    }
+  }
+
+  Future<void> makePurchase(String productId) async {
+    PurchasedItem result = await FlutterInappPurchase.instance.requestPurchase(productId);
+    // Handle the purchase result, e.g., unlock features, grant coins, etc.
+  }
+
+  void dispose() {
+    if (_conectionSubscription != null) {
+      _conectionSubscription!.cancel();
+      _conectionSubscription = null;
+    }
+    super.dispose();
+  }
+
+  Future<void> startPurchase(String productId) async {
+    try {
+      await makePurchase(productId);
+    } catch (error) {
+      // Handle any errors, e.g., show a dialog to the user
+      print("Purchase error: $error");
+    }
   }
 
   _fetchProducts() async {
@@ -402,9 +455,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                       padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
                                       child: Icon(Icons.arrow_forward),
                                     ),
-                                    title: Text("GPT4 +100 for £3.99"),
+                                    title: Text("GPT4 +100 for ${item100?.price ?? "£4.99"}"),
                                     onTap: () {
-                                      // Navigate to contact page
+                                      startPurchase("100_messages");
                                     },
                                   )
                                 )
@@ -422,7 +475,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
                                       child: Icon(Icons.arrow_forward),
                                     ),
-                                    title: Text("GPT4 +500 for £16.99"),
+                                    title: Text("GPT4 +500 for ${item500?.price ?? "£16.99"}"),
                                     onTap: () {
                                       // Navigate to contact page
                                     },
