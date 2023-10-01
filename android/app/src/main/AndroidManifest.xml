@@ -4,7 +4,9 @@
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
     </queries>
-    <uses-permission android:name="com.android.vending.BILLING" />
+    <meta-data
+       android:name="com.android.vending.BILLING"
+       android:value="true"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="UniChat AI"
