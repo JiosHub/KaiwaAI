@@ -81,7 +81,13 @@ class ApiService{
       return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
 
     }catch(error){
-      print("error $error");
+      if (error is FirebaseFunctionsException) {
+        print('Error code: ${error.code}');
+        print('Error message: ${error.message}');
+        print('Error details: ${error.details}');
+      } else {
+        print('Other error: $error');
+      }
       rethrow;
     }
   }
@@ -128,7 +134,13 @@ class ApiService{
       print("main $mainContent       translation: $translation         feedback: $feedback");
       return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
     }catch(error){
-      print("error $error");
+      if (error is FirebaseFunctionsException) {
+        print('Error code: ${error.code}');
+        print('Error message: ${error.message}');
+        print('Error details: ${error.details}');
+      } else {
+        print('Other error: $error');
+      }
       rethrow;
     }
   }

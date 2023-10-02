@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 class IAPService {
@@ -43,6 +44,13 @@ class IAPService {
             if (purchaseDetails.pendingCompletePurchase) {
               await _iap.completePurchase(purchaseDetails);
             }
+            final functions = FirebaseFunctions.instance;
+            final result = await functions.httpsCallable('updateUserValues').call({
+              'platform': 'android',
+              'productId': purchaseDetails.productID,
+              'purchaseID': purchaseDetails.purchaseID,
+              'serverVerificationData': purchaseDetails.verificationData.serverVerificationData,
+            });
             _purchaseCompleter.complete("Success");
           }
         }
