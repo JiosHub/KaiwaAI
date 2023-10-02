@@ -10,7 +10,7 @@
 .svn/
 migrate_working_dir/
 **/android/local.properties
-./serviceacc.env
+.env
 
 # IntelliJ related
 *.iml
@@ -44,3 +44,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+seviceacc.env
+seviceacc.env
+seviceacc.env
