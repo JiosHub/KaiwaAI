@@ -16,7 +16,7 @@ void main() async {
 // REMEMBER TO UPDATE GLOBAL STATE FOR COUNT AFTER PURCHASE
 
 class MyApp extends StatelessWidget {
-  
+
   final bool isLoggedIn;
   MyApp({required this.isLoggedIn});
 

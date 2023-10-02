@@ -112,6 +112,11 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Image.asset(
+                'assets/unichat-icon.png',   // Replace with the actual path to your logo in the assets
+                width: MediaQuery.of(context).size.width * 0.6,   // 60% of screen width, adjust as necessary
+              ),
+              SizedBox(height: 20),
               Center(
                 child: SignInButton(
                   Buttons.Google,

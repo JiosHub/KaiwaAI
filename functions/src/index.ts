@@ -2,6 +2,7 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import fetch from "node-fetch";
+import axios from "axios";
 
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -59,7 +60,7 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
 
 async function getAccessToken() {
   try {
-    console.log(google);
+    // console.log(google);
     const fixedServiceAccountKey = serviceAccountKey.replace(/\\n/g, "\n");
     console.log(serviceAccountEmail, fixedServiceAccountKey);
     const client = new JWT({
@@ -70,7 +71,7 @@ async function getAccessToken() {
     console.log("passed JWT");
     await client.authorize();
     console.log("passed authorize");
-    const {token} = await client.getAccessToken();
+    const token = await client.getAccessToken();
     console.log(token);
     return token;
   } catch (error) {
@@ -98,16 +99,43 @@ exports.updateUserValues = functions.region("europe-west1").https.onCall(async (
     // Verify the receipt with Google Play API (for Android)
     if (platform === "android") {
       const packageName = "com.jios.unichat_ai";
+      const apiUrl = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
       // You can get this from the receipt as well
       // Adjust based on your client-side receipt structure
-      const accessToken = await getAccessToken();
-      console.log("3 ", accessToken);
-      const googlePlayApiUrl = `https://www.googleapis.com/androidpublisher/v3/applications/${packageName}/purchases/products/${productId}/tokens/${purchaseToken}?access_token=${accessToken}`;
-      const response = await fetch(googlePlayApiUrl);
-      const responseData = await response.json();
+      // const accessToken = await getAccessToken();
+      // console.log("3 ", accessToken);
+      // const googlePlayApiUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${packageName}/purchases/products/${productId}/tokens/${purchaseToken}?access_token=${accessToken}`;
+      // const response = await fetch(googlePlayApiUrl);
+      // const responseData = await response.json();
       // eslint-disable-next-line max-len
-      console.log("4 ", purchaseToken, "  ", googlePlayApiUrl, "  ", responseData.purchaseState);
-      console.log("Full API Response:", JSON.stringify(responseData, null, 2));
+      // console.log("4 ", purchaseToken, "  ", googlePlayApiUrl, "  ", responseData.purchaseState);
+      // eslint-disable-next-line max-len
+      // console.log("Full API Response:", JSON.stringify(responseData, null, 2));
+
+      const client = await google.auth.getClient({
+        scopes: ["https://www.googleapis.com/auth/androidpublisher"],
+      });
+
+      const playDeveloperApi = google.androidpublisher({
+        version: "v3",
+        auth: client,
+      });
+
+      // eslint-disable-next-line max-len
+      const response = await axios.get(`${apiUrl}/${packageName}/purchases/products/${productId}/tokens/${purchaseToken}`, {
+        headers: {
+          Authorization: `Bearer ${client.credentials.access_token}`,
+        },
+      });
+
+      if (response.data) {
+        return {
+          success: true,
+          data: response.data,
+        };
+      }
+
+      const responseData = response.data;
 
       if (response.status !== 200) {
         console.error("Google API returned non-200 status:", response.status);

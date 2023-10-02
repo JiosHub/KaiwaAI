@@ -41,9 +41,8 @@ class IAPService {
             print("yoooo ${purchaseDetails.error}");
             _purchaseCompleter.complete("Error during purchase: ${purchaseDetails.error}");
           } else if (purchaseDetails.status == PurchaseStatus.purchased) {
-            if (purchaseDetails.pendingCompletePurchase) {
-              await _iap.completePurchase(purchaseDetails);
-            }
+            print("Purchase Token (purchaseID): ${purchaseDetails.purchaseID}");
+            
             try {
               final functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
               //functions.useFunctionsEmulator('localhost', 5001);
@@ -54,7 +53,9 @@ class IAPService {
                 'serverVerificationData': purchaseDetails.verificationData.serverVerificationData,
               });
               _purchaseCompleter.complete("");
-              await _iap.completePurchase(purchaseDetails);  // Complete the purchase only if everything is okay
+              if (purchaseDetails.pendingCompletePurchase) {
+                await _iap.completePurchase(purchaseDetails);
+              }
             } catch (error) {
               print("Error during Firebase function call: $error");
               _purchaseCompleter.complete("Firebase function error: $error");
