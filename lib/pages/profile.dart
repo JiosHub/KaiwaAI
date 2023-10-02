@@ -402,8 +402,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                           if (_iapService.products != null && _iapService.products!.isNotEmpty) {
                                             print('Attempting to purchase product with ID: ${_iapService.products![0].id}');
                                             noCompletion = await _iapService.buyProduct(_iapService.products![0]);
+                                            print("pppprurururur ${noCompletion}");
                                             print("yepyepyep $noCompletion");
                                             if (noCompletion != "") {
+                                              print("pppprurururur2 ${noCompletion}");
                                               setState(() {errorCheck = true;});
                                               Future.delayed(Duration(seconds: 5), () {
                                                 // After 5 seconds, update errorCheck

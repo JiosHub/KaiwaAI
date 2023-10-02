@@ -3,7 +3,14 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import fetch from "node-fetch";
 
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {google} = require("google-auth-library");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {JWT} = require("google-auth-library");
 const BASE_URL = "https://api.openai.com/v1";
+const serviceAccountKey = functions.config().serviceaccount.key;
+const serviceAccountEmail = functions.config().serviceaccount.email;
 
 
 if (!admin.apps.length) {
@@ -50,57 +57,93 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
   });
 });
 
-exports.updateUserValues = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    // eslint-disable-next-line max-len
-    throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.");
-  }
-  console.log("1");
-
-  const uid = context.auth.uid;
-  const receipt = data.receipt;
-  const platform = data.platform;
-  const productId = data.productId;
-  console.log("2 ", uid, "  ", receipt, "  ", platform, "  ", productId, "  ");
-
-  // Verify the receipt with Google Play API (for Android)
-  if (platform === "android") {
-    const packageName = "com.jios.unichat_ai";
-    // You can get this from the receipt as well
-    const purchaseToken = receipt.purchaseID;
-    // Adjust based on your client-side receipt structure
-
-    const googlePlayApiUrl = `https://www.googleapis.com/androidpublisher/v3/applications/${packageName}/purchases/products/${productId}/tokens/${purchaseToken}?access_token=YOUR_ACCESS_TOKEN`;
-    const response = await fetch(googlePlayApiUrl);
-    const responseData = await response.json();
-    // eslint-disable-next-line max-len
-    console.log("3 ", purchaseToken, "  ", googlePlayApiUrl, "  ", responseData.purchaseState);
-
-    if (responseData.purchaseState !== 0) {
-      // The purchase is not valid
-      console.log("failed-precondition", "Invalid purchase receipt.");
-      // eslint-disable-next-line max-len
-      throw new functions.https.HttpsError("failed-precondition", "Invalid purchase receipt.");
-    }
-    console.log("4 ");
-
-    // eslint-disable-next-line max-len
-    // Based on responseData, determine what was purchased and how much to increment
-    const incrementValue = responseData.productId === "100_messages" ? 100 :
-      responseData.productId === "100_messages" ? 500 : 0;
-
-    const userRef = admin.firestore().doc(`users/${uid}`);
-    console.log("5 ", incrementValue, "  ", userRef);
-
-    return userRef.update({
-      // eslint-disable-next-line max-len
-      ["gpt4_message_count"]: admin.firestore.FieldValue.increment(incrementValue),
-      ["gpt3_5_message_count"]: admin.firestore.FieldValue.increment(2000),
+async function getAccessToken() {
+  try {
+    console.log(google);
+    const fixedServiceAccountKey = serviceAccountKey.replace(/\\n/g, "\n");
+    console.log(serviceAccountEmail, fixedServiceAccountKey);
+    const client = new JWT({
+      email: serviceAccountEmail,
+      key: fixedServiceAccountKey,
+      scopes: ["https://www.googleapis.com/auth/androidpublisher"],
     });
-  } else {
-    // Handle iOS or any other platform if needed
+    console.log("passed JWT");
+    await client.authorize();
+    console.log("passed authorize");
+    const {token} = await client.getAccessToken();
+    console.log(token);
+    return token;
+  } catch (error) {
+    console.error("Error getting access token:", error);
+    throw error;
+  }
+}
+
+// eslint-disable-next-line max-len
+exports.updateUserValues = functions.region("europe-west1").https.onCall(async (data, context) => {
+  try {
+    if (!context.auth) {
+      // eslint-disable-next-line max-len
+      throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.");
+    }
+    console.log("1");
+
+    const uid = context.auth.uid;
+    const purchaseToken = data.purchaseID;
+    const platform = data.platform;
+    const productId = data.productId;
     // eslint-disable-next-line max-len
-    throw new functions.https.HttpsError("unimplemented", "Platform not supported.");
+    console.log("2 ", uid, "  ", purchaseToken, "  ", platform, "  ", productId, "  ");
+
+    // Verify the receipt with Google Play API (for Android)
+    if (platform === "android") {
+      const packageName = "com.jios.unichat_ai";
+      // You can get this from the receipt as well
+      // Adjust based on your client-side receipt structure
+      const accessToken = await getAccessToken();
+      console.log("3 ", accessToken);
+      const googlePlayApiUrl = `https://www.googleapis.com/androidpublisher/v3/applications/${packageName}/purchases/products/${productId}/tokens/${purchaseToken}?access_token=${accessToken}`;
+      const response = await fetch(googlePlayApiUrl);
+      const responseData = await response.json();
+      // eslint-disable-next-line max-len
+      console.log("4 ", purchaseToken, "  ", googlePlayApiUrl, "  ", responseData.purchaseState);
+      console.log("Full API Response:", JSON.stringify(responseData, null, 2));
+
+      if (response.status !== 200) {
+        console.error("Google API returned non-200 status:", response.status);
+        // eslint-disable-next-line max-len
+        throw new functions.https.HttpsError("internal", "Google API call failed");
+      }
+
+      if (responseData.purchaseState !== 0) {
+        // The purchase is not valid
+        console.log("failed-precondition", "Invalid purchase receipt.");
+        // eslint-disable-next-line max-len
+        throw new functions.https.HttpsError("failed-precondition", "Invalid purchase receipt.");
+      }
+      console.log("5 ");
+
+      // eslint-disable-next-line max-len
+      // Based on responseData, determine what was purchased and how much to increment
+      const incrementValue = responseData.productId === "100messages" ? 100 :
+        responseData.productId === "500messages" ? 500 : 0;
+
+      const userRef = admin.firestore().doc(`users/${uid}`);
+      console.log("6 ", incrementValue, "  ", userRef);
+
+      return userRef.update({
+        // eslint-disable-next-line max-len
+        ["gpt4_message_count"]: admin.firestore.FieldValue.increment(incrementValue),
+        ["gpt3_5_message_count"]: admin.firestore.FieldValue.increment(2000),
+      });
+    } else {
+      // Handle iOS or any other platform if needed
+      // eslint-disable-next-line max-len
+      throw new functions.https.HttpsError("unimplemented", "Platform not supported.");
+    }
+  } catch (error) {
+    // eslint-disable-next-line max-len
+    throw new functions.https.HttpsError("failed-precondition", "An error occurred.");
   }
 });
 
@@ -189,6 +232,7 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
     } else {
       requestBody = JSON.stringify({
         "model": selectedGPT,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "messages": messages.map((message: any) => ({
           "role": message.role,
           "content": message.content,

@@ -21,7 +21,7 @@ class IAPService {
   }
 
   Future<void> _fetchProducts() async {
-    Set<String> _ids = {'100_messages', '500_messages'};
+    Set<String> _ids = {'100messages', '500messages'};
     final ProductDetailsResponse response = await _iap.queryProductDetails(_ids);
 
     if (response.notFoundIDs.isNotEmpty) {
@@ -44,30 +44,38 @@ class IAPService {
             if (purchaseDetails.pendingCompletePurchase) {
               await _iap.completePurchase(purchaseDetails);
             }
-            final functions = FirebaseFunctions.instance;
-            final result = await functions.httpsCallable('updateUserValues').call({
-              'platform': 'android',
-              'productId': purchaseDetails.productID,
-              'purchaseID': purchaseDetails.purchaseID,
-              'serverVerificationData': purchaseDetails.verificationData.serverVerificationData,
-            });
-            _purchaseCompleter.complete("Success");
+            try {
+              final functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
+              //functions.useFunctionsEmulator('localhost', 5001);
+              final result = await functions.httpsCallable('updateUserValues').call({
+                'platform': 'android',
+                'productId': purchaseDetails.productID,
+                'purchaseID': purchaseDetails.purchaseID,
+                'serverVerificationData': purchaseDetails.verificationData.serverVerificationData,
+              });
+              _purchaseCompleter.complete("");
+              await _iap.completePurchase(purchaseDetails);  // Complete the purchase only if everything is okay
+            } catch (error) {
+              print("Error during Firebase function call: $error");
+              _purchaseCompleter.complete("Firebase function error: $error");
+            }
           }
         }
       });
     }, onError: (error) {
-      _purchaseCompleter.complete(error.toString());
+      print("Stream error received");
+      _purchaseCompleter.complete("Stream error: $error");
     });
-  }
-
-  void resetPurchaseCompleter() {
-    _purchaseCompleter = Completer<String>();
   }
 
   Future<String> buyProduct(ProductDetails product) async {
     final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
-    _iap.buyNonConsumable(purchaseParam: purchaseParam);
+    _iap.buyConsumable(purchaseParam: purchaseParam);
     return _purchaseCompleter.future;
+  }
+  
+  void resetPurchaseCompleter() {
+    _purchaseCompleter = Completer<String>();
   }
 
   void dispose() {
