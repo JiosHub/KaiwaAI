@@ -47,3 +47,4 @@ app.*.map.json
 seviceacc.env
 seviceacc.env
 seviceacc.env
+serviceaccount.env
