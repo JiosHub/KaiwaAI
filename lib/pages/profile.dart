@@ -395,7 +395,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
                                           child: Icon(Icons.arrow_forward),
                                         ),
-                                        title: Text("GPT4 +100 for £4.99"),  //${item100?.price ?? "£4.99"}
+                                        title: Text("GPT4 +100 for £3.99"),  //${item100?.price ?? "£4.99"}
                                         onTap: () async {
                                           errorCheck = false;
                                           noCompletion = "";

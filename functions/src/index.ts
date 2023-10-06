@@ -2,17 +2,9 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import fetch from "node-fetch";
-import axios from "axios";
-
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const {google} = require("google-auth-library");
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const {JWT} = require("google-auth-library");
 const BASE_URL = "https://api.openai.com/v1";
-const serviceAccountKey = functions.config().serviceaccount.key;
-const serviceAccountEmail = functions.config().serviceaccount.email;
-
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -58,120 +50,93 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
   });
 });
 
-async function getAccessToken() {
-  try {
-    // console.log(google);
-    const fixedServiceAccountKey = serviceAccountKey.replace(/\\n/g, "\n");
-    console.log(serviceAccountEmail, fixedServiceAccountKey);
-    const client = new JWT({
-      email: serviceAccountEmail,
-      key: fixedServiceAccountKey,
-      scopes: ["https://www.googleapis.com/auth/androidpublisher"],
-    });
-    console.log("passed JWT");
-    await client.authorize();
-    console.log("passed authorize");
-    const token = await client.getAccessToken();
-    console.log(token);
-    return token;
-  } catch (error) {
-    console.error("Error getting access token:", error);
-    throw error;
+// Add the purchase receipt to the 'tokens' sub-collection
+// await userDocRef.collection("tokens").doc(purchaseToken).set({
+// productId: productId,
+// purchaseDate: admin.firestore.Timestamp.now(),
+// ... any other fields you want to store
+// });
+
+async function findUserByToken(purchaseToken: string): Promise<string | null> {
+  const userSnapshot = await db.collectionGroup("tokens")
+    .where(admin.firestore.FieldPath.documentId(), "==", purchaseToken)
+    .limit(1).get();
+
+  if (userSnapshot.empty) {
+    return null;
   }
+  const parentCollection = userSnapshot.docs[0].ref.parent;
+  if (!parentCollection) {
+    return null;
+  }
+  const userDoc = parentCollection.parent;
+  if (!userDoc) {
+    return null;
+  }
+
+  return userDoc.id;
 }
 
 // eslint-disable-next-line max-len
-exports.updateUserValues = functions.region("europe-west1").https.onCall(async (data, context) => {
+exports.handlePurchaseNotification = functions.region("europe-west1").pubsub.topic("your-rtdn-topic-name").onPublish(async (message) => {
   try {
-    if (!context.auth) {
-      // eslint-disable-next-line max-len
-      throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.");
-    }
-    console.log("1");
+    // Decode the incoming message
+    const purchaseData = message.json;
 
-    const uid = context.auth.uid;
-    const purchaseToken = data.purchaseID;
-    const platform = data.platform;
-    const productId = data.productId;
+    // Extract the purchase token from the RTDN
+    const purchaseToken = purchaseData.purchaseToken;
+    const productId = purchaseData.productId;
+
+    // Find the user associated with this purchase token
     // eslint-disable-next-line max-len
-    console.log("2 ", uid, "  ", purchaseToken, "  ", platform, "  ", productId, "  ");
+    const userSnapshot = await db.collectionGroup("tokens")
+      .where(admin.firestore.FieldPath.documentId(), "==", purchaseToken)
+      .limit(1).get();
 
-    // Verify the receipt with Google Play API (for Android)
-    if (platform === "android") {
-      const packageName = "com.jios.unichat_ai";
-      const apiUrl = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
-      // You can get this from the receipt as well
-      // Adjust based on your client-side receipt structure
-      // const accessToken = await getAccessToken();
-      // console.log("3 ", accessToken);
-      // const googlePlayApiUrl = `https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${packageName}/purchases/products/${productId}/tokens/${purchaseToken}?access_token=${accessToken}`;
-      // const response = await fetch(googlePlayApiUrl);
-      // const responseData = await response.json();
-      // eslint-disable-next-line max-len
-      // console.log("4 ", purchaseToken, "  ", googlePlayApiUrl, "  ", responseData.purchaseState);
-      // eslint-disable-next-line max-len
-      // console.log("Full API Response:", JSON.stringify(responseData, null, 2));
-
-      const client = await google.auth.getClient({
-        scopes: ["https://www.googleapis.com/auth/androidpublisher"],
-      });
-
-      const playDeveloperApi = google.androidpublisher({
-        version: "v3",
-        auth: client,
-      });
-
-      // eslint-disable-next-line max-len
-      const response = await axios.get(`${apiUrl}/${packageName}/purchases/products/${productId}/tokens/${purchaseToken}`, {
-        headers: {
-          Authorization: `Bearer ${client.credentials.access_token}`,
-        },
-      });
-
-      if (response.data) {
-        return {
-          success: true,
-          data: response.data,
-        };
-      }
-
-      const responseData = response.data;
-
-      if (response.status !== 200) {
-        console.error("Google API returned non-200 status:", response.status);
-        // eslint-disable-next-line max-len
-        throw new functions.https.HttpsError("internal", "Google API call failed");
-      }
-
-      if (responseData.purchaseState !== 0) {
-        // The purchase is not valid
-        console.log("failed-precondition", "Invalid purchase receipt.");
-        // eslint-disable-next-line max-len
-        throw new functions.https.HttpsError("failed-precondition", "Invalid purchase receipt.");
-      }
-      console.log("5 ");
-
-      // eslint-disable-next-line max-len
-      // Based on responseData, determine what was purchased and how much to increment
-      const incrementValue = responseData.productId === "100messages" ? 100 :
-        responseData.productId === "500messages" ? 500 : 0;
-
-      const userRef = admin.firestore().doc(`users/${uid}`);
-      console.log("6 ", incrementValue, "  ", userRef);
-
-      return userRef.update({
-        // eslint-disable-next-line max-len
-        ["gpt4_message_count"]: admin.firestore.FieldValue.increment(incrementValue),
-        ["gpt3_5_message_count"]: admin.firestore.FieldValue.increment(2000),
-      });
-    } else {
-      // Handle iOS or any other platform if needed
-      // eslint-disable-next-line max-len
-      throw new functions.https.HttpsError("unimplemented", "Platform not supported.");
+    if (userSnapshot.empty) {
+      console.error(`No user found for purchase token: ${purchaseToken}`);
+      return;
     }
+
+    let userId: string | null = null;
+    const maxAttempts = 5;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      userId = await findUserByToken(purchaseToken);
+      if (userId) break; // Found the user
+
+      // Wait for 2 seconds before retrying
+      await new Promise((res) => setTimeout(res, 2000));
+    }
+
+    if (!userId) {
+      // eslint-disable-next-line max-len
+      console.error(`No user found for purchase token: ${purchaseToken} after ${maxAttempts} attempts.`);
+      // Notify the developer of the issue
+      // This could be an email, logging system, etc.
+      // Placeholder code for now:
+      // eslint-disable-next-line max-len
+      console.error("Developer Notification: Unable to process purchase due to missing token in Firestore.");
+
+      return;
+    }
+    const userDocRef = db.collection("users").doc(userId);
+
+    // Update the gpt4_message_count based on the productId
+    if (productId === "100messages") {
+      await userDocRef.update({
+        gpt4_message_count: admin.firestore.FieldValue.increment(100),
+        gpt3_5_message_count: 2000,
+      });
+    } else if (productId === "500messages") {
+      await userDocRef.update({
+        gpt4_message_count: admin.firestore.FieldValue.increment(500),
+        gpt3_5_message_count: 2000,
+      });
+    }
+
+    console.log(`Successfully processed purchase for user: ${userId}`);
   } catch (error) {
-    // eslint-disable-next-line max-len
-    throw new functions.https.HttpsError("failed-precondition", "An error occurred.");
+    console.error("Error handling purchase notification:", error);
   }
 });
 
