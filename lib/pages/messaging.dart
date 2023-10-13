@@ -41,14 +41,24 @@ class _MessengerPageState extends State<MessengerPage> {
   //i wrote this litterally today and i forgot what it does but im pretty sure i need it
   Future<void> _loadCount() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    selectedGPT = prefs.getString('selectedGPT');
+    if (prefs.getString('selectedGPT') == ""){
+      prefs.setString('selectedGPT', 'gpt-4');
+      selectedGPT = "gpt-4";
+    } else {
+      selectedGPT = prefs.getString('selectedGPT');
+    }
     APIKey = prefs.getString('personalAPIKey');
   }
 
   Future<void> _loadFirstMessage() async {
     if(messages.isEmpty){
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      selectedGPT = prefs.getString('selectedGPT');
+      if (prefs.getString('selectedGPT') == ""){
+        prefs.setString('selectedGPT', 'gpt-4');
+        selectedGPT = "gpt-4";
+      } else {
+        selectedGPT = prefs.getString('selectedGPT');
+      }
       APIKey = prefs.getString('personalAPIKey');
       language = prefs.getString('selectedLanguage');
       topicContent = widget.topicContent;
@@ -93,8 +103,19 @@ class _MessengerPageState extends State<MessengerPage> {
 
   Future<void> _MessageLimit({bool sendButton = false}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    selectedGPT = prefs.getString('selectedGPT');
-    // Check if it's a new conversation
+    print(prefs.getString('selectedGPT'));
+    print("${prefs.getString('personalAPIKey')}ye");
+    if (prefs.getString("personalAPIKey") == null){
+      prefs.setString('personalAPIKey', "");
+    }
+    print(prefs.getString('personalAPIKey'));
+    if (prefs.getString('selectedGPT') == ""){
+      prefs.setString('selectedGPT', 'gpt-4');
+      selectedGPT = "gpt-4";
+    } else {
+      selectedGPT = prefs.getString('selectedGPT');
+    }
+    // Check if it's a new conversation, and if the message count has previoussly been fetched
     if (messages.isEmpty && prefs.getString("personalAPIKey") == "" && GlobalState().globalGPT4MessageCount == -1) {
       // Fetch message limits from Firestore for new conversation
       final data = await ApiService.getMessageLimitCount();
@@ -159,7 +180,9 @@ class _MessengerPageState extends State<MessengerPage> {
   @override
   void initState() {
     try{
+    
     super.initState();
+    _MessageLimit();
     print("1111111111111111111111111111111");
     messageController.addListener(_onTextChanged);
     var keyboardVisibilityController = KeyboardVisibilityController();
@@ -180,7 +203,7 @@ class _MessengerPageState extends State<MessengerPage> {
     messages = GlobalState().globalMessageList;
     apiMessages = GlobalState().globalApiMessageList;
     language = GlobalState().globalLanguage;
-    _MessageLimit();
+    
     print("2222222222222222222222222222222");
     //_loadFirstMessage();
     print("77777777777777777777777777777");
@@ -519,7 +542,7 @@ class _MessengerPageState extends State<MessengerPage> {
                         color: Colors.black.withOpacity(0.7),
                         child: Center(
                           child: Text(
-                            'Tap the microphone on your keyboard for voice input',
+                            'Select the $language keyboard, then tap the microphone.',
                             style: TextStyle(color: Colors.white, fontSize: 20),
                             textAlign: TextAlign.center,
                           ),
