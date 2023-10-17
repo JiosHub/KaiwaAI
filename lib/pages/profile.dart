@@ -411,7 +411,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 // After 5 seconds, update errorCheck
                                                 setState(() {errorCheck = false;});
                                               });
-                                            } 
+                                            } else {
+                                              GlobalState().globalGPT4MessageCount += 100;
+                                              GlobalState().globalGPT35MessageCount = 2000;
+                                            }
                                             _iapService.resetPurchaseCompleter();
                                           }
                                         },
@@ -444,7 +447,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 // After 5 seconds, update errorCheck
                                                 setState(() {errorCheck = false;});
                                               });
-                                            } 
+                                            } else {
+                                              GlobalState().globalGPT4MessageCount += 500;
+                                              GlobalState().globalGPT35MessageCount = 2000;
+                                            }
                                             _iapService.resetPurchaseCompleter();
                                           }
                                         },

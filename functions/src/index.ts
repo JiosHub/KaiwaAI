@@ -1,6 +1,7 @@
 /* eslint-disable require-jsdoc */
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import {google} from "googleapis";
 import fetch from "node-fetch";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -14,7 +15,7 @@ const db = admin.firestore();
 
 // eslint-disable-next-line max-len
 exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate(async (user) => {
-  // Fetch the newly created user's document from Firestore
+  // Fetch the newly created user"s document from Firestore
   // eslint-disable-next-line max-len
   const newUserDoc = await admin.firestore().collection("users").doc(user.uid).get();
 
@@ -41,7 +42,7 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
     gpt35MessageCount = originalAccount.gpt3_5_message_count || 100;
   }
 
-  // Update or set the user's document with the message counts
+  // Update or set the user"s document with the message counts
   return newUserDoc.ref.set({
     gpt4_message_count: gpt4MessageCount,
     gpt3_5_message_count: gpt35MessageCount,
@@ -50,95 +51,95 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
   });
 });
 
-// Add the purchase receipt to the 'tokens' sub-collection
+// Add the purchase receipt to the "tokens" sub-collection
 // await userDocRef.collection("tokens").doc(purchaseToken).set({
 // productId: productId,
 // purchaseDate: admin.firestore.Timestamp.now(),
 // ... any other fields you want to store
 // });
 
-async function findUserByToken(purchaseToken: string): Promise<string | null> {
-  const userSnapshot = await db.collectionGroup("tokens")
-    .where(admin.firestore.FieldPath.documentId(), "==", purchaseToken)
-    .limit(1).get();
-
-  if (userSnapshot.empty) {
-    return null;
-  }
-  const parentCollection = userSnapshot.docs[0].ref.parent;
-  if (!parentCollection) {
-    return null;
-  }
-  const userDoc = parentCollection.parent;
-  if (!userDoc) {
-    return null;
-  }
-
-  return userDoc.id;
-}
-
 // eslint-disable-next-line max-len
-exports.handlePurchaseNotification = functions.region("europe-west1").pubsub.topic("your-rtdn-topic-name").onPublish(async (message) => {
+export const updateUserValues = functions.region("europe-west1").https.onCall(async (data, context) => {
+  // Step 1: Authenticate with the service account
+  const serviceAccountEmail = functions.config().serviceaccount.email;
+  const purchaseDetails = JSON.parse(data.purchaseToken);
+  const purchaseToken = purchaseDetails.purchaseToken;
+  // eslint-disable-next-line max-len
+  const privateKey = functions.config().serviceaccount.key.replace(/\\n/g, "\n");
+  console.log("1 "+serviceAccountEmail+"    "+privateKey);
+  const jwtClient = new google.auth.JWT(
+    serviceAccountEmail,
+    undefined,
+    privateKey,
+    ["https://www.googleapis.com/auth/androidpublisher"]
+  );
+
+  await jwtClient.authorize();
+  console.log("2 authorized");
+  // Step 2: Verify the purchase with Android Developer API
+  const play = google.androidpublisher({
+    version: "v3",
+    auth: jwtClient,
+  });
+  console.log("3 "+data.productId+"      "+data.purchaseToken);
   try {
-    // Decode the incoming message
-    const purchaseData = message.json;
+    const response = await play.purchases.products.get({
+      packageName: "com.jios.unichat_ai",
+      productId: data.productId,
+      token: purchaseToken,
+    });
 
-    // Extract the purchase token from the RTDN
-    const purchaseToken = purchaseData.purchaseToken;
-    const productId = purchaseData.productId;
+    if (response.status === 200) {
+      if (!context.auth) {
+        // The user is not authenticated.
+        // eslint-disable-next-line max-len
+        throw new functions.https.HttpsError("unauthenticated", "The function must be called while authenticated.");
+      }
+      const userId = context.auth?.uid;
+      const incrementValue = data.productId === "100messages" ? 100 : 500;
+      const userDocRef = admin.firestore().collection("users").doc(userId);
+      try {
+        await admin.firestore().runTransaction(async (transaction) => {
+          // Get the user document.
+          const userDoc = await transaction.get(userDocRef);
 
-    // Find the user associated with this purchase token
-    // eslint-disable-next-line max-len
-    const userSnapshot = await db.collectionGroup("tokens")
-      .where(admin.firestore.FieldPath.documentId(), "==", purchaseToken)
-      .limit(1).get();
+          // Verify if the user document exists.
+          if (!userDoc.exists) {
+            throw new Error("User document does not exist!");
+          }
 
-    if (userSnapshot.empty) {
-      console.error(`No user found for purchase token: ${purchaseToken}`);
-      return;
+          // Update message counts and other attributes.
+          transaction.update(userDocRef, {
+            "gpt3_5_message_count": 2000, // setting this value
+            // eslint-disable-next-line max-len
+            "gpt4_message_count": admin.firestore.FieldValue.increment(incrementValue),
+            // incrementing by the determined value
+          });
+
+          // Add orderId to a subcollection in the user"s document
+          const orderRef = userDocRef.collection("orders").doc();
+          // creates a new doc in the "orders" subcollection
+          transaction.set(orderRef, {
+            orderId: purchaseDetails.orderId,
+            // or purchaseDetails.orderId depending on your object structure
+            // ... any other order-related fields
+          });
+        });
+        // eslint-disable-next-line max-len
+        return {success: true, message: "Purchase verified and user values updated."};
+      } catch (error) {
+        console.error("Error updating Firestore:", error);
+        return {success: false, message: "Failed to update user values."};
+      }
+    } else {
+      return {success: false, message: "Failed to verify purchase."};
     }
-
-    let userId: string | null = null;
-    const maxAttempts = 5;
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      userId = await findUserByToken(purchaseToken);
-      if (userId) break; // Found the user
-
-      // Wait for 2 seconds before retrying
-      await new Promise((res) => setTimeout(res, 2000));
-    }
-
-    if (!userId) {
-      // eslint-disable-next-line max-len
-      console.error(`No user found for purchase token: ${purchaseToken} after ${maxAttempts} attempts.`);
-      // Notify the developer of the issue
-      // This could be an email, logging system, etc.
-      // Placeholder code for now:
-      // eslint-disable-next-line max-len
-      console.error("Developer Notification: Unable to process purchase due to missing token in Firestore.");
-
-      return;
-    }
-    const userDocRef = db.collection("users").doc(userId);
-
-    // Update the gpt4_message_count based on the productId
-    if (productId === "100messages") {
-      await userDocRef.update({
-        gpt4_message_count: admin.firestore.FieldValue.increment(100),
-        gpt3_5_message_count: 2000,
-      });
-    } else if (productId === "500messages") {
-      await userDocRef.update({
-        gpt4_message_count: admin.firestore.FieldValue.increment(500),
-        gpt3_5_message_count: 2000,
-      });
-    }
-
-    console.log(`Successfully processed purchase for user: ${userId}`);
   } catch (error) {
-    console.error("Error handling purchase notification:", error);
+    console.error("Error verifying purchase:", error);
+    return {success: false, message: "Error verifying purchase."};
   }
 });
+
 
 // eslint-disable-next-line max-len
 export const checkMessageCount = functions.region("europe-west1").https.onCall(async (data, context) => {
@@ -150,12 +151,12 @@ export const checkMessageCount = functions.region("europe-west1").https.onCall(a
 
   const uid = context.auth.uid;
 
-  // Fetch the user's data from Firestore
+  // Fetch the user"s data from Firestore
   const userRef = db.collection("users").doc(uid);
   const userData = await userRef.get();
   const userDocData = userData.data();
 
-  // If data doesn't exist for the user, throw an error
+  // If data doesn"t exist for the user, throw an error
   if (!userDocData) {
     throw new functions.https.HttpsError("not-found", "User data not found");
   }
@@ -196,7 +197,7 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
     console.log("Document exists:", userData.exists);
     console.log("User Info:", JSON.stringify(userData.data()));
     if (!userData.exists) {
-      // Handle the case where the user's data doesn't exist
+      // Handle the case where the user"s data doesn"t exist
       response.status(404).send("User data not found");
       return;
     }

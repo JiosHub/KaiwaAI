@@ -49,7 +49,7 @@ class IAPService {
               final result = await functions.httpsCallable('updateUserValues').call({
                 'platform': 'android',
                 'productId': purchaseDetails.productID,
-                'purchaseID': purchaseDetails.purchaseID,
+                'purchaseToken': purchaseDetails.verificationData.localVerificationData,
                 'serverVerificationData': purchaseDetails.verificationData.serverVerificationData,
               });
               _purchaseCompleter.complete("");
