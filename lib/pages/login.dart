@@ -43,7 +43,6 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
       final userRef = FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
       await userRef.set({
         'deviceID': uniqueID,
-        // ... other user data
       }, SetOptions(merge: true));  // Using merge: true to ensure we don't overwrite existing data
 
       SharedPreferencesHelper.setIsLoggedIn(true);
@@ -54,23 +53,43 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
     }
   }
 
-  Future<void> _emailSignIn() async {
+  Future<void> _emailSignUp() async {
     try {
+
+      /*AuthService authService = AuthService();
+      User? user = await authService.signInWithEmail(_email, _password);
+      SharedPreferencesHelper.setUsername(user?.email ?? 'username not found');
+      if (user != null) {
+        SharedPreferencesHelper.setIsLoggedIn(true);
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => BottomMenuRibbon()));
+      } else {
+        signInFailed = true;
+        setState(() {
+          _autoValidate = AutovalidateMode.always;
+        });
+        print("---------------sign in failed-----------------");
+      }*/
+      signUpCheck = false;
+      print("1   yoooooooooooo");
       User? user = await authService.signUpWithEmail(_email, _password);
       SharedPreferencesHelper.setUsername(user?.email ?? 'username not found');
+      print("2   yoooooooooooo");
       // After successful Google authentication
       final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
       var deviceInfo = await deviceInfoPlugin.androidInfo;
       final uniqueID = deviceInfo.androidId;  // Use this ID as the unique device identifier
-      
+      print("3   yoooooooooooo");
       final userRef = FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
       await userRef.set({
         'deviceID': uniqueID,
-        // ... other user data
       }, SetOptions(merge: true));  // Using merge: true to ensure we don't overwrite existing data
-
-      SharedPreferencesHelper.setIsLoggedIn(true);
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => BottomMenuRibbon()));
+      print("$signUpFailed   yoooooooooooo   $user");
+      if (user != null) {
+        signUpFailed = false;
+        print("$signUpFailed   yoooooooooooo");
+        SharedPreferencesHelper.setIsLoggedIn(true);
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => BottomMenuRibbon()));
+      }
 
     } catch (e) {
       signUpFailed = true;
@@ -208,7 +227,7 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                           signUpFailed = false;
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
-                            
+                            _emailSignUp();
                           }
                         },
                         child: Text(

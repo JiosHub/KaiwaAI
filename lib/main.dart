@@ -10,7 +10,7 @@ void main() async {
   await Firebase.initializeApp();
   bool isLoggedIn = await SharedPreferencesHelper.getIsLoggedIn();
   await Firebase.initializeApp();
-  runApp(MyApp(isLoggedIn: isLoggedIn)); 
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 // REMEMBER TO UPDATE GLOBAL STATE FOR COUNT AFTER PURCHASE

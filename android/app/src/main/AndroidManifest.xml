@@ -11,7 +11,7 @@
     <application
         android:label="UniChat AI"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/unichaticon"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
