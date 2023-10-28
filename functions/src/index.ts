@@ -24,8 +24,14 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
     return null; // Or handle this case as appropriate for your application
   }
   // eslint-disable-next-line max-len
-  const userData = newUserDoc.data() as { deviceID: string, gpt4_message_count?: number, gpt3_5_message_count?: number };
+  const userData = newUserDoc.data();
+  if (!userData || !userData.deviceID) {
+    console.error("User data is not available or deviceID is missing.");
+    // Handle this appropriately based on your application's requirements.
+    return null;
+  }
 
+  const email = user.email;
   const deviceID = userData.deviceID;
 
   // Search for an existing account with this device ID
@@ -47,7 +53,7 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
     gpt4_message_count: gpt4MessageCount,
     gpt3_5_message_count: gpt35MessageCount,
     deviceID: deviceID,
-    // other fields if necessary
+    email: email,
   });
 });
 

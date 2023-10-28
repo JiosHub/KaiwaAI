@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unichat_ai/services/api.dart';
 import 'package:unichat_ai/services/global_state.dart';
@@ -201,9 +202,7 @@ class _InfoPageState extends State<InfoPage> {
             ? SizedBox(
                 width: 20.0, // specify the width of the circle
                 height: 18.0, // specify the height of the circle
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.0, // adjust the thickness of the circular progress bar
-                ),
+                child: LoadingAnimationWidget.staggeredDotsWave(color: Colors.black, size: 27)
               )
             : Text(
                 count.toString(), 

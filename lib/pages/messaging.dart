@@ -404,7 +404,9 @@ class _MessengerPageState extends State<MessengerPage> {
                                 children: [
                                   Text("GPT 4:"),
                                   SizedBox(width: 20),  // A space between the text and the number
-                                  Text(gpt4MessageCount == -1 ? "loading..." : gpt4MessageCount.toString()),
+                                  gpt4MessageCount == -1 
+                                    ? LoadingAnimationWidget.staggeredDotsWave(color: Colors.black, size: 27)
+                                    : Text(gpt4MessageCount.toString()),
                                 ],
                               ),
                             ),
