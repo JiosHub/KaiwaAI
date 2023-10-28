@@ -12,6 +12,9 @@ import 'dart:convert' show utf8;
 
 class ApiService{
 
+  static RegExp expTrans = new RegExp("translation:", caseSensitive: false);
+  static RegExp expFeed = new RegExp("feedback:", caseSensitive: false);
+
   static Future<Map<String, int>?> getMessageLimitCount() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -62,7 +65,7 @@ class ApiService{
       // Split the full response at "Translation:"
       final Map<String, dynamic> data = response.data;
       final fullResponse = data['content'];
-      List<String> responsePartsTranslation = fullResponse.split("Translation:");
+      List<String> responsePartsTranslation = fullResponse.split(expTrans);
       String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
 
       String translation = "";
@@ -70,7 +73,7 @@ class ApiService{
 
       if (responsePartsTranslation.length > 1) {  // Check if "Translation:" was present
         // Split the remaining part at "Feedback:"
-        List<String> responsePartsFeedback = responsePartsTranslation[1].split("Feedback:");
+        List<String> responsePartsFeedback = responsePartsTranslation[1].split(expFeed);
         translation = responsePartsFeedback[0].trim();  // Between "Translation:" and "Feedback:"
         
         if (responsePartsFeedback.length > 1) {  // Check if "Feedback:" was present
@@ -116,7 +119,7 @@ class ApiService{
       // Split the full response at "Translation:"
       final Map<String, dynamic> data = response.data;
       final fullResponse = data['content'];
-      List<String> responsePartsTranslation = fullResponse.split("Translation:");
+      List<String> responsePartsTranslation = fullResponse.split(expTrans);
       String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
       
       String translation = "";
@@ -124,7 +127,7 @@ class ApiService{
       
       if (responsePartsTranslation.length > 1) {  // Check if "Translation:" was present
         // Split the remaining part at "Feedback:"
-        List<String> responsePartsFeedback = responsePartsTranslation[1].split("Feedback:");
+        List<String> responsePartsFeedback = responsePartsTranslation[1].split(expFeed);
         translation = responsePartsFeedback[0].trim();  // Between "Translation:" and "Feedback:"
         
         if (responsePartsFeedback.length > 1) {  // Check if "Feedback:" was present
@@ -187,7 +190,7 @@ class ApiService{
         String fullResponse = jsonResponse["choices"][0]["message"]["content"];
         
         // Split the full response at "Translation:"
-        List<String> responsePartsTranslation = fullResponse.split("Translation:");
+        List<String> responsePartsTranslation = fullResponse.split(expTrans);
         String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
         
         String translation = "";
@@ -195,7 +198,7 @@ class ApiService{
         
         if (responsePartsTranslation.length > 1) {  // Check if "Translation:" was present
           // Split the remaining part at "Feedback:"
-          List<String> responsePartsFeedback = responsePartsTranslation[1].split("Feedback:");
+          List<String> responsePartsFeedback = responsePartsTranslation[1].split(expFeed);
           translation = responsePartsFeedback[0].trim();  // Between "Translation:" and "Feedback:"
           
           if (responsePartsFeedback.length > 1) {  // Check if "Feedback:" was present
@@ -249,7 +252,7 @@ class ApiService{
       String fullResponse = jsonResponse["choices"][0]["message"]["content"];
       
       // Split the full response at "Translation:"
-      List<String> responsePartsTranslation = fullResponse.split("Translation:");
+      List<String> responsePartsTranslation = fullResponse.split(expTrans);
       String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
       
       String translation = "";
@@ -257,7 +260,7 @@ class ApiService{
       
       if (responsePartsTranslation.length > 1) {  // Check if "Translation:" was present
         // Split the remaining part at "Feedback:"
-        List<String> responsePartsFeedback = responsePartsTranslation[1].split("Feedback:");
+        List<String> responsePartsFeedback = responsePartsTranslation[1].split(expFeed);
         translation = responsePartsFeedback[0].trim();  // Between "Translation:" and "Feedback:"
         
         if (responsePartsFeedback.length > 1) {  // Check if "Feedback:" was present

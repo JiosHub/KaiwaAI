@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:unichat_ai/services/global_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -63,8 +64,8 @@ class _MessengerPageState extends State<MessengerPage> {
       language = prefs.getString('selectedLanguage');
       topicContent = widget.topicContent;
       
-      String contentString35 = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence, DO NOT translate this part to english. 2: AFTER the $language part, translate your provided sentence to English, you MUST mark this with \"Translation:\". 3: AFTER the translation, in English give feedback on MY (the user) usage of $language, you MUST mark this with \"Feedback:\". 3: DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
-      String contentString4 = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the $language part, translate the sentence as literally as possible to English, you MUST mark this with \"Translation:\". 3: AFTER the translation, in English give feedback on ONLY my (the users) last messages' usage of $language, you MUST mark this with \"Feedback:\". 4: For the feedback, only give a blunt sentence i.e. do not say \"Great job!\", \"keep it up\" etc";
+      String contentString35 = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence, DO NOT translate this part to english. 2: AFTER the $language part translate your provided sentence to English, you MUST mark this with \"translation:\". 3: AFTER the translation, in English give feedback on MY (the user) usage of $language, you MUST mark this with \"feedback:\". 3: DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
+      String contentString4 = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the $language part, translate the sentence as literally as possible to English, you MUST mark this with \"translation:\". 3: AFTER the translation, in English give feedback on ONLY my (the users) last messages' usage of $language, you MUST mark this with \"feedback:\". 4: For the feedback, only give a blunt sentence i.e. do not say \"Great job!\", \"keep it up\" etc";
       
       if (selectedGPT == "gpt-4") {
         contentString = contentString4;
@@ -362,7 +363,7 @@ class _MessengerPageState extends State<MessengerPage> {
                   ),
                 ],
               ),
-              Positioned(
+              /*Positioned(
                 right: 22,  // This positions the container to the right edge of the stack
                 top: 15,   // Adjust this as needed
                 width: 140, // Width of the container
@@ -373,12 +374,8 @@ class _MessengerPageState extends State<MessengerPage> {
                     borderRadius: BorderRadius.circular(5)
                   ),
                 ),
-              ),
-              Positioned(
-                top: -15,
-                left: 0,
-                right: 0,
-                child: Row(
+              ),*/
+              Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     FutureBuilder<void>(
@@ -412,7 +409,7 @@ class _MessengerPageState extends State<MessengerPage> {
                               ),
                             ),
                           );
-                        } else if (selectedGPT == "gpt-3.5-turbo" && APIKey == "" && gpt35MessageCount < 100) {
+                        } else if (selectedGPT == "gpt-3.5-turbo" && APIKey == "" && gpt35MessageCount < 200) {
                           print(APIKey);
                           return Padding(
                             padding: EdgeInsets.only(left: 20, top: 0),
@@ -427,7 +424,9 @@ class _MessengerPageState extends State<MessengerPage> {
                                 children: [
                                   Text("GPT 3.5:"),
                                   SizedBox(width: 9),  // A space between the text and the number
-                                  Text(gpt35MessageCount == -1 ? "loading..." : gpt35MessageCount.toString()),
+                                  gpt35MessageCount == -1 
+                                    ? LoadingAnimationWidget.staggeredDotsWave(color: Colors.black, size: 27)
+                                    : Text(gpt35MessageCount.toString()),
                                 ],
                               ),
                             ),
@@ -438,8 +437,13 @@ class _MessengerPageState extends State<MessengerPage> {
                       },
                     ),
                     Spacer(),
-                    Padding(
-                      padding: EdgeInsets.only(top: 24),
+                    Container(
+                      decoration: BoxDecoration(
+                        color:  Colors.cyan[900],
+                        borderRadius: BorderRadius.circular(5)
+                      ),
+                      margin: EdgeInsets.only(top:15),
+                      padding: EdgeInsets.symmetric(horizontal: 10),
                       child: Row(
                         children: [
                           Column(
@@ -529,7 +533,6 @@ class _MessengerPageState extends State<MessengerPage> {
                     SizedBox(width: 30),
                   ],
                 ),
-              ),
               if (_isKeyboardVisible && _showVoiceMessage)
                     GestureDetector(
                       onTap: () {
