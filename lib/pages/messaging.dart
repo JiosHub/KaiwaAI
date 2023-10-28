@@ -38,6 +38,7 @@ class _MessengerPageState extends State<MessengerPage> {
   int gpt35MessageCount = -1;
   late String? selectedGPT;
   late String? APIKey;
+  bool _isTextFieldEmpty = false;
 
   //i wrote this litterally today and i forgot what it does but im pretty sure i need it
   Future<void> _loadCount() async {
@@ -223,10 +224,17 @@ class _MessengerPageState extends State<MessengerPage> {
   }
 
   void _onTextChanged() {
-    if (messageController.text.isNotEmpty) {
+  // Check if the current state is different from the previous state
+    bool isCurrentlyEmpty = messageController.text.isEmpty;
+
+    if (isCurrentlyEmpty != _isTextFieldEmpty) {
+      // Update the state only when it changes
       setState(() {
-        _showVoiceMessage = false;
+        _showVoiceMessage = !_showVoiceMessage;
       });
+      _showVoiceMessage = false;
+      // Update the flag for future comparisons
+      _isTextFieldEmpty = isCurrentlyEmpty;
     }
   }
 
