@@ -236,7 +236,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               _saveGPTPreference(selection);
                             });
                           },
-                          items: <String>['gpt-4','gpt-3.5-turbo']
+                          items: <String>['gpt-4', "gpt-4-1106-preview",'gpt-3.5-turbo']
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
