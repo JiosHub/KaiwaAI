@@ -152,6 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         onSelected: (String selection) {
                           languageController.text = selection;
                           GlobalState().globalLanguage = selection;
+                          print(selection);
                           _saveLanguagePreference(selection);
                         },
                         fieldViewBuilder: (BuildContext context,
@@ -167,6 +168,12 @@ class _ProfilePageState extends State<ProfilePage> {
                               decoration: InputDecoration(
                                 hintText: 'Select language',
                               ),
+                              onSubmitted: (String value) {
+                                languageController.text = value;
+                                GlobalState().globalLanguage = value;
+                                print(value);
+                                _saveLanguagePreference(value);
+                              },
                             onTap: () {
                               textEditingController.clear();
                             },
