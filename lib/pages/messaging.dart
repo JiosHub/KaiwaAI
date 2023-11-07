@@ -44,8 +44,8 @@ class _MessengerPageState extends State<MessengerPage> {
   Future<void> _loadCount() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getString('selectedGPT') == ""){
-      prefs.setString('selectedGPT', 'gpt-4');
-      selectedGPT = "gpt-4";
+      prefs.setString('selectedGPT', 'gpt-4-1106-preview');
+      selectedGPT = "gpt-4-1106-preview";
     } else {
       selectedGPT = prefs.getString('selectedGPT');
     }
@@ -56,8 +56,8 @@ class _MessengerPageState extends State<MessengerPage> {
     if(messages.isEmpty){
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (prefs.getString('selectedGPT') == ""){
-        prefs.setString('selectedGPT', 'gpt-4');
-        selectedGPT = "gpt-4";
+        prefs.setString('selectedGPT', 'gpt-4-1106-preview');
+        selectedGPT = "gpt-4-1106-preview";
       } else {
         selectedGPT = prefs.getString('selectedGPT');
       }
@@ -68,7 +68,7 @@ class _MessengerPageState extends State<MessengerPage> {
       String contentString35 = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence, DO NOT translate this part to english. 2: AFTER the $language part translate your provided sentence to English, you MUST mark this with \"translation:\". 3: AFTER the translation, in English give feedback on MY (the user) usage of $language, you MUST mark this with \"feedback:\". 3: DO NOT give feedback to YOUR (assistant) replies and NEVER switch roles";
       String contentString4 = "$topicContent EVERY one of your replies MUST contain 1: A single SHORT $language sentence inluding a leading question, DO NOT translate this part to english. 2: AFTER the $language part, translate the sentence as literally as possible to English, you MUST mark this with \"translation:\". 3: AFTER the translation, in English give feedback on ONLY my (the users) last messages' usage of $language, you MUST mark this with \"feedback:\". 4: For the feedback, only give a blunt sentence i.e. do not say \"Great job!\", \"keep it up\" etc";
       
-      if (selectedGPT == "gpt-4") {
+      if (selectedGPT == "gpt-4-1106-preview") {
         contentString = contentString4;
       } else {
         contentString = contentString35;
@@ -112,8 +112,8 @@ class _MessengerPageState extends State<MessengerPage> {
     }
     print(prefs.getString('personalAPIKey'));
     if (prefs.getString('selectedGPT') == ""){
-      prefs.setString('selectedGPT', 'gpt-4');
-      selectedGPT = "gpt-4";
+      prefs.setString('selectedGPT', 'gpt-4-1106-preview');
+      selectedGPT = "gpt-4-1106-preview";
     } else {
       selectedGPT = prefs.getString('selectedGPT');
     }
@@ -125,7 +125,7 @@ class _MessengerPageState extends State<MessengerPage> {
         gpt4MessageCount = data['gpt4_message_count'] as int;
         gpt35MessageCount = data['gpt3_5_message_count'] as int;
         setState(() {
-          if (selectedGPT == "gpt-4"){
+          if (selectedGPT == "gpt-4-1106-preview"){
             gpt4MessageCount--;
           }
           else if (selectedGPT == "gpt-3.5-turbo"){
@@ -140,7 +140,7 @@ class _MessengerPageState extends State<MessengerPage> {
     } else if(messages.isEmpty && GlobalState().globalGPT4MessageCount != -1){
       gpt4MessageCount = GlobalState().globalGPT4MessageCount;
       gpt35MessageCount = GlobalState().globalGPT35MessageCount;
-      if (selectedGPT == "gpt-4") {
+      if (selectedGPT == "gpt-4-1106-preview") {
         setState(() {
           gpt4MessageCount--;
           GlobalState().globalGPT4MessageCount = gpt4MessageCount;
@@ -162,7 +162,7 @@ class _MessengerPageState extends State<MessengerPage> {
       }
     }
 
-    if (selectedGPT == "gpt-4" && sendButton == true) {
+    if (selectedGPT == "gpt-4-1106-preview" && sendButton == true) {
       setState(() {
         gpt4MessageCount--;
         // Update the global state
@@ -397,7 +397,7 @@ class _MessengerPageState extends State<MessengerPage> {
                           // If we run into an error, display it to the user
                           return Text('Error: ${snapshot.error}');
                         }
-                        if (selectedGPT == "gpt-4" && APIKey == "") {
+                        if (selectedGPT == "gpt-4-1106-preview" && APIKey == "") {
                           return Padding(
                             padding: EdgeInsets.only(left: 20, top: 0),
                             child: Container(

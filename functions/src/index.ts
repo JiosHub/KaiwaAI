@@ -38,13 +38,13 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
   // eslint-disable-next-line max-len
   const userSnapshot = await admin.firestore().collection("users").where("deviceID", "==", deviceID).get();
 
-  let gpt4MessageCount = 25;
+  let gpt4MessageCount = 50;
   let gpt35MessageCount = 100;
 
   if (!userSnapshot.empty) {
     // An account with this device ID already exists. Fetch the message counts.
     const originalAccount = userSnapshot.docs[0].data();
-    gpt4MessageCount = originalAccount.gpt4_message_count || 25;
+    gpt4MessageCount = originalAccount.gpt4_message_count || 50;
     gpt35MessageCount = originalAccount.gpt3_5_message_count || 100;
   }
 
@@ -215,7 +215,7 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
     const selectedGPT = requestData.selectedGPT;
     const messages = requestData.messages;
 
-    if (selectedGPT === "gpt-4" && messageCountGPT4 <= 0) {
+    if (selectedGPT === "gpt-4-1106-preview" && messageCountGPT4 <= 0) {
       // Handle this case
       response.status(400).send("Message limit reached for gpt-4");
       return;
@@ -258,7 +258,7 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
     const responseData = await apiResponse.json();
     const latestMessage = responseData.choices?.[0]?.message?.content;
 
-    if (selectedGPT === "gpt-4") {
+    if (selectedGPT === "gpt-4-1106-preview") {
       await userRef.update({
         gpt4_message_count: admin.firestore.FieldValue.increment(-1),
       });

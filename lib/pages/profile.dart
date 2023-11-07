@@ -32,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     selectedLanguage = "";
-    selectedGPT = "gpt-4";
+    selectedGPT = "gpt-4-1106-preview";
     personalAPIKey = "";
     apiKeyController = TextEditingController(text: personalAPIKey);
     _loadPreference();
@@ -51,7 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
       languageController = TextEditingController(text: selectedLanguage);
       selectedGPT = prefs.getString('selectedGPT') ?? "";
       if (selectedGPT == "") {
-        selectedGPT = "gpt-4";
+        selectedGPT = "gpt-4-1106-preview";
         SharedPreferencesHelper.setSelectedGPT(selectedGPT);
       }
 
@@ -232,11 +232,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           isExpanded: true,
                           onChanged: (String? selection) {
                             setState(() {
-                              selectedGPT = selection ?? "gpt-4";
+                              selectedGPT = selection ?? "gpt-4-1106-preview";
                               _saveGPTPreference(selection);
                             });
                           },
-                          items: <String>['gpt-4', "gpt-4-1106-preview",'gpt-3.5-turbo']
+                          items: <String>["gpt-4-1106-preview",'gpt-3.5-turbo']
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
@@ -395,7 +395,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
                                           child: Icon(Icons.arrow_forward),
                                         ),
-                                        title: Text("GPT4 +100 for £2.99"),  //${item100?.price ?? "£4.99"}
+                                        title: Text("GPT4 +100 for £1.49"),  //${item100?.price ?? "£4.99"}
                                         onTap: () async {
                                           errorCheck = false;
                                           noCompletion = "";
@@ -434,7 +434,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           padding: EdgeInsets.only(right: 11.0), // Add some right padding to move the icon
                                           child: Icon(Icons.arrow_forward),
                                         ),
-                                        title: Text("GPT4 +500 for £13.99"), //${item500?.price ?? "£16.99"}
+                                        title: Text("GPT4 +500 for £6.99"), //${item500?.price ?? "£16.99"}
                                         onTap: () async {
                                           errorCheck = false;
                                           noCompletion = "";
