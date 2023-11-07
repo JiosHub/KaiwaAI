@@ -202,7 +202,7 @@ class _InfoPageState extends State<InfoPage> {
             ? SizedBox(
                 width: 20.0, // specify the width of the circle
                 height: 18.0, // specify the height of the circle
-                child: LoadingAnimationWidget.staggeredDotsWave(color: Colors.black, size: 27)
+                child: LoadingAnimationWidget.staggeredDotsWave(color: Colors.white, size: 27)
               )
             : Text(
                 count.toString(), 

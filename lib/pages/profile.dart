@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unichat_ai/pages/login.dart';
@@ -79,6 +81,97 @@ class _ProfilePageState extends State<ProfilePage> {
     String? API_KEY = await SharedPreferencesHelper.getAPIKey();
     return API_KEY;
   }
+
+  void showContactDialog(BuildContext context) {
+    TextEditingController messageController = TextEditingController();
+
+    showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      String messageStatus = '';
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+
+          Future<void> sendMessage(String message) async {
+            // Replace with your actual send message logic
+            // Returning true for success, false for failure
+            await Future.delayed(Duration(seconds: 2)); // Simulate network call
+            bool result = false; // Assume sending is successful
+
+            // Use the StateSetter to update the messageStatus and rebuild the widget inside the dialog
+            setState(() {
+              messageStatus = result ? 'Message sent successfully' : 'Error sending message';
+            });
+          }
+
+          return AlertDialog(
+            title: Text('Contact Us'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('If you have any issues or feedback, please leave us a message below.', style: TextStyle(fontSize: 15)),
+                  SizedBox(height: 10),
+                  Text('A reply will be sent to your email.', style: TextStyle(fontSize: 14)),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: messageController,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      hintText: 'Your message',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  if (messageStatus.isNotEmpty)
+                    Padding(
+                      padding: EdgeInsets.only(top: 16.0),
+                      child: Text(
+                        messageStatus,
+                        style: TextStyle(
+                          color: messageStatus == 'Message sent successfully' ? Colors.green : Colors.red,
+                        ),
+                      ),
+                    ),
+                  SizedBox(height: 20),
+                  RichText(
+                    text: TextSpan(
+                      text: 'For more info, join our ',
+                      style: DefaultTextStyle.of(context).style,
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: 'Discord',
+                          style: TextStyle(color: Colors.blue),
+                          recognizer: TapGestureRecognizer()..onTap = () {
+                            // Insert the URL of your FAQ page
+                            launchUrl(Uri.parse('https://discord.gg/5KEAEUmRsP'));
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text('Send'),
+                onPressed: () async {
+                  sendMessage(messageController.text);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+                
 
   @override
   Widget build(BuildContext context) {
@@ -218,7 +311,29 @@ class _ProfilePageState extends State<ProfilePage> {
                     IconButton(
                       icon: Icon(Icons.info),
                       onPressed: () {
-                        // Handle info button press
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text('Information'),
+                              content: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    SelectableText('You can type any language you want instead of the preset options, but note all the listed languages are what GPT is most proficient in.'),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); // Close the dialog
+                                  },
+                                  child: Text('Close'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
                     ),
                     SizedBox(width: 15),
@@ -506,8 +621,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 title: Text('Contact'),
                 onTap: () {
-                  // Navigate to contact page
-                },
+                  showContactDialog(context);
+                }
               )
             )
           )
