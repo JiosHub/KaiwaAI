@@ -413,7 +413,10 @@ class _MessengerPageState extends State<MessengerPage> {
                                   Text("GPT 4:"),
                                   SizedBox(width: 20),  // A space between the text and the number
                                   gpt4MessageCount == -1 
-                                    ? LoadingAnimationWidget.staggeredDotsWave(color: Colors.black, size: 27)
+                                    ? Padding(
+                                        padding: EdgeInsets.only(left: 5),
+                                        child: LoadingAnimationWidget.staggeredDotsWave(color: Colors.white, size: 27),
+                                      )
                                     : Text(gpt4MessageCount.toString()),
                                 ],
                               ),

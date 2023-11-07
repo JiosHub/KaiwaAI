@@ -22,12 +22,12 @@ dependencies:
   flutter_signin_button: ^2.0.0
   shared_preferences: ^2.0.7
   in_app_purchase: ^3.1.10
-  flutter_tts: ^3.8.3
   cloud_functions: ^4.4.1
   loading_animation_widget: ^1.2.0+4
   url_launcher: ^6.1.14
   device_info: ^2.0.3
   cloud_firestore: ^4.9.2
+  flutter_tts: ^3.8.3
 
 dev_dependencies:
   flutter_test:

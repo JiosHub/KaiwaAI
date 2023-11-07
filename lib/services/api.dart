@@ -65,7 +65,9 @@ class ApiService{
       // Split the full response at "Translation:"
       final Map<String, dynamic> data = response.data;
       final fullResponse = data['content'];
-      List<String> responsePartsTranslation = fullResponse.split(expTrans);
+      String cleanResponse = fullResponse.replaceAll(RegExp(r'[()]'), '');
+
+      List<String> responsePartsTranslation = cleanResponse.split(expTrans);
       String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
 
       String translation = "";
@@ -119,7 +121,9 @@ class ApiService{
       // Split the full response at "Translation:"
       final Map<String, dynamic> data = response.data;
       final fullResponse = data['content'];
-      List<String> responsePartsTranslation = fullResponse.split(expTrans);
+      String cleanResponse = fullResponse.replaceAll(RegExp(r'[()]'), '');
+      
+      List<String> responsePartsTranslation = cleanResponse.split(expTrans);
       String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
       
       String translation = "";
@@ -188,9 +192,10 @@ class ApiService{
       
       if (jsonResponse["choices"].length > 0) {
         String fullResponse = jsonResponse["choices"][0]["message"]["content"];
+        String cleanResponse = fullResponse.replaceAll(RegExp(r'[()]'), '');
         
         // Split the full response at "Translation:"
-        List<String> responsePartsTranslation = fullResponse.split(expTrans);
+        List<String> responsePartsTranslation = cleanResponse.split(expTrans);
         String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
         
         String translation = "";
@@ -250,9 +255,10 @@ class ApiService{
 
     if (jsonResponse["choices"].length > 0) {
       String fullResponse = jsonResponse["choices"][0]["message"]["content"];
+      String cleanResponse = fullResponse.replaceAll(RegExp(r'[()]'), '');
       
       // Split the full response at "Translation:"
-      List<String> responsePartsTranslation = fullResponse.split(expTrans);
+      List<String> responsePartsTranslation = cleanResponse.split(expTrans);
       String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
       
       String translation = "";
