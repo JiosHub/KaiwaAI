@@ -4,6 +4,7 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import {google} from "googleapis";
 import fetch from "node-fetch";
+import * as nodemailer from "nodemailer";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const BASE_URL = "https://api.openai.com/v1";
@@ -13,6 +14,39 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
+const gmailEmail = functions.config().gmail.email;
+const gmailPassword = functions.config().gmail.password;
+
+const mailTransport = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: gmailEmail,
+    pass: gmailPassword,
+  },
+});
+
+// eslint-disable-next-line max-len
+export const sendEmail = functions.region("europe-west1").https.onCall(async (data, context) => {
+  const userEmail = data.email;
+  const subject = `Message from ${userEmail}`;
+  const text = data.message;
+
+  const mailOptions = {
+    from: `UniChat AI <${userEmail}>`,
+    to: "jiiosjos@gmail.com",
+    subject: subject,
+    text: text,
+  };
+
+  try {
+    await mailTransport.sendMail(mailOptions);
+    console.log("Email sent to:", mailOptions.to);
+    return {success: true};
+  } catch (error) {
+    console.error("There was an error while sending the email:", error);
+    return {success: false};
+  }
+});
 
 // eslint-disable-next-line max-len
 exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate(async (user) => {
@@ -57,13 +91,6 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
     email: email,
   });
 });
-
-// Add the purchase receipt to the "tokens" sub-collection
-// await userDocRef.collection("tokens").doc(purchaseToken).set({
-// productId: productId,
-// purchaseDate: admin.firestore.Timestamp.now(),
-// ... any other fields you want to store
-// });
 
 // eslint-disable-next-line max-len
 export const updateUserValues = functions.region("europe-west1").https.onCall(async (data, context) => {
@@ -245,7 +272,7 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
       method: "POST",
       headers: {
         // eslint-disable-next-line max-len
-        "Authorization": "Bearer ",
+        "Authorization": "Bearer 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",
         "Content-Type": "application/json",
       },
       body: requestBody,

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,6 +11,7 @@ import 'package:unichat_ai/services/auth_service.dart';
 import 'package:unichat_ai/services/global_state.dart';
 import 'package:unichat_ai/services/iap_service.dart';
 import 'package:unichat_ai/services/shared_preferences_helper.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -92,16 +94,33 @@ class _ProfilePageState extends State<ProfilePage> {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
 
-          Future<void> sendMessage(String message) async {
-            // Replace with your actual send message logic
-            // Returning true for success, false for failure
-            await Future.delayed(Duration(seconds: 2)); // Simulate network call
-            bool result = false; // Assume sending is successful
+          Future<bool> sendMessage(String message) async {
+            
+            User? user = FirebaseAuth.instance.currentUser;
 
-            // Use the StateSetter to update the messageStatus and rebuild the widget inside the dialog
-            setState(() {
-              messageStatus = result ? 'Message sent successfully' : 'Error sending message';
-            });
+            if (user != null && user.email != null) {
+              try {
+                FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
+                print("-----------------1");
+                final callable = functions.httpsCallable('sendEmail');
+                print("-----------------2");
+                // Call the function and pass both the message and the user's email
+                final results = await callable.call({
+                  'message': message,
+                  'email': user.email, // Include the email in the call
+                });
+                print("-----------------3 ${results.data['success']}");
+                return results.data['success'];
+              } on FirebaseFunctionsException catch (e) {
+                // Handle if the function throws an error
+                print("-----------------\n $e");
+                return false;
+              }
+            } else {
+              // Handle the case when the user is not logged in or doesn't have an email
+              print("User is not logged in or doesn't have an email.");
+              return false;
+            }
           }
 
           return AlertDialog(
