@@ -272,7 +272,7 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
       method: "POST",
       headers: {
         // eslint-disable-next-line max-len
-        "Authorization": "Bearer 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",
+        "Authorization": "Bearer ",
         "Content-Type": "application/json",
       },
       body: requestBody,

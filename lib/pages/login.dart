@@ -58,19 +58,6 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
   Future<void> _emailSignUp() async {
     try {
 
-      /*AuthService authService = AuthService();
-      User? user = await authService.signInWithEmail(_email, _password);
-      SharedPreferencesHelper.setUsername(user?.email ?? 'username not found');
-      if (user != null) {
-        SharedPreferencesHelper.setIsLoggedIn(true);
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => BottomMenuRibbon()));
-      } else {
-        signInFailed = true;
-        setState(() {
-          _autoValidate = AutovalidateMode.always;
-        });
-        print("---------------sign in failed-----------------");
-      }*/
       signUpCheck = false;
       print("1   yoooooooooooo");
       User? user = await authService.signUpWithEmail(_email, _password);
@@ -260,7 +247,66 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                             SizedBox(height: 20.0),
                             TextButton(
                               onPressed: () {
-                                // Handle button press
+                                // Show a dialog or input field to enter the user's email address
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    TextEditingController emailController = TextEditingController();
+                                    return AlertDialog(
+                                      title: Text('Reset Password'),
+                                      content: TextField(
+                                        controller: emailController,
+                                        decoration: InputDecoration(
+                                          hintText: 'Enter your email',
+                                        ),
+                                        keyboardType: TextInputType.emailAddress,
+                                      ),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: Text('Cancel'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: Text('Send Reset Link'),
+                                          onPressed: () async {
+                                            if (emailController.text.isNotEmpty) {
+                                              // Send password reset email
+                                              try {
+                                                await FirebaseAuth.instance.sendPasswordResetEmail(email: emailController.text);
+                                                // Show a success message
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text('Password reset link sent. (check junk folder)'),
+                                                    backgroundColor: Colors.green,
+                                                  ),
+                                                );
+                                              } catch (e) {
+                                                // If there is an error, show an error message
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text('Error occurred. Email may be wrong or doesnt exist.'),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                              }
+                                            } else {
+                                              // Prompt the user to enter their email
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('Please enter your email address.'),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            }
+                                            Navigator.of(context).pop(); // Close the dialog
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
                               },
                               child: Text(
                                 'Reset password',

@@ -94,7 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
 
-          Future<bool> sendMessage(String message) async {
+          Future<void> sendMessage(String message) async {
             
             User? user = FirebaseAuth.instance.currentUser;
 
@@ -110,16 +110,22 @@ class _ProfilePageState extends State<ProfilePage> {
                   'email': user.email, // Include the email in the call
                 });
                 print("-----------------3 ${results.data['success']}");
-                return results.data['success'];
+                setState(() {
+                  messageStatus = results.data['success'] ? 'Message sent successfully' : 'Error sending message';
+                });
               } on FirebaseFunctionsException catch (e) {
                 // Handle if the function throws an error
                 print("-----------------\n $e");
-                return false;
+                setState(() {
+                  messageStatus = 'Error sending message';
+                });
               }
             } else {
               // Handle the case when the user is not logged in or doesn't have an email
               print("User is not logged in or doesn't have an email.");
-              return false;
+              setState(() {
+                messageStatus = "User is not logged in or doesn't have an email.";
+              });
             }
           }
 

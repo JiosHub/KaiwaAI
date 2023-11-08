@@ -123,6 +123,28 @@ class _InfoPageState extends State<InfoPage> {
                 "message, the message count can go down in the app, but the message won't actually be taken "+
                 "off your account server-side. You can press the refresh button at the top of this page to get"+
                 " your message count from the server.", textAlign: TextAlign.left),
+                SizedBox(height: 7),
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Join our ',
+                      ),
+                      TextSpan(
+                        text: 'Discord',
+                        style: TextStyle(color: Colors.blue),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            _launchURL(Uri.parse('https://discord.gg/5KEAEUmRsP'));
+                          },
+                      ),
+                      TextSpan(
+                        text: ' if you need any help.',
+                      ),
+                    ],
+                  ),
+                ),
               ]
             ),
           ),
