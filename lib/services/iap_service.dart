@@ -61,7 +61,7 @@ class IAPService {
         }
       });
     }, onError: (error) {
-      print("Stream error received");
+      print("Stream error received: $error");
       _purchaseCompleter.complete(true);
     });
   }

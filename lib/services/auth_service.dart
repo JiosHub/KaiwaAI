@@ -7,7 +7,6 @@ class AuthService {
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
   Future<User?> signInWithGoogle() async {
-    print("signInWithGoogle called");
     try {
       final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 
@@ -32,7 +31,7 @@ class AuthService {
         }
       }
     } catch (error) {
-      print(error);
+      print("Error: $error");
       return null;
     }
   }
@@ -43,16 +42,14 @@ class AuthService {
         email: email,
         password: password,
       );
-      print("--------------$email---$password---${userCredential.user}------------");
+      
       if (userCredential.user != null) {
         await SharedPreferencesHelper.setIsLoggedIn(true);
         return userCredential.user;
       }
     return null;
     } catch (e) {
-      print("--------------$email---$password---------------");
-      print("---------------------"+e.toString());
-      print("--------------$email---$password---------------");
+      print("Error: $e");
       return null;
     }
   }
@@ -65,7 +62,7 @@ class AuthService {
       );
       return userCredential.user;
     } catch (e) {
-      print("---------------------"+e.toString());
+      print("Error: $e");
       return null;
     }
   }

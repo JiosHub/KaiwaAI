@@ -51,7 +51,6 @@ class ApiService{
     try{
       FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
       //functions.useFunctionsEmulator('localhost', 5001);
-      print("----------------------$functions");
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
       final dataToSend = {
         'selectedGPT': selectedGPT, // or any other model you want
@@ -61,7 +60,7 @@ class ApiService{
         }).toList()
       };
       final response = await functions.httpsCallable('sendFunctionMessage').call(dataToSend);
-      print("Response from Firebase Function: ${response.data}");
+      //print("Response from Firebase Function: ${response.data}");
       
       // Split the full response at "Translation:"
       final Map<String, dynamic> data = response.data;
@@ -104,9 +103,7 @@ class ApiService{
 
       FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
       //functions.useFunctionsEmulator('10.0.2.2', 5001);
-      print("----------------------${functions}");
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
-      print("----------------------$selectedGPT");
       final dataToSend = {
         "selectedGPT": selectedGPT, // or any other model you want
         "messages": [{
@@ -115,9 +112,9 @@ class ApiService{
         }]
       };
 
-      print('Sending data: $dataToSend');
+      //print('Sending data: $dataToSend');
       final response = await functions.httpsCallable('sendFunctionMessage').call(dataToSend);
-      print("Response from Firebase Function: ${response.data}");
+      //print("Response from Firebase Function: ${response.data}");
       
       // Split the full response at "Translation:"
       final Map<String, dynamic> data = response.data;
@@ -139,7 +136,7 @@ class ApiService{
             feedback = responsePartsFeedback[1].trim();
         }
       }
-      print("main $mainContent       translation: $translation         feedback: $feedback");
+      //print("main $mainContent       translation: $translation         feedback: $feedback");
       return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
     }catch(error){
       if (error is FirebaseFunctionsException) {
@@ -154,11 +151,11 @@ class ApiService{
   }
   
   static Future<Message> sendMessage({required List<Message> messages})async {
-    print("all messages: ${(messages.map((m) => {"role": m.isUser, "content": m.content})).join(', ')}");
+    //print("all messages: ${(messages.map((m) => {"role": m.isUser, "content": m.content})).join(', ')}");
     try{
       String API_KEY = await SharedPreferencesHelper.getAPIKey() ?? "no API key registered"; 
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
-      print("----------------------------------$API_KEY");
+
       var requestBody = jsonEncode({
           "model": "$selectedGPT",
           "messages": messages.map((message) => {
@@ -175,7 +172,7 @@ class ApiService{
         "Content-Type": "application/json; charset=UTF-8"},
         body: requestBody);
 
-      print("full post: $requestBody");
+      //print("full post: $requestBody");
       // Decode the response body as UTF-8
       String decodedResponse = utf8.decode(response.bodyBytes);
       
@@ -183,7 +180,7 @@ class ApiService{
       Map jsonResponse = jsonDecode(decodedResponse);
 
       //Map jsonResponse = jsonDecode(response.body);
-      print("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
+      //print("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
 
       if(jsonResponse['error'] != null){
         //print("jsonResponse['error']['message'] ${jsonResponse['error']['message']}");
@@ -211,7 +208,7 @@ class ApiService{
               feedback = responsePartsFeedback[1].trim();
           }
         }
-        print("main $mainContent       translation: $translation         feedback: $feedback");
+        //print("main $mainContent       translation: $translation         feedback: $feedback");
         return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
       }
 
@@ -222,7 +219,7 @@ class ApiService{
       );
 
     }catch(error){
-      print("error $error");
+      print("Error: $error");
       rethrow;
     }
   }
@@ -231,8 +228,7 @@ class ApiService{
   try{
     String API_KEY = await SharedPreferencesHelper.getAPIKey() ?? "no API key registered"; 
     String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
-    print("----------------------------------$API_KEY");
-    print("all messages: $content");
+    //print("all messages: $content");
     var response = await http.post(
       Uri.parse("$BASE_URL/chat/completions"),
       headers: {'Authorization': 'Bearer $API_KEY', 
@@ -247,7 +243,7 @@ class ApiService{
     Map jsonResponse = jsonDecode(decodedResponse);
 
     //Map jsonResponse = jsonDecode(response.body);
-    print("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
+    //print("jsonResponse: $jsonResponse");  // <-- Log the entire JSON response
 
     if(jsonResponse['error'] != null){
       //print("jsonResponse['error']['message'] ${jsonResponse['error']['message']}");
@@ -274,7 +270,7 @@ class ApiService{
             feedback = responsePartsFeedback[1].trim();
         }
       }
-      print("main $mainContent       translation: $translation         feedback: $feedback");
+      //print("main $mainContent       translation: $translation         feedback: $feedback");
       return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
     }
 
@@ -286,7 +282,7 @@ class ApiService{
       );
 
   }catch(error){
-    print("error $error");
+    print("Error: $error");
     rethrow;
   }
   }

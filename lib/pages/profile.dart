@@ -62,11 +62,9 @@ class _ProfilePageState extends State<ProfilePage> {
       } else if (product_id == 0){
         GlobalState().globalGPT4MessageCount += 100;
         GlobalState().globalGPT35MessageCount = 2000;
-        print(GlobalState().globalGPT4MessageCount);
       } else if (product_id == 1){
         GlobalState().globalGPT4MessageCount += 500;
         GlobalState().globalGPT35MessageCount = 2000;
-        print(GlobalState().globalGPT4MessageCount);
       }
 
       _iapService.resetPurchaseCompleter();
@@ -133,21 +131,18 @@ class _ProfilePageState extends State<ProfilePage> {
               try {
                 FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
                 //functions.useFunctionsEmulator('localhost', 5001);
-                print("-----------------1");
                 final callable = functions.httpsCallable('sendEmail');
-                print("-----------------2");
                 // Call the function and pass both the message and the user's email
                 final results = await callable.call({
                   'message': message,
                   'email': user.email, // Include the email in the call
                 });
-                print("-----------------3 ${results.data['success']}");
+
                 setState(() {
                   messageStatus = results.data['success'] ? 'Message sent successfully' : 'Error sending message';
                 });
               } on FirebaseFunctionsException catch (e) {
                 // Handle if the function throws an error
-                print("-----------------\n $e");
                 setState(() {
                   messageStatus = 'Error sending message';
                 });
@@ -304,7 +299,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         onSelected: (String selection) {
                           languageController.text = selection;
                           GlobalState().globalLanguage = selection;
-                          print(selection);
                           _saveLanguagePreference(selection);
                         },
                         fieldViewBuilder: (BuildContext context,
@@ -323,7 +317,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               onSubmitted: (String value) {
                                 languageController.text = value;
                                 GlobalState().globalLanguage = value;
-                                print(value);
                                 _saveLanguagePreference(value);
                               },
                             onTap: () {

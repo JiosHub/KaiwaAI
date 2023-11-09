@@ -33,15 +33,13 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
   Future<void> _googleSignIn() async {
     try {
       final user = await authService.signInWithGoogle();
-      print("object");
       SharedPreferencesHelper.setUsername(user?.displayName ?? user?.email ?? 'username not found');
-      print("object2");
       // After successful Google authentication
       final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
       var deviceInfo = await deviceInfoPlugin.androidInfo;
       final uniqueID = deviceInfo.androidId;  // Use this ID as the unique device identifier
-      print("object3");
       final userRef = FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
+      
       await userRef.set({
         'deviceID': uniqueID,
         'email': FirebaseAuth.instance.currentUser!.email,  // <-- Save the email here
@@ -51,7 +49,7 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => BottomMenuRibbon()));
 
     } catch (e) {
-      print(e);
+      print("Sign in failed, Error: $e");
     }
   }
 
@@ -59,24 +57,21 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
     try {
 
       signUpCheck = false;
-      print("1   yoooooooooooo");
       User? user = await authService.signUpWithEmail(_email, _password);
       SharedPreferencesHelper.setUsername(user?.email ?? 'username not found');
-      print("2   yoooooooooooo");
       // After successful Google authentication
       final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
       var deviceInfo = await deviceInfoPlugin.androidInfo;
       final uniqueID = deviceInfo.androidId;  // Use this ID as the unique device identifier
-      print("3   yoooooooooooo");
       final userRef = FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid);
+
       await userRef.set({
         'deviceID': uniqueID,
         'email': FirebaseAuth.instance.currentUser!.email,  // <-- Save the email here
       }, SetOptions(merge: true));  // Using merge: true to ensure we don't overwrite existing data
-      print("$signUpFailed   yoooooooooooo   $user");
+      
       if (user != null) {
         signUpFailed = false;
-        print("$signUpFailed   yoooooooooooo");
         SharedPreferencesHelper.setIsLoggedIn(true);
         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => BottomMenuRibbon()));
       }
@@ -86,8 +81,7 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
       setState(() {
         _autoValidate = AutovalidateMode.always;
       });
-      print("---------------sign in failed-----------------");
-      print(e);
+      print("Sign up failed, Error: $e");
     }
   }
 
@@ -341,7 +335,6 @@ class _WelcomePageState extends State<WelcomePage> with TickerProviderStateMixin
                                     setState(() {
                                       _autoValidate = AutovalidateMode.always;
                                     });
-                                    print("---------------sign in failed-----------------");
                                   }
                                 }
                               }, // Define your _submit method

@@ -82,7 +82,7 @@ class _MessengerPageState extends State<MessengerPage> {
       setState(() {
         messages.add(loadingMessage);
       });
-      print("$APIKey<------------");
+      
       if (APIKey == ""){
         ApiService.fetchFirstFunctionMessage(apiMessages[0].content).then((response){
           setState(() {
@@ -105,12 +105,11 @@ class _MessengerPageState extends State<MessengerPage> {
 
   Future<void> _MessageLimit({bool sendButton = false}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(prefs.getString('selectedGPT'));
-    print("${prefs.getString('personalAPIKey')}ye");
+
     if (prefs.getString("personalAPIKey") == null){
       prefs.setString('personalAPIKey', "");
     }
-    print(prefs.getString('personalAPIKey'));
+    
     if (prefs.getString('selectedGPT') == ""){
       prefs.setString('selectedGPT', 'gpt-4-1106-preview');
       selectedGPT = "gpt-4-1106-preview";
@@ -182,12 +181,11 @@ class _MessengerPageState extends State<MessengerPage> {
   @override
   void initState() {
     try{
-    
     super.initState();
     _MessageLimit();
-    print("1111111111111111111111111111111");
     messageController.addListener(_onTextChanged);
     var keyboardVisibilityController = KeyboardVisibilityController();
+
     keyboardVisibilityController.onChange.listen((bool visible) {
       if (mounted) {
         setState(() {
@@ -206,13 +204,9 @@ class _MessengerPageState extends State<MessengerPage> {
     apiMessages = GlobalState().globalApiMessageList;
     language = GlobalState().globalLanguage;
     
-    print("2222222222222222222222222222222");
-    //_loadFirstMessage();
-    print("77777777777777777777777777777");
-    
     } catch (e, stacktrace) {
       print("Exception during build: $e");
-      print(stacktrace);
+      print("Stacktrace: $stacktrace");
     }
   }
 
@@ -341,7 +335,7 @@ class _MessengerPageState extends State<MessengerPage> {
                                         } 
                                         apiMessages.add(Message(content: userMessage, isUser: "user"));
                                       });
-                                      print("$APIKey<------------");
+
                                       final Message chatbotReply;
                                       if (APIKey == "") {
                                         chatbotReply = await ApiService.sendFunctionMessage(messages: apiMessages);
@@ -423,7 +417,6 @@ class _MessengerPageState extends State<MessengerPage> {
                             ),
                           );
                         } else if (selectedGPT == "gpt-3.5-turbo" && APIKey == "" && gpt35MessageCount < 200) {
-                          print(APIKey);
                           return Padding(
                             padding: EdgeInsets.only(left: 20, top: 0),
                             child: Container(
