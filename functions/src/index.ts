@@ -163,8 +163,8 @@ export const updateUserValues = functions.region("europe-west1").https.onCall(as
     const userDocRef = admin.firestore().collection("users").doc(userId);
     transaction.update(userDocRef, {
       // eslint-disable-next-line max-len
-      gpt3_5_message_count: admin.firestore.FieldValue.increment(incrementValue),
       gpt4_message_count: admin.firestore.FieldValue.increment(incrementValue),
+      gpt3_5_message_count: 2000,
       // ... any other user updates
     });
   });
@@ -271,7 +271,7 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
       method: "POST",
       headers: {
         // eslint-disable-next-line max-len
-        "Authorization": "Bearer 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",
+        "Authorization": "Bearer ",
         "Content-Type": "application/json",
       },
       body: requestBody,

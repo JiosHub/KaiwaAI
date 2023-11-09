@@ -29,15 +29,11 @@ class _ProfilePageState extends State<ProfilePage> {
   late String selectedGPT;
   late String personalAPIKey;
   final IAPService _iapService = IAPService();
-  List<ProductDetails> _products = [];
-  late Timer _errorTimer;
   bool errorCheck = false;
 
   @override
   void initState() {
     super.initState();
-    _listenToPurchaseUpdates();
-    _fetchProducts();
     selectedLanguage = "";
     selectedGPT = "gpt-4-1106-preview";
     personalAPIKey = "";
@@ -47,64 +43,28 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void dispose() {
-    _errorTimer?.cancel();
+    _iapService.dispose();
     super.dispose();
   }
 
-  void _listenToPurchaseUpdates() {
-    final Stream<List<PurchaseDetails>> purchaseUpdates = InAppPurchase.instance.purchaseStream;
-    purchaseUpdates.listen((purchases) {
-      for (final purchase in purchases) {
-        if (purchase.status == PurchaseStatus.purchased) {
-          // Deliver the product to the user here, such as updating their message count
+  void startPurchase(int product_id) async {
+    errorCheck = false;
+    if (_iapService.products != null && _iapService.products!.isNotEmpty) {
+      print('Attempting to purchase product with ID: ${_iapService.products![product_id].id}');
+      errorCheck = await _iapService.buyProduct(_iapService.products![product_id]);
 
-          // Confirm the purchase after successfully delivering the product
-          if (purchase.pendingCompletePurchase) {
-            _iapService.completePurchase(purchase); // Call the new method here
-          }
-          _buyMessages(purchase);
-        } else if (purchase.status == PurchaseStatus.error) {
-          _showError();
-        }
-        // Handle other statuses if necessary
+      if (errorCheck) {
+        setState(() {errorCheck = true;});
+        Future.delayed(Duration(seconds: 5), () {
+          // After 5 seconds, update errorCheck
+          setState(() {errorCheck = false;});
+        });
+      } else {
+        GlobalState().globalGPT4MessageCount += 100;
+        GlobalState().globalGPT35MessageCount = 2000;
       }
-    }, onDone: () {
-      // Handle when the stream is closed
-    }, onError: (error) {
-      // Handle any errors from the stream
-    });
-  }
 
-  void _showError() {
-    if (mounted) {
-      setState(() => errorCheck = true);
-      _errorTimer = Timer(Duration(seconds: 5), () {
-        if (mounted) {
-          setState(() => errorCheck = false);
-        }
-      });
-    }
-  }
-
-  void _buyMessages(PurchaseDetails purchaseDetails) async {
-    try {
-      await _iapService.startPurchase(purchaseDetails);
-      // If the purchase is successful, you can update the state accordingly
-    } catch (error) {
-      // If an error occurs, set errorCheck to true and then back to false after 5 seconds
-      _showError();
-    }
-  }
-
-  void _fetchProducts() async {
-    _products = await _iapService.fetchProducts();
-    // Here you might want to update the UI to display the products
-    setState(() {});
-  }
-
-  void _initiatePurchase(int index) {
-    if (_products.isNotEmpty && index < _products.length) {
-      _iapService.buyProduct(_products[index]);
+      _iapService.resetPurchaseCompleter();
     }
   }
 
@@ -613,7 +573,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         ),
                                         title: Text("GPT4 +100 for £1.49"),  //${item100?.price ?? "£4.99"}
                                         onTap: () async {
-                                          _initiatePurchase(0);
+                                          startPurchase(0);
                                         },
                                       )
                                     )
@@ -633,7 +593,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         ),
                                         title: Text("GPT4 +500 for £6.99"), //${item500?.price ?? "£16.99"}
                                         onTap: () async {
-                                          _initiatePurchase(1);
+                                          startPurchase(1);
                                         },
                                       )
                                     )
