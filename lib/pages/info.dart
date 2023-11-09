@@ -115,14 +115,33 @@ class _InfoPageState extends State<InfoPage> {
                   " to put it in a format as a conversation progresses.", textAlign: TextAlign.left),
                 SizedBox(height: 7),
                 Text("Again, GPT 4 is very consistant \ncompared to GPT 3.5 regarding this.", textAlign: TextAlign.left),
-                SizedBox(height: 7),
+                SizedBox(height: 15),
                 Text("Other things to note:"),
-                SizedBox(height: 5),
-                Text("- Only the last 5 replies will be saved.\n- Training data for GPT-4 go up to"+
-                " January 2022, GPT 3.5 up to  September 2021\n- If an error occurs with recieving a "+
-                "message, the message count can go down in the app, but the message won't actually be taken "+
-                "off your account server-side. You can press the refresh button at the top of this page to get"+
-                " your message count from the server.", textAlign: TextAlign.left),
+                SizedBox(height: 10),
+                for (var item in ['The message count is set to 0 if you already have a different account.'
+                , 'Only the last 5 replies will be saved.'
+                , 'Training data for GPT-4 go up to April 2023, GPT 3.5 up to  September 2021'
+                , 'If an error occurs with recieving a message, the message count can go down in the app, but the message won\'t actually be taken off your account server-side. You can press the refresh button at the top of this page to get your message count from the server.'])
+                  Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            '• ', // Bullet point
+                            style: TextStyle(
+                              fontSize: 20,
+                              height: 1,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(item),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 4),
+                    ]
+                  ),
                 SizedBox(height: 7),
                 RichText(
                   textAlign: TextAlign.center,

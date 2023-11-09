@@ -69,7 +69,6 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
   }
 
   const deviceID = userData.deviceID;
-  console.log(`Checking for existing users with deviceID: ${deviceID}`);
 
   // Check for existing users with the same device ID
   const existingUsers = await admin.firestore().collection("users")
@@ -84,9 +83,6 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
     }
   });
 
-  // eslint-disable-next-line max-len
-  console.log(`Found ${existingUsers.size} existing users with the same deviceID.`);
-
   let gpt4MessageCount = 50;
   let gpt35MessageCount = 100;
 
@@ -95,10 +91,6 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
     gpt4MessageCount = 0;
     gpt35MessageCount = 0;
     // eslint-disable-next-line max-len
-    console.log(`Duplicate deviceID found. Setting message counts to 0 for user ${user.uid}`);
-  } else {
-    // eslint-disable-next-line max-len
-    console.log(`No duplicate deviceID found. Setting default message counts for user ${user.uid}`);
   }
 
   // Update the user document with the message counts
@@ -111,84 +103,74 @@ exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate
 
 // eslint-disable-next-line max-len
 export const updateUserValues = functions.region("europe-west1").https.onCall(async (data, context) => {
-  // Step 1: Authenticate with the service account
-  const serviceAccountEmail = functions.config().serviceaccount.email;
-  const purchaseDetails = JSON.parse(data.purchaseToken);
-  const purchaseToken = purchaseDetails.purchaseToken;
-  // eslint-disable-next-line max-len
-  const privateKey = functions.config().serviceaccount.key.replace(/\\n/g, "\n");
-  console.log("1 "+serviceAccountEmail+"    "+privateKey);
-  const jwtClient = new google.auth.JWT(
-    serviceAccountEmail,
-    undefined,
-    privateKey,
-    ["https://www.googleapis.com/auth/androidpublisher"]
-  );
+  // Authentication check at the beginning is good.
+  if (!context.auth) {
+    // eslint-disable-next-line max-len
+    throw new functions.https.HttpsError("unauthenticated", "The function must be called while authenticated.");
+  }
 
-  await jwtClient.authorize();
-  console.log("2 authorized");
-  // Step 2: Verify the purchase with Android Developer API
-  const play = google.androidpublisher({
-    version: "v3",
-    auth: jwtClient,
-  });
-  console.log("3 "+data.productId+"      "+data.purchaseToken);
-  try {
+  const userId = context.auth.uid;
+  const purchaseDetails = JSON.parse(data.purchaseToken);
+  const orderId = purchaseDetails.orderId;
+  const incrementValue = data.productId === "100messages" ? 100 : 500;
+
+  // Use a global orders collection with the orderId as the document reference
+  const orderRef = admin.firestore().collection("orders").doc(orderId);
+
+  await admin.firestore().runTransaction(async (transaction) => {
+    // First, check if the order ID has already been processed
+    const orderSnapshot = await transaction.get(orderRef);
+    if (orderSnapshot.exists) {
+      // If the order exists, throw to abort the transaction
+      // eslint-disable-next-line max-len
+      throw new functions.https.HttpsError("already-exists", "This order has already been processed.");
+    }
+
+    // Authenticate with the service account
+    const serviceAccountEmail = functions.config().serviceaccount.email;
+    // eslint-disable-next-line max-len
+    const privateKey = functions.config().serviceaccount.key.replace(/\\n/g, "\n");
+    const jwtClient = new google.auth.JWT(
+      serviceAccountEmail,
+      undefined,
+      privateKey,
+      ["https://www.googleapis.com/auth/androidpublisher"]
+    );
+    await jwtClient.authorize();
+
+    // Verify the purchase with Android Developer API
+    const play = google.androidpublisher({version: "v3", auth: jwtClient});
     const response = await play.purchases.products.get({
       packageName: "com.jios.unichat_ai",
       productId: data.productId,
-      token: purchaseToken,
+      token: purchaseDetails.purchaseToken,
     });
 
-    if (response.status === 200) {
-      if (!context.auth) {
-        // The user is not authenticated.
-        // eslint-disable-next-line max-len
-        throw new functions.https.HttpsError("unauthenticated", "The function must be called while authenticated.");
-      }
-      const userId = context.auth?.uid;
-      const incrementValue = data.productId === "100messages" ? 100 : 500;
-      const userDocRef = admin.firestore().collection("users").doc(userId);
-      try {
-        await admin.firestore().runTransaction(async (transaction) => {
-          // Get the user document.
-          const userDoc = await transaction.get(userDocRef);
-
-          // Verify if the user document exists.
-          if (!userDoc.exists) {
-            throw new Error("User document does not exist!");
-          }
-
-          // Update message counts and other attributes.
-          transaction.update(userDocRef, {
-            "gpt3_5_message_count": 2000, // setting this value
-            // eslint-disable-next-line max-len
-            "gpt4_message_count": admin.firestore.FieldValue.increment(incrementValue),
-            // incrementing by the determined value
-          });
-
-          // Add orderId to a subcollection in the user"s document
-          const orderRef = userDocRef.collection("orders").doc();
-          // creates a new doc in the "orders" subcollection
-          transaction.set(orderRef, {
-            orderId: purchaseDetails.orderId,
-            // or purchaseDetails.orderId depending on your object structure
-            // ... any other order-related fields
-          });
-        });
-        // eslint-disable-next-line max-len
-        return {success: true, message: "Purchase verified and user values updated."};
-      } catch (error) {
-        console.error("Error updating Firestore:", error);
-        return {success: false, message: "Failed to update user values."};
-      }
-    } else {
-      return {success: false, message: "Failed to verify purchase."};
+    // Check if the purchase is valid
+    if (response.status !== 200) {
+      // eslint-disable-next-line max-len
+      throw new functions.https.HttpsError("internal", "Failed to verify purchase.");
     }
-  } catch (error) {
-    console.error("Error verifying purchase:", error);
-    return {success: false, message: "Error verifying purchase."};
-  }
+
+    // If the purchase is valid, create the order document to lock this order ID
+    transaction.set(orderRef, {
+      userId: userId,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      // ... any other order details
+    });
+
+    // Update the user's message count in their document
+    const userDocRef = admin.firestore().collection("users").doc(userId);
+    transaction.update(userDocRef, {
+      // eslint-disable-next-line max-len
+      gpt3_5_message_count: admin.firestore.FieldValue.increment(incrementValue),
+      gpt4_message_count: admin.firestore.FieldValue.increment(incrementValue),
+      // ... any other user updates
+    });
+  });
+
+  // If the transaction was successful, return a success message
+  return {success: true, message: "Purchase verified and user values updated."};
 });
 
 
@@ -289,7 +271,7 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
       method: "POST",
       headers: {
         // eslint-disable-next-line max-len
-        "Authorization": "Bearer ",
+        "Authorization": "Bearer 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",
         "Content-Type": "application/json",
       },
       body: requestBody,

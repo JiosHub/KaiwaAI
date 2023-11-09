@@ -1,85 +1,51 @@
-import 'dart:async';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 class IAPService {
-  final InAppPurchase _iap = InAppPurchase.instance;
-  List<ProductDetails>? products;
-  StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
-  Completer<String> _purchaseCompleter = Completer<String>();
+  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  final HttpsCallable _updateUserValuesCallable = FirebaseFunctions.instance.httpsCallable('updateUserValues');
 
-  IAPService() {
-    _initialize();
+  void completePurchase(PurchaseDetails purchaseDetails) {
+    _inAppPurchase.completePurchase(purchaseDetails);
   }
 
-  void _initialize() async {
-    // Fetch products when the service is initialized
-    await _fetchProducts();
-    print("iap service init");
-    // Listen for purchase updates
-    _listenToPurchaseUpdated();
+  Future<void> startPurchase(PurchaseDetails purchaseDetails) async {
+    try {
+      final result = await _updateUserValuesCallable.call(<String, dynamic>{
+        'platform': 'android',
+        'productId': purchaseDetails.productID,
+        'purchaseToken': purchaseDetails.verificationData.localVerificationData,
+        'serverVerificationData': purchaseDetails.verificationData.serverVerificationData,
+      });
+      // Handle the result of the purchase here
+    } on FirebaseFunctionsException catch (e) {
+      // Handle if the cloud function throws an error
+      throw e;
+    } catch (e) {
+      // Handle any other error that might occur
+      throw e;
+    }
   }
 
-  Future<void> _fetchProducts() async {
-    Set<String> _ids = {'100messages', '500messages'};
-    final ProductDetailsResponse response = await _iap.queryProductDetails(_ids);
-
-    if (response.notFoundIDs.isNotEmpty) {
-      // Handle any errors or missing IDs
+  Future<List<ProductDetails>> fetchProducts() async {
+    final bool available = await _inAppPurchase.isAvailable();
+    if (!available) {
+      // The store cannot be reached or accessed. Handle this case.
+      return [];
     }
 
-    products = response.productDetails;
+    Set<String> ids = {'100messages', '500messages'};
+    final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(ids);
+    if (response.notFoundIDs.isNotEmpty) {
+      // Handle the error if any of the ids are not found.
+    }
+
+    return response.productDetails;
   }
 
-  void _listenToPurchaseUpdated() {
-    _purchaseSubscription = _iap.purchaseStream.listen((purchaseDetailsList) {
-      purchaseDetailsList.forEach((purchaseDetails) async {
-        if (purchaseDetails.status == PurchaseStatus.pending) {
-          // Handle pending transactions
-        } else {
-          if (purchaseDetails.status == PurchaseStatus.error) {
-            print("yoooo ${purchaseDetails.error}");
-            _purchaseCompleter.complete("Error during purchase: ${purchaseDetails.error}");
-          } else if (purchaseDetails.status == PurchaseStatus.purchased) {
-            print("Purchase Token (purchaseID): ${purchaseDetails.purchaseID}");
-            
-            try {
-              final functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
-              //functions.useFunctionsEmulator('localhost', 5001);
-              final result = await functions.httpsCallable('updateUserValues').call({
-                'platform': 'android',
-                'productId': purchaseDetails.productID,
-                'purchaseToken': purchaseDetails.verificationData.localVerificationData,
-                'serverVerificationData': purchaseDetails.verificationData.serverVerificationData,
-              });
-              _purchaseCompleter.complete("");
-              if (purchaseDetails.pendingCompletePurchase) {
-                await _iap.completePurchase(purchaseDetails);
-              }
-            } catch (error) {
-              print("Error during Firebase function call: $error");
-              _purchaseCompleter.complete("Firebase function error: $error");
-            }
-          }
-        }
-      });
-    }, onError: (error) {
-      print("Stream error received");
-      _purchaseCompleter.complete("Stream error: $error");
-    });
-  }
-
-  Future<String> buyProduct(ProductDetails product) async {
-    final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
-    _iap.buyConsumable(purchaseParam: purchaseParam);
-    return _purchaseCompleter.future;
-  }
-  
-  void resetPurchaseCompleter() {
-    _purchaseCompleter = Completer<String>();
-  }
-
-  void dispose() {
-    _purchaseSubscription?.cancel();
+  // Call this when the user wants to initiate a purchase
+  void buyProduct(ProductDetails productDetails) {
+    final PurchaseParam purchaseParam = PurchaseParam(productDetails: productDetails);
+    _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
   }
 }
