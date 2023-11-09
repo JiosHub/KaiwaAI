@@ -110,6 +110,7 @@ export const updateUserValues = functions.region("europe-west1").https.onCall(as
   }
 
   const userId = context.auth.uid;
+  const userEmail = context.auth.token.email;
   const purchaseDetails = JSON.parse(data.purchaseToken);
   const orderId = purchaseDetails.orderId;
   const incrementValue = data.productId === "100messages" ? 100 : 500;
@@ -156,7 +157,8 @@ export const updateUserValues = functions.region("europe-west1").https.onCall(as
     transaction.set(orderRef, {
       userId: userId,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      // ... any other order details
+      productId: data.productId,
+      email: userEmail,
     });
 
     // Update the user's message count in their document
@@ -165,7 +167,6 @@ export const updateUserValues = functions.region("europe-west1").https.onCall(as
       // eslint-disable-next-line max-len
       gpt4_message_count: admin.firestore.FieldValue.increment(incrementValue),
       gpt3_5_message_count: 2000,
-      // ... any other user updates
     });
   });
 

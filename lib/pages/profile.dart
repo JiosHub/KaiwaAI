@@ -50,18 +50,23 @@ class _ProfilePageState extends State<ProfilePage> {
   void startPurchase(int product_id) async {
     errorCheck = false;
     if (_iapService.products != null && _iapService.products!.isNotEmpty) {
-      print('Attempting to purchase product with ID: ${_iapService.products![product_id].id}');
+      //print('Attempting to purchase product with ID: ${_iapService.products![product_id].id}');
       errorCheck = await _iapService.buyProduct(_iapService.products![product_id]);
-
+      
       if (errorCheck) {
         setState(() {errorCheck = true;});
         Future.delayed(Duration(seconds: 5), () {
           // After 5 seconds, update errorCheck
           setState(() {errorCheck = false;});
         });
-      } else {
+      } else if (product_id == 0){
         GlobalState().globalGPT4MessageCount += 100;
         GlobalState().globalGPT35MessageCount = 2000;
+        print(GlobalState().globalGPT4MessageCount);
+      } else if (product_id == 1){
+        GlobalState().globalGPT4MessageCount += 500;
+        GlobalState().globalGPT35MessageCount = 2000;
+        print(GlobalState().globalGPT4MessageCount);
       }
 
       _iapService.resetPurchaseCompleter();
@@ -602,7 +607,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   errorCheck ? Text("Purchase Unsuccessful",
                                     style: TextStyle(color: Colors.red)) : Container(),
                                   SizedBox(height: 15),
-                                  SelectableText("Both options will set GPT-3.5's message limit to 5000."),
+                                  SelectableText("Both options will set GPT-3.5's message limit to 2000."),
                                   SizedBox(height: 15),
                                   SelectableText("To see steps for creating your own OpenAI API key, go to the info page.")
                                 ]

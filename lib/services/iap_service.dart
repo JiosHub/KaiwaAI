@@ -13,11 +13,7 @@ class IAPService {
   }
 
   void _initialize() async {
-    // Fetch products when the service is initialized
-    print("_______SETUP________");
     await _fetchProducts();
-    print("iap service init");
-    // Listen for purchase updates
     _listenToPurchaseUpdated();
   }
 
@@ -43,7 +39,7 @@ class IAPService {
             print("Error during purchase: ${purchaseDetails.error}");
             _purchaseCompleter.complete(true);
           } else if (purchaseDetails.status == PurchaseStatus.purchased) {
-            print("Purchase Token (purchaseID): ${purchaseDetails.purchaseID}");
+            //print("Purchase Token (purchaseID): ${purchaseDetails.purchaseID}");
             
             try {
               final functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
@@ -75,7 +71,6 @@ class IAPService {
   }
 
   void dispose() {
-    print("_______DISPOSE________");
     _purchaseSubscription?.cancel();
   }
 }
