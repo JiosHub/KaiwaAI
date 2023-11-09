@@ -4,7 +4,6 @@ import 'package:unichat_ai/services/shared_preferences_helper.dart';
 import 'package:unichat_ai/widgets/bottom_menu.dart';
 import 'pages/login.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

@@ -50,46 +50,63 @@ export const sendEmail = functions.region("europe-west1").https.onCall(async (da
 
 // eslint-disable-next-line max-len
 exports.createUserRecord = functions.region("europe-west1").auth.user().onCreate(async (user) => {
-  // Fetch the newly created user"s document from Firestore
-  // eslint-disable-next-line max-len
-  const newUserDoc = await admin.firestore().collection("users").doc(user.uid).get();
+  const userRef = admin.firestore().collection("users").doc(user.uid);
+
+  // Retrieve the newly created user document
+  const newUserDoc = await userRef.get();
 
   if (!newUserDoc.exists) {
     console.error(`No document found for user ${user.uid}`);
-    return null; // Or handle this case as appropriate for your application
+    return null; // Exit if no user document is found
   }
-  // eslint-disable-next-line max-len
+
   const userData = newUserDoc.data();
+
   if (!userData || !userData.deviceID) {
-    console.error("User data is not available or deviceID is missing.");
-    // Handle this appropriately based on your application's requirements.
-    return null;
+    // eslint-disable-next-line max-len
+    console.error("User data is not available or deviceID is missing for user:", user.uid);
+    return null; // Exit if no device ID is found
   }
 
-  const email = user.email;
   const deviceID = userData.deviceID;
+  console.log(`Checking for existing users with deviceID: ${deviceID}`);
 
-  // Search for an existing account with this device ID
+  // Check for existing users with the same device ID
+  const existingUsers = await admin.firestore().collection("users")
+    .where("deviceID", "==", deviceID)
+    .get();
+
+  let duplicateFound = false;
+
+  existingUsers.forEach((doc) => {
+    if (doc.id !== user.uid) {
+      duplicateFound = true;
+    }
+  });
+
   // eslint-disable-next-line max-len
-  const userSnapshot = await admin.firestore().collection("users").where("deviceID", "==", deviceID).get();
+  console.log(`Found ${existingUsers.size} existing users with the same deviceID.`);
 
   let gpt4MessageCount = 50;
   let gpt35MessageCount = 100;
 
-  if (!userSnapshot.empty) {
-    // An account with this device ID already exists. Fetch the message counts.
-    const originalAccount = userSnapshot.docs[0].data();
-    gpt4MessageCount = originalAccount.gpt4_message_count || 50;
-    gpt35MessageCount = originalAccount.gpt3_5_message_count || 100;
+  if (duplicateFound) {
+    // Set message counts to 0
+    gpt4MessageCount = 0;
+    gpt35MessageCount = 0;
+    // eslint-disable-next-line max-len
+    console.log(`Duplicate deviceID found. Setting message counts to 0 for user ${user.uid}`);
+  } else {
+    // eslint-disable-next-line max-len
+    console.log(`No duplicate deviceID found. Setting default message counts for user ${user.uid}`);
   }
 
-  // Update or set the user"s document with the message counts
-  return newUserDoc.ref.set({
+  // Update the user document with the message counts
+  return userRef.set({
     gpt4_message_count: gpt4MessageCount,
     gpt3_5_message_count: gpt35MessageCount,
-    deviceID: deviceID,
-    email: email,
-  });
+    // Ensure we don't remove existing fields with merge: true
+  }, {merge: true});
 });
 
 // eslint-disable-next-line max-len

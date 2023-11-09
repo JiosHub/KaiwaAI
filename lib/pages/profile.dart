@@ -101,6 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
             if (user != null && user.email != null) {
               try {
                 FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
+                //functions.useFunctionsEmulator('localhost', 5001);
                 print("-----------------1");
                 final callable = functions.httpsCallable('sendEmail');
                 print("-----------------2");
@@ -241,6 +242,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       await authService.signOut();
                       SharedPreferencesHelper.setIsLoggedIn(false);
                       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => WelcomePage()));
+                      GlobalState().globalGPT35MessageCount=-1;
+                      GlobalState().globalGPT4MessageCount=-1;
                     },
                   ),
                 ),

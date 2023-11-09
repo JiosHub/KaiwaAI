@@ -27,6 +27,7 @@ class ApiService{
       final idToken = await user.getIdToken();
 
       FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
+      //functions.useFunctionsEmulator('localhost', 5001);
       final response = await functions.httpsCallable('checkMessageCount').call();
 
       final Map<String, dynamic> data = response.data as Map<String, dynamic>;
