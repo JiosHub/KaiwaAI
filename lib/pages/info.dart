@@ -23,10 +23,11 @@ class _InfoPageState extends State<InfoPage> {
       // Fetch message limits from Firestore for new conversation
       final data = await ApiService.getMessageLimitCount();
       if (data != null) {
-        setState(() {
-          gpt4MessageCount = data['gpt4_message_count'] as int;
-          gpt35MessageCount = data['gpt3_5_message_count'] as int;
-        });
+        gpt4MessageCount = data['gpt4_message_count'] as int;
+        gpt35MessageCount = data['gpt3_5_message_count'] as int;
+
+        if (mounted) {setState(() {});}
+
         GlobalState().globalGPT4MessageCount = gpt4MessageCount ?? -1;
         GlobalState().globalGPT35MessageCount = gpt35MessageCount ?? -1;
       }
@@ -41,10 +42,11 @@ class _InfoPageState extends State<InfoPage> {
   void _MessageCountRefresh () async {
     final data = await ApiService.getMessageLimitCount();
     if (data != null) {
-      setState(() {
-        gpt4MessageCount = data['gpt4_message_count'] as int;
-        gpt35MessageCount = data['gpt3_5_message_count'] as int;
-      });
+      gpt4MessageCount = data['gpt4_message_count'] as int;
+      gpt35MessageCount = data['gpt3_5_message_count'] as int;
+
+      if (mounted) {setState(() {});}
+      
       GlobalState().globalGPT4MessageCount = gpt4MessageCount ?? -1;
       GlobalState().globalGPT35MessageCount = gpt35MessageCount ?? -1;
     }

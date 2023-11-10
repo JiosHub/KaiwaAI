@@ -86,19 +86,21 @@ class _MessengerPageState extends State<MessengerPage> {
       
       if (APIKey == ""){
         ApiService.fetchFirstFunctionMessage(apiMessages[0].content).then((response){
-          setState(() {
-            messages.removeLast();
-            messages.add(response);
-            apiMessages.add(Message(content: response.content, translation: response.translation, isUser: "assistant"));
-          });
+          messages.removeLast();
+          messages.add(response);
+          apiMessages.add(Message(content: response.content, translation: response.translation, isUser: "assistant"));
+          if (mounted) {
+            setState(() {});
+          }
         });
       } else {
         ApiService.fetchFirstMessage(apiMessages[0].content).then((response){
-          setState(() {
-            messages.removeLast();
-            messages.add(response);
-            apiMessages.add(Message(content: response.content, translation: response.translation, isUser: "assistant"));
-          });
+          messages.removeLast();
+          messages.add(response);
+          apiMessages.add(Message(content: response.content, translation: response.translation, isUser: "assistant"));
+          if (mounted) {
+            setState(() {});
+          }
         });
       }
     }

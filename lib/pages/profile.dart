@@ -137,10 +137,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   'message': message,
                   'email': user.email, // Include the email in the call
                 });
-
-                setState(() {
-                  messageStatus = results.data['success'] ? 'Message sent successfully' : 'Error sending message';
-                });
+                if (mounted) {
+                  setState(() {
+                    messageStatus = results.data['success'] ? 'Message sent successfully' : 'Error sending message';
+                  });
+                }
               } on FirebaseFunctionsException catch (e) {
                 // Handle if the function throws an error
                 setState(() {
