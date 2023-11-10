@@ -40,13 +40,20 @@ class _InfoPageState extends State<InfoPage> {
   }
 
   void _MessageCountRefresh () async {
+    
+    // starts loading icons again
+    setState(() {
+      gpt4MessageCount = null;
+      gpt35MessageCount = null;
+    });
+
     final data = await ApiService.getMessageLimitCount();
     if (data != null) {
       gpt4MessageCount = data['gpt4_message_count'] as int;
       gpt35MessageCount = data['gpt3_5_message_count'] as int;
 
       if (mounted) {setState(() {});}
-      
+
       GlobalState().globalGPT4MessageCount = gpt4MessageCount ?? -1;
       GlobalState().globalGPT35MessageCount = gpt35MessageCount ?? -1;
     }
