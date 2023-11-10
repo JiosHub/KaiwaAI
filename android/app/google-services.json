@@ -14,19 +14,27 @@
       },
       "oauth_client": [
         {
+          "client_id": "222702678502-akguq6min7nbu9a8469716btlints391.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jios.unichat_ai",
+            "certificate_hash": "2cf1a19663a8d20b120a0445ac810648971928f9"
+          }
+        },
+        {
+          "client_id": "222702678502-das9smvtdk1dqi5bs31mcr9ultn8mupf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jios.unichat_ai",
+            "certificate_hash": "0a729fd2c0b279f9eef4c38766b21a8bd4795857"
+          }
+        },
+        {
           "client_id": "222702678502-g9bflkhskkhpc5erc8mt10ho79eaurv1.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.jios.unichat_ai",
             "certificate_hash": "424b71224013c9f8c47d70a202d84727fdd79445"
-          }
-        },
-        {
-          "client_id": "222702678502-puobsptk783bld7vh3f88gmm36avum45.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.jios.unichat_ai",
-            "certificate_hash": "4f9e842e628c30474c83fb2d2bc277b6c5ea665b"
           }
         },
         {
