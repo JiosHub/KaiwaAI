@@ -139,12 +139,12 @@ class _MessengerPageState extends State<MessengerPage> {
     } else if(messages.isEmpty && GlobalState().globalGPT4MessageCount != -1){
       gpt4MessageCount = GlobalState().globalGPT4MessageCount;
       gpt35MessageCount = GlobalState().globalGPT35MessageCount;
-      if (selectedGPT == "gpt-4-1106-preview") {
+      if (selectedGPT == "gpt-4-1106-preview" && gpt4MessageCount != 0) {
         setState(() {
           gpt4MessageCount--;
           GlobalState().globalGPT4MessageCount = gpt4MessageCount;
         });
-      } else if (selectedGPT == "gpt-3.5-turbo") {
+      } else if (selectedGPT == "gpt-3.5-turbo" && gpt35MessageCount !=0) {
         setState(() {
           gpt35MessageCount--;
         // Update the global state
@@ -318,6 +318,10 @@ class _MessengerPageState extends State<MessengerPage> {
                                     setState(() {
                                       _showVoiceMessage = true; // Show the voice message overlay when mic is pressed
                                     });
+                                  } else if (selectedGPT == "gpt-4-1106-preview" && gpt4MessageCount == 0) {
+
+                                  } else if (selectedGPT == "gpt-3.5-turbo" && gpt35MessageCount == 0) {
+
                                   } else {
                                     _showVoiceMessage = false;
                                     String userMessage = messageController.text.trim();

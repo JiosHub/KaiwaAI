@@ -47,106 +47,153 @@ class ApiService{
   }
 
 
-  static Future<Message> sendFunctionMessage({required List<Message> messages})async {
+  static Future<Message> sendFunctionMessage({required List<Message> messages}) async {
     try{
-      FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
+      //FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
       //functions.useFunctionsEmulator('localhost', 5001);
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
-      final dataToSend = {
-        'selectedGPT': selectedGPT, // or any other model you want
-        'messages': messages.map((message) => {
-          "role": message.isUser,
-          "content": message.content
-        }).toList()
-      };
-      final response = await functions.httpsCallable('sendFunctionMessage').call(dataToSend);
-      //print("Response from Firebase Function: ${response.data}");
+      final FirebaseAuth auth = FirebaseAuth.instance;
+      final User? user = auth.currentUser;
       
-      // Split the full response at "Translation:"
-      final Map<String, dynamic> data = response.data;
-      final fullResponse = data['content'];
-      String cleanResponse = fullResponse.replaceAll(RegExp(r'[()]'), '');
+      if (user != null) {
+        // Get the user's ID token
+        final idToken = await user.getIdToken();
+        final dataToSend = {
+          'selectedGPT': selectedGPT, // or any other model you want
+          'messages': messages.map((message) => {
+            "role": message.isUser,
+            "content": message.content
+          }).toList()
+        };
 
-      List<String> responsePartsTranslation = cleanResponse.split(expTrans);
-      String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
+        final response = await http.post(
+          Uri.parse('https://europe-west1-unichat-ai.cloudfunctions.net/sendFunctionMessage'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $idToken', // Include the ID token in the Authorization header
+          },
+          body: jsonEncode(dataToSend),
+        );
 
-      String translation = "";
-      String feedback = "";
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> data = jsonDecode(response.body);
+          final fullResponse = data['content'];
+          String cleanResponse = fullResponse.replaceAll(RegExp(r'[()]'), '');
 
-      if (responsePartsTranslation.length > 1) {  // Check if "Translation:" was present
-        // Split the remaining part at "Feedback:"
-        List<String> responsePartsFeedback = responsePartsTranslation[1].split(expFeed);
-        translation = responsePartsFeedback[0].trim();  // Between "Translation:" and "Feedback:"
-        
-        if (responsePartsFeedback.length > 1) {  // Check if "Feedback:" was present
-            feedback = responsePartsFeedback[1].trim();
+          List<String> responsePartsTranslation = cleanResponse.split(expTrans);
+          String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
+
+          String translation = "";
+          String feedback = "";
+
+          if (responsePartsTranslation.length > 1) {  // Check if "Translation:" was present
+            // Split the remaining part at "Feedback:"
+            List<String> responsePartsFeedback = responsePartsTranslation[1].split(expFeed);
+            translation = responsePartsFeedback[0].trim();  // Between "Translation:" and "Feedback:"
+            
+            if (responsePartsFeedback.length > 1) {  // Check if "Feedback:" was present
+                feedback = responsePartsFeedback[1].trim();
+            }
+          }
+
+          //print("main $mainContent       translation: $translation         feedback: $feedback");
+          return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
+        } else {
+          final responseData = jsonDecode(response.body);
+          final message = responseData['message'];
+          return Message(content: message, translation: message, feedback: "", isUser: "assistant");
         }
-      }
-      print("main $mainContent       translation: $translation         feedback: $feedback");
-      return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
-
-    }catch(error){
-      if (error is FirebaseFunctionsException) {
-        print('Error code: ${error.code}');
-        print('Error message: ${error.message}');
-        print('Error details: ${error.details}');
       } else {
-        print('Other error: $error');
+        return Message(content: "idk", translation: "idk", feedback: "", isUser: "assistant");
       }
-      rethrow;
+
+      //final response = await functions.httpsCallable('sendFunctionMessage').call(dataToSend);
+      //print("Response from Firebase Function: ${response.data}");
+
+    } catch (error) {
+      print('Other error: $error');
+      final String errorMessage = error.toString();
+      return Message(content: errorMessage, translation: errorMessage, feedback: "", isUser: "assistant");
     }
   }
 
   static Future<Message> fetchFirstFunctionMessage(String content) async {
     try{
-      //curl -X POST -H "Content-Type: application/json" -d '{"selectedGPT": "gpt-3.5-turbo", "messages": [{"role": "system", "content": "content"}]}' https://europe-west1-unichat-ai.cloudfunctions.net/sendFunctionMessage
-
-      FirebaseFunctions functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
-      //functions.useFunctionsEmulator('10.0.2.2', 5001);
       String selectedGPT = await SharedPreferencesHelper.getSelectedGPT() ?? "gpt-3.5-turbo";
-      final dataToSend = {
-        "selectedGPT": selectedGPT, // or any other model you want
-        "messages": [{
-          "role": "system",
-          "content": content
-        }]
-      };
+      final FirebaseAuth auth = FirebaseAuth.instance;
+      final User? user = auth.currentUser;
+      
+      if (user != null) {
+        // Get the user's ID token
+        final idToken = await user.getIdToken();
+        final dataToSend = {
+          "selectedGPT": selectedGPT, // or any other model you want
+          "messages": [{
+            "role": "system",
+            "content": content
+          }]
+        };
 
-      //print('Sending data: $dataToSend');
-      final response = await functions.httpsCallable('sendFunctionMessage').call(dataToSend);
-      //print("Response from Firebase Function: ${response.data}");
-      
-      // Split the full response at "Translation:"
-      final Map<String, dynamic> data = response.data;
-      final fullResponse = data['content'];
-      String cleanResponse = fullResponse.replaceAll(RegExp(r'[()]'), '');
-      
-      List<String> responsePartsTranslation = cleanResponse.split(expTrans);
-      String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
-      
-      String translation = "";
-      String feedback = "";
-      
-      if (responsePartsTranslation.length > 1) {  // Check if "Translation:" was present
-        // Split the remaining part at "Feedback:"
-        List<String> responsePartsFeedback = responsePartsTranslation[1].split(expFeed);
-        translation = responsePartsFeedback[0].trim();  // Between "Translation:" and "Feedback:"
-        
-        if (responsePartsFeedback.length > 1) {  // Check if "Feedback:" was present
-            feedback = responsePartsFeedback[1].trim();
+        print('Encoded data to send: ${jsonEncode(dataToSend)}');
+
+        final response = await http.post(
+          Uri.parse('https://europe-west1-unichat-ai.cloudfunctions.net/sendFunctionMessage'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $idToken', // Include the ID token in the Authorization header
+          },
+          body: jsonEncode(dataToSend),
+        );
+
+        if (response.statusCode == 200) {
+          try {
+            final responseData = jsonDecode(response.body);
+            // Handle response data
+          } on FormatException catch (e) {
+            print('FormatException decoding response: $e');
+            // Handle the case where the response isn't valid JSON
+          }
+          print('Response body: ${response.body}');
+          final Map<String, dynamic> data = jsonDecode(response.body);
+          final fullResponse = data['content'];
+          String cleanResponse = fullResponse.replaceAll(RegExp(r'[()]'), '');
+          
+          List<String> responsePartsTranslation = cleanResponse.split(expTrans);
+          String mainContent = responsePartsTranslation[0].trim();  // Before "Translation:"
+          
+          String translation = "";
+          String feedback = "";
+          
+          if (responsePartsTranslation.length > 1) {  // Check if "Translation:" was present
+            // Split the remaining part at "Feedback:"
+            List<String> responsePartsFeedback = responsePartsTranslation[1].split(expFeed);
+            translation = responsePartsFeedback[0].trim();  // Between "Translation:" and "Feedback:"
+            
+            if (responsePartsFeedback.length > 1) {  // Check if "Feedback:" was present
+                feedback = responsePartsFeedback[1].trim();
+            }
+          }
+          //print("main $mainContent       translation: $translation         feedback: $feedback");
+          return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
+        } else if(response.statusCode == 500) {
+          print('Response status code: ${response.statusCode}');
+          final responseData = jsonDecode(response.body);
+          final message = responseData['message'];
+          return Message(content: message, translation: message, feedback: "", isUser: "assistant");
+        } else {
+          print('Response status code: ${response.statusCode}');
+          final responseData = jsonDecode(response.body);
+          final message = responseData['message'];
+          return Message(content: message, translation: message, feedback: "", isUser: "assistant");
         }
-      }
-      //print("main $mainContent       translation: $translation         feedback: $feedback");
-      return Message(content: mainContent, translation: translation, feedback: feedback, isUser: "assistant");
-    }catch(error){
-      if (error is FirebaseFunctionsException) {
-        print('Error code: ${error.code}');
-        print('Error message: ${error.message}');
-        print('Error details: ${error.details}');
       } else {
-        print('Other error: $error');
+        return Message(content: "idk", translation: "idk", feedback: "", isUser: "assistant");
       }
-      rethrow;
+      
+    } catch (error) {
+      print('Other error: $error');
+      final String errorMessage = error.toString();
+      return Message(content: errorMessage, translation: errorMessage, feedback: "", isUser: "assistant");
     }
   }
   

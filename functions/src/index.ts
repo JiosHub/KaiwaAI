@@ -210,7 +210,6 @@ export const checkMessageCount = functions.region("europe-west1").https.onCall(a
 export const sendFunctionMessage = functions.region("europe-west1").https.onRequest(async (request, response) => {
   try {
     const userIdToken = request.get("Authorization")?.split("Bearer ")[1];
-    console.log(userIdToken);
     let uid: string | undefined;
 
     if (!userIdToken) {
@@ -225,11 +224,9 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
       response.status(403).send("Unauthorized");
       return;
     }
-    console.log("User ID:", uid);
     const userRef = db.collection("users").doc(uid);
     const userData = await userRef.get();
-    console.log("Document exists:", userData.exists);
-    console.log("User Info:", JSON.stringify(userData.data()));
+    // console.log("User Info:", JSON.stringify(userData.data()));
     if (!userData.exists) {
       // Handle the case where the user"s data doesn"t exist
       response.status(404).send("User data not found");
@@ -239,22 +236,20 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
     const messageCountGPT35 = userData.get("gpt3_5_message_count");
 
     // {data:{selectedGPT:, messages:[{role:,content:,}]}}
-    const requestData = request.body.data;
+    const requestData = request.body;
     const selectedGPT = requestData.selectedGPT;
     const messages = requestData.messages;
 
     if (selectedGPT === "gpt-4-1106-preview" && messageCountGPT4 <= 0) {
-      // Handle this case
-      response.status(400).send("Message limit reached for gpt-4");
+      // eslint-disable-next-line max-len
+      response.status(400).send({message: "Message limit reached for GPT 4"});
       return;
-    // eslint-disable-next-line max-len
     } else if (selectedGPT === "gpt-3.5-turbo" && messageCountGPT35 <= 0) {
-      // Handle this case
-      response.status(400).send("Message limit reached for gpt-3.5-turbo");
+      // eslint-disable-next-line max-len
+      response.status(400).send({message: "Message limit reached for GPT 3.5 turbo"});
       return;
     }
     let requestBody = "undefined";
-
     if (!Array.isArray(messages)) {
       throw new Error(messages+" must be an array.");
     } else {
@@ -267,7 +262,6 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
         })),
       });
     }
-
     const apiResponse = await fetch(`${BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
@@ -282,7 +276,6 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
       console.log(`OpenAI request failed: ${errorData}`);
       throw new Error(`OpenAI request failed: ${errorData}`);
     }
-
     const responseData = await apiResponse.json();
     const latestMessage = responseData.choices?.[0]?.message?.content;
 
@@ -296,8 +289,9 @@ export const sendFunctionMessage = functions.region("europe-west1").https.onRequ
       });
     }
 
-    response.send({data: {content: latestMessage}});
+    response.status(200).send({data: {content: latestMessage}});
   } catch (error) {
-    response.status(500).send((error as Error).message || "An error occurred.");
+    // eslint-disable-next-line max-len
+    response.status(500).send({message: "An error occurred on the server. If the issue persists, please contact support."});
   }
 });
