@@ -6,16 +6,25 @@ import 'package:unichat_ai/pages/messaging.dart';
 import 'package:unichat_ai/pages/profile.dart';
 
 class BottomMenuRibbon extends StatefulWidget {
+  final int initialIndex;
   static MessengerPage? cachedMessengerPage;
+
+  BottomMenuRibbon({Key? key, this.initialIndex = 2}) : super(key: key);
+
   @override
   _BottomMenuRibbonState createState() => _BottomMenuRibbonState();
 }
 
 class _BottomMenuRibbonState extends State<BottomMenuRibbon> {
-  int _selectedIndex = 2;
+  late int _selectedIndex;
   String topicContent = "";
 
-  // List of pages to navigate to
+  @override
+  void initState() {
+    super.initState();
+    // Initialize _selectedIndex with the initialIndex passed to the widget
+    _selectedIndex = widget.initialIndex;
+  }
 
   final List<Widget> _pages = [
       // Replace these with your actual pages

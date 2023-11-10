@@ -6,6 +6,7 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:unichat_ai/models/message.dart';
 import 'package:unichat_ai/services/api.dart';
 import 'package:unichat_ai/services/shared_preferences_helper.dart';
+import 'package:unichat_ai/widgets/bottom_menu.dart';
 import 'package:unichat_ai/widgets/message_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -319,9 +320,67 @@ class _MessengerPageState extends State<MessengerPage> {
                                       _showVoiceMessage = true; // Show the voice message overlay when mic is pressed
                                     });
                                   } else if (selectedGPT == "gpt-4-1106-preview" && gpt4MessageCount == 0) {
-
+                                    if (mounted) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Message Limit Reached'),
+                                            content: Text('You have reached the message limit for GPT-4.'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                child: Text('Buy More'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop(); // Dismiss the dialog first
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: (context) => BottomMenuRibbon(initialIndex: 1), // Pass the index for the settings page
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                              TextButton(
+                                                child: Text('OK'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop(); // Dismiss the dialog
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    }
                                   } else if (selectedGPT == "gpt-3.5-turbo" && gpt35MessageCount == 0) {
-
+                                    if (mounted) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Message Limit Reached'),
+                                            content: Text('You have reached the message limit for GPT-3.5.'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                child: Text('Buy More'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop(); // Dismiss the dialog first
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: (context) => BottomMenuRibbon(initialIndex: 1), // Pass the index for the settings page
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                              TextButton(
+                                                child: Text('OK'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop(); // Dismiss the dialog
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    }
                                   } else {
                                     _showVoiceMessage = false;
                                     String userMessage = messageController.text.trim();

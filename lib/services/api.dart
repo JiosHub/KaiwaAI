@@ -76,8 +76,9 @@ class ApiService{
         );
 
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = jsonDecode(response.body);
-          final fullResponse = data['content'];
+          final Map<String, dynamic> responseData = jsonDecode(response.body);
+          final Map<String, dynamic> data = responseData['data'];
+          final String fullResponse = data['content'];
           String cleanResponse = fullResponse.replaceAll(RegExp(r'[()]'), '');
 
           List<String> responsePartsTranslation = cleanResponse.split(expTrans);
@@ -134,8 +135,6 @@ class ApiService{
           }]
         };
 
-        print('Encoded data to send: ${jsonEncode(dataToSend)}');
-
         final response = await http.post(
           Uri.parse('https://europe-west1-unichat-ai.cloudfunctions.net/sendFunctionMessage'),
           headers: {
@@ -153,9 +152,11 @@ class ApiService{
             print('FormatException decoding response: $e');
             // Handle the case where the response isn't valid JSON
           }
-          print('Response body: ${response.body}');
-          final Map<String, dynamic> data = jsonDecode(response.body);
-          final fullResponse = data['content'];
+          
+          //print('Response body: ${response.body}');
+          final Map<String, dynamic> responseData = jsonDecode(response.body);
+          final Map<String, dynamic> data = responseData['data'];
+          final String fullResponse = data['content'];
           String cleanResponse = fullResponse.replaceAll(RegExp(r'[()]'), '');
           
           List<String> responsePartsTranslation = cleanResponse.split(expTrans);

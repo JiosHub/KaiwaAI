@@ -120,7 +120,7 @@ class _InfoPageState extends State<InfoPage> {
                 SizedBox(height: 10),
                 for (var item in ['The message count is set to 0 if you already have a different account.'
                 , 'Only the last 5 replies will be saved.'
-                , 'Training data for GPT-4 go up to April 2023, GPT 3.5 up to  September 2021'
+                , 'Training data for GPT-4 goes up to April 2023, GPT 3.5 up to  September 2021'
                 , 'If an error occurs with recieving a message, the message count can go down in the app, but the message won\'t actually be taken off your account server-side. You can press the refresh button at the top of this page to get your message count from the server.'])
                   Column(
                     children: [
