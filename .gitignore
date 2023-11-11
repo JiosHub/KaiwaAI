@@ -52,5 +52,4 @@ release-key.jks
 # Keystore files
 *.jks
 *.keystore
-
-/
+android/app/google-services.json

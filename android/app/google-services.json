@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "222702678502-8ioki7crktidlrp44rlss227kpfh5gei.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jios.unichat_ai",
+            "certificate_hash": "7ae3329f5f18636794d99b961e7a055d7141408e"
+          }
+        },
+        {
           "client_id": "222702678502-akguq6min7nbu9a8469716btlints391.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -44,7 +52,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDWLAl_FugA2cJXvmqvk_eQczVPfJcrt_E"
+          "current_key": ""
         }
       ],
       "services": {
