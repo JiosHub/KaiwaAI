@@ -1,5 +1,7 @@
 # UniChat AI
 
+https://play.google.com/store/apps/details?id=com.jios.unichat_ai&gl=GB
+
 (an attempt to make an app to) improve japanese and basically any other language through ChatGPT
 
 note for icons
